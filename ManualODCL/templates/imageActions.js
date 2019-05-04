@@ -65,7 +65,7 @@ function cropCoords(x, y ,width, height, imageSrc, preview, previewW, previewH){
           preview.src = dataUrl;
           preview.width = previewW;
           preview.height = previewH;
-          let padHeight = parseInt((230-Math.max(previewW, previewH))/2);
+          let padHeight = parseInt((230 - previewH)/2);
           let padWidth = parseInt(20 + Math.max(previewW, previewH)/2);
           preview.style.padding = padHeight + " " + padWidth + "px";
       });

@@ -1,31 +1,22 @@
 <html>
 
 <head>
-    {% block head %}
     <link rel="shortcut icon" href="">
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>GCS | TJ UAV</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-            {% include "index.css" %}
-		</style>
-    {% endblock %}
+    <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
-  {% block body %}
     <div id="root">
       <div id="imageDiv" style="float: left;">
-        <img width="350" height="350" src="{{ url_for('static', filename='img/generictarget.jpg')}}" id="myImage">
+        <img width="350" height="350" src="../assets/img/generictarget.jpg" id="myImage" crossOrigin = "Anonymous">
         <div ID="rubberBand"></div>
         <img id="cropView" style="display: block; padding: 50 25px;">
-        <script type="text/javascript" src="{{ url_for('static', filename='build/image-clipper.js')}}"></script>
-        {% block javascript %}
-        <script type="text/javascript">
-          {% include "imageActions.js" %}
-        </script>
-        {% endblock %}
+        <script type="text/javascript" src="../assets/build/image-clipper.js"></script>
+        <script type="text/javascript" src= "imageActions.js"></script>
       </div>
         <!-- Tab links -->
         <div class="tab">
@@ -77,18 +68,23 @@
             <p>Emergent.</p>
         </div>
 
-        <div id="Submissions" class="tabcontent">
-            <h3>Previous Submissions</h3>
-            <nav>
-              <ul id="submissionList">
-              </ul>
-            </nav>
+        <div id="Submissions" class="tabcontent" style="width: 100%;">
+            <h2>Previous Submissions</h2>
+            <div id="submission1" style="padding: '10 10px'">
+                    <header>Submission 1</header>
+                    <img src="../assets/img/generictarget.jpg" width="100px" height="100px" style="float: left;">
+                    <div class="submissionRow">
+                        <div class="column" style="background-color:#aaa;">
+                            <h3>Column 1</h3>
+                            <p>Some text..</p>
+                        </div>
+                        <div class="column" style="background-color:#bbb;">
+                            <h3>Column 2</h3>
+                            <p>Some text..</p>
+                        </div>
+                    </div>
+                </div>
         </div>
-        {% block javascript1 %}
-        <script type="text/javascript">
-          {% include "index.js" %}
-        </script>
-        {% endblock %}
-    </div>
-    {% endblock %}
-</body </html>
+    <script type="text/javascript" src="index.js"></script>
+</body>
+</html>

@@ -1,6 +1,9 @@
 var IMG;
+var subCount;
+//const COMMS_SOCKET = new WebSocket('ws://127.0.0.1:5000')
 
 function init(){
+  subCount = 0;
   SHAPE_OPTIONS = ["Circle", "Semicircle", "Quarter_circle", "Triangle", "Square", "Rectangle", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Star", "Cross"]
   COLOR_OPTIONS = ["Black", "Gray", "White", "Red", "Blue", "Green", "Brown", "Orange", "Yellow", "Purple"]
   ALPHA_OPTIONS = []
@@ -63,7 +66,95 @@ function resetDropdowns(){
   }
 }
 
+function getClosestOrientation(val){
+  let dirs = ["n", "ne", "e", "se", "s", "sw", "w", "nw"];
+  let closestRotation = Infinity;
+  let closestIndex = 0;
+  for(let index = 0; index < dirs.length; index++){
+    let dir = dirs[index];
+    let dist = Math.min(Math.abs(index * 45 - val), Math.abs(index * 45 + 360 - val));
+    if(dist < closestRotation){
+      closestRotation = dist;
+      closestIndex = index;    
+    }
+  }
+  return dirs[closestIndex];
+}
 
+function submit_standard(){
+  let slide = document.getElementById("slide");
+  let shape_dropdown = document.getElementById("shape_dropdown");
+  let shape_color_dropdown = document.getElementById("shape_color_dropdown");
+  let alpha_dropdown = document.getElementById("alpha_dropdown");
+  let alpha_color_dropdown = document.getElementById("alpha_color_dropdown");
+  let cropView = document.getElementById('cropView');
+  let dict = {};
+  dict['type'] = 'STANDARD';
+  dict['latitude'] = 0;
+  dict['longitude'] = 0;
+//  dict['orientation'] = getClosestOrientation(slide.value + gps["orientation"]);
+  dict['orientation'] = getClosestOrientation(slide.value);
+  dict['shape'] = shape_dropdown.value;
+  dict['shapeColor'] = shape_color_dropdown.value;
+  dict['alphanumeric'] = alpha_dropdown.value;
+  dict['alphanumericColor'] = alpha_color_dropdown.value;
+  dict['autonomous'] = false;
+  add_submission(dict);
+}
+
+function add_submission(dict, image){
+  let div = document.createElement("div");
+  div.id = "subDiv" + subCount;
+  div.style.padding = "10 10px";
+
+  let subHeader = document.createElement("header");
+  subHeader.textContent = 'Submission #' + subCount;
+
+  let subImg = document.createElement("img");
+  subImg.src = document.getElementById("cropView").src;
+  subImg.width = 100;
+  subImg.height = 100;
+  subImg.style.float = "left";
+
+  let textDiv = document.createElement("div");
+  textDiv.classList.add("submissionRow");
+
+  let shapeDiv = document.createElement("div");
+  shapeDiv.classList.add("column");
+  shapeDiv.style.backgroundColor = "aaa";
+  shapeDiv.id = "shapeDiv";
+
+  let shapeHeader = document.createElement("h3");
+  shapeHeader.textContent = "Shape:";
+
+  let shapeClass = document.createElement("p");
+  shapeClass.textContent = 'Classification: ' + dict['shape'] + '       Color: ' + dict['shapeColor'];
+
+  let alphaDiv = document.createElement("div");
+  alphaDiv.classList.add("column");
+  alphaDiv.style.backgroundColor = "bbb";
+
+  let alphaHeader = document.createElement("h3");
+  alphaHeader.textContent = "Alphanumeric:";
+
+  let alphaClass = document.createElement("p");
+  alphaClass.textContent = 'Classification: ' + dict['alphanumeric'] + '   Color: ' + dict['alphanumericColor'];
+
+  shapeDiv.appendChild(shapeHeader);
+  shapeDiv.appendChild(shapeClass);
+
+  alphaDiv.appendChild(alphaHeader);
+  alphaDiv.appendChild(alphaClass);
+
+  textDiv.appendChild(shapeDiv);
+  textDiv.appendChild(alphaDiv);
+
+  div.appendChild(subHeader);
+  div.appendChild(subImg);
+  div.appendChild(textDiv);
+  document.getElementById("Submissions").appendChild(div);
+  subCount++;
+}
 
 
 

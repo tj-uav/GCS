@@ -68,6 +68,18 @@
   display: inline-block; /* Make the buttons appear below each other */
 }
 
+.column{
+  float: left;
+  width: 40%;
+  padding: 10px;
+}
+
+.submissionRow{
+  float: left;
+  display: table;
+  width: 60%;
+}
+
 button[type="button"], button[type="submit"] {
     width:150px;
     height:50px;
