@@ -27,7 +27,8 @@ def connect_device(sock):
     conn, addr = sock.accept()
     listen_thread = threading.Thread(target=listen_from_device, args=conn)
     listen_thread.start()
-    CONNECTIONS.append(conn)
+    ip = addr[0]
+    CONNECTIONS.append((ip, conn))
 
 def connect_interop():
     pass
@@ -39,15 +40,27 @@ def receive_interop(args):
     pass
 
 def command_ingest(message):
-    pass
     #Interpret messages based on header and other stuff
     #Examples include: Changing the buffer value, forwarding messages to other devices, submitting to interop, etc.
+    messageList = message.split(",")
+    MESSAGE_QUEUE.append(messageList)
 
 def send_data():
-    pass
-    #Check if MESSAGE_QUEUE is empty. If it is, send that message to the corresponding device
+    #Check if MESSAGE_QUEUE is empty. If it is not empty, send that message to the corresponding device
+    while MESSAGE_QUEUE:
+        currentMessage = MESSAGE_QUEUE.pop(1)
+        for x in range(len(CONNECTIONS)):
+            if x[0] == currentMessage[0]:
+                conn = x[1]
+                conn.send(currentMessage[1])
 
 def listen_from_device(conn):
-    pass
     #Constantly be listening
     #Upon receiving a message, pass it through the command_ingest
+    while True:
+        data = conn.recv(1024) 
+        if data is not None:
+            break
+    data = data.decode("utf-8")
+    command_ingest(data)
+
