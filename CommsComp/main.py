@@ -66,6 +66,6 @@ def listen_from_device(conn):
         data = conn.recv(1024) 
         if data is not None:
             break
-    data = data.decode("utf-8")
-    command_ingest(data)
+        data = data.decode("utf-8")
+        command_ingest(data)
 
