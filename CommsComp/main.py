@@ -18,8 +18,9 @@ def start():
     for i in range(NUM_COMPUTERS):
         connect_device(my_socket)
     
-    connect_interop()
-    sending_thread = threading.Thread(target=send_data)
+    # COMMENTED OUT BELOW LINES FOR TESTING
+    # connect_interop()
+    # sending_thread = threading.Thread(target=send_data)
 
     #Create a thread for the function send_data(). Make the thread run every x milliseconds (we don't wanna spam or it might break it).
 
@@ -40,13 +41,14 @@ def send_interop(message):
 def receive_interop(args):
     pass
 
-def command_ingest(message):
+def command_ingest(header, message):
     #Interpret messages based on header and other stuff
     #Examples include: Changing the buffer value, forwarding messages to other devices, submitting to interop, etc.
-    messageList = message.split(",")
-    destination = messageList[0]
-    msg = messageList[1:]
-    MESSAGE_QUEUE.append((destination,msg))
+    if header == "TELEMETRY":
+        #Save to file
+        #Send to interop
+    else:
+        MESSAGE_QUEUE.append((destination,msg))
 
 def send_data():
     #Check if MESSAGE_QUEUE is empty. If it is not empty, send that message to the corresponding device
@@ -67,5 +69,10 @@ def listen_from_device(conn):
         if data is not None:
             break
         data = data.decode("utf-8")
-        command_ingest(data)
+        data = json.loads(data)
+        header = data["HEADER"]
+        message = data["MESSAGE"]
+        command_ingest(header,message)
 
+if __name__ == "__main__":
+    start()
