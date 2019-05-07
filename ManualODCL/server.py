@@ -12,7 +12,7 @@ TCP_PORT = 5005
 BUFFER_SIZE = 1024  # Can make this lower if we need speed
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((TCP_IP, TCP_PORT))
+#sock.connect((TCP_IP, TCP_PORT))
 global image_num
 image_num = 0
 
