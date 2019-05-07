@@ -75,7 +75,7 @@ function getClosestOrientation(val){
     let dist = Math.min(Math.abs(index * 45 - val), Math.abs(index * 45 + 360 - val));
     if(dist < closestRotation){
       closestRotation = dist;
-      closestIndex = index;    
+      closestIndex = index;
     }
   }
   return dirs[closestIndex];
@@ -87,7 +87,10 @@ function submit_standard(){
   let shape_color_dropdown = document.getElementById("shape_color_dropdown");
   let alpha_dropdown = document.getElementById("alpha_dropdown");
   let alpha_color_dropdown = document.getElementById("alpha_color_dropdown");
-  let cropView = document.getElementById('cropView');
+  let
+
+
+  View = document.getElementById('cropView');
   let dict = {};
   dict['type'] = 'STANDARD';
   dict['latitude'] = 0;
@@ -128,7 +131,8 @@ function add_submission(dict, image){
   shapeHeader.textContent = "Shape:";
 
   let shapeClass = document.createElement("p");
-  shapeClass.textContent = 'Classification: ' + dict['shape'] + '       Color: ' + dict['shapeColor'];
+  shapeClass.setAttribute('style', 'white-space: pre;');
+  shapeClass.textContent = 'Classification: ' + dict['shape'] + '\r\n       Color: ' + dict['shapeColor'];
 
   let alphaDiv = document.createElement("div");
   alphaDiv.classList.add("column");
@@ -138,7 +142,11 @@ function add_submission(dict, image){
   alphaHeader.textContent = "Alphanumeric:";
 
   let alphaClass = document.createElement("p");
-  alphaClass.textContent = 'Classification: ' + dict['alphanumeric'] + '   Color: ' + dict['alphanumericColor'];
+  alphaClass.setAttribute('style', 'white-space: pre;');
+  alphaClass.textContent = 'Classification: ' + dict['alphanumeric'] + '\r\n';
+  alphaClass.textContent += 'Color: ' + dict['alphanumericColor'];
+
+
 
   shapeDiv.appendChild(shapeHeader);
   shapeDiv.appendChild(shapeClass);
