@@ -87,10 +87,7 @@ function submit_standard(){
   let shape_color_dropdown = document.getElementById("shape_color_dropdown");
   let alpha_dropdown = document.getElementById("alpha_dropdown");
   let alpha_color_dropdown = document.getElementById("alpha_color_dropdown");
-  let
-
-
-  View = document.getElementById('cropView');
+  let View = document.getElementById('cropView');
   let dict = {};
   dict['type'] = 'STANDARD';
   dict['latitude'] = 0;
@@ -127,35 +124,25 @@ function add_submission(dict, image){
   shapeDiv.style.backgroundColor = "aaa";
   shapeDiv.id = "shapeDiv";
 
-  let shapeHeader = document.createElement("h3");
-  shapeHeader.textContent = "Shape:";
+  let classHeader = document.createElement("h3");
+  classHeader.textContent = "Classification:";
 
-  let shapeClass = document.createElement("p");
-  shapeClass.setAttribute('style', 'white-space: pre;');
-  shapeClass.textContent = 'Classification: ' + dict['shape'] + '\r\n       Color: ' + dict['shapeColor'];
+  let classText = document.createElement("p");
+  classText.setAttribute('style', 'white-space: pre;');
+  classText.textContent = 'Shape: ' + dict['shape'] + '\r\n';
+  classText.textContent += 'Color: ' + dict['shapeColor'] + '\r\n';
+  classText.textContent += 'Alphanumeric: ' + dict['alphanumeric'] + '\r\n';
+  classText.textContent += 'Alphanumeric Color: ' + dict['alphanumericColor'] + '\r\n';
+  classText.textContent += 'Orientation: ' + dict['orientation'];
 
   let alphaDiv = document.createElement("div");
   alphaDiv.classList.add("column");
   alphaDiv.style.backgroundColor = "bbb";
 
-  let alphaHeader = document.createElement("h3");
-  alphaHeader.textContent = "Alphanumeric:";
-
-  let alphaClass = document.createElement("p");
-  alphaClass.setAttribute('style', 'white-space: pre;');
-  alphaClass.textContent = 'Classification: ' + dict['alphanumeric'] + '\r\n';
-  alphaClass.textContent += 'Color: ' + dict['alphanumericColor'];
-
-
-
-  shapeDiv.appendChild(shapeHeader);
-  shapeDiv.appendChild(shapeClass);
-
-  alphaDiv.appendChild(alphaHeader);
-  alphaDiv.appendChild(alphaClass);
+  shapeDiv.appendChild(classHeader);
+  shapeDiv.appendChild(classText);
 
   textDiv.appendChild(shapeDiv);
-  textDiv.appendChild(alphaDiv);
 
   div.appendChild(subHeader);
   div.appendChild(subImg);
