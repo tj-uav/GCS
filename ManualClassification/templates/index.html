@@ -23,7 +23,7 @@
         <script type="text/javascript" src="{{ url_for('static', filename='build/image-clipper.js')}}"></script>
         {% block javascript %}
         <script type="text/javascript">
-          {% include "imageActions.js" %}
+          {% include "imageHandler.js" %}
         </script>
         {% endblock %}
       </div>
@@ -91,4 +91,5 @@
         {% endblock %}
     </div>
     {% endblock %}
-</body </html>
+</body>
+</html>

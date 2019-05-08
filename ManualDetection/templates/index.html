@@ -16,79 +16,18 @@
 <body>
   {% block body %}
     <div id="root">
-      <div id="imageDiv" style="float: left;">
-        <img width="350" height="350" src="{{ url_for('static', filename='img/generictarget.jpg')}}" id="myImage">
-        <div ID="rubberBand"></div>
-        <img id="cropView" style="display: block; padding: 50 25px;">
-        <script type="text/javascript" src="{{ url_for('static', filename='build/image-clipper.js')}}"></script>
-        {% block javascript %}
-        <script type="text/javascript">
-          {% include "imageActions.js" %}
-        </script>
-        {% endblock %}
+      <img width="450" height="450" id="myImage" src="../assets/img/generictarget.jpg">
+      <div id="button-group">
+          <button onclick='previous()' type="button">Previous</button>
+          <button onclick='send()' type="button">Send</button>
+          <button onclick='next()' type="button">Next</button>
       </div>
-        <!-- Tab links -->
-        <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'Standard')" left="100px">Standard</button>
-            <button class="tablinks" onclick="openTab(event, 'Emergent')" left="100px">Emergent</button>
-            <button class="tablinks" onclick="openTab(event, 'Submissions')" left="100px">Submissions</button>
-        </div>
-
-        <!-- Tab content -->
-        <div id="Standard" class="tabcontent">
-            <h3>Standard Object Submission</h3>
-            <div class="shape-group">
-              <label for="shape_dropdown" id="shape_label" style="padding: 0 15px; float: left;">Shape: </label>
-              <select id="shape_dropdown" style="float: left;">
-              </select>
-
-              <label for="shape_color_dropdown" id="shape_color_label" style="padding: 0 15px; float: left;">Shape Color: </label>
-              <select id="shape_color_dropdown" style="float: left;">
-              </select>
-            </div>
-
-            <div class="alpha-group" style="padding-top: 60px;">
-              <label for="alpha_dropdown" id="alpha_label" style="padding: 0 15px; float: left;">Alphanumeric: </label>
-              <select id="alpha_dropdown" style="float: left;">
-              </select>
-
-              <label for="alpha_color_dropdown" id="alpha_color_label" style="padding: 0 15px; float: left;">Alphanumeric Color: </label>
-              <select id="alpha_color_dropdown" style="float: left;">
-              </select>
-            </div>
-
-            <div class="button-group" style="padding-top: 60px; padding-left: 350px;">
-                <button type="button" onclick="crop()" id="cropButton">Crop</button>
-                <div class="divider"></div>
-                <button type="button" onclick="submit_standard()">Submit</button>
-            </div>
-
-            <div class="slider-group" style="padding-top: 60px; padding-left: 350px; display: none" id="slideGroup">
-              <div class="slidecontainer" style="float: left">
-                <input type="range" min="0" max="359" value="0" class="slider" id="slide" oninput="rotate(this.value)">
-              </div>
-            </div>
-
-        </div>
-
-
-        <div id="Emergent" class="tabcontent">
-            <h3>Emergent Object Submission</h3>
-            <p>Emergent.</p>
-        </div>
-
-        <div id="Submissions" class="tabcontent">
-            <h3>Previous Submissions</h3>
-            <nav>
-              <ul id="submissionList">
-              </ul>
-            </nav>
-        </div>
-        {% block javascript1 %}
-        <script type="text/javascript">
-          {% include "index.js" %}
-        </script>
-        {% endblock %}
     </div>
     {% endblock %}
-</body </html>
+    {% block javascript %}
+    <script type="text/javascript">
+      {% include "index.js" %}
+    </script>
+    {% endblock %}
+</body>
+</html>
