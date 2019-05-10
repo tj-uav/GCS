@@ -1,4 +1,4 @@
-
+import shapefile
 data = [
     [38.8781548838115,-77.3764300346375],
     [38.8795413373583,-77.3796486854553],
@@ -19,7 +19,11 @@ for i in data:
     new_data.append([first, second])
 
 print(new_data)
-f = open('test.shp', 'a+')
-f.write(str(new_data))
-f.write("\n")
-f.close
+w = shapefile.Writer('./test')
+w.field('name', 'C')
+w.poly([
+    data,  # poly 1
+    new_data  # poly 2
+])
+w.record('polygon1')
+w.close()
