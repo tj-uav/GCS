@@ -4,15 +4,17 @@ import threading
 from collections import deque
 import json
 import requests
+import cv2
+import base64
 
 BUFFER = 1024
-NUM_COMPUTERS = 1#4 #3 Ground station computers, 1 jetson
+NUM_COMPUTERS = 1 #4 #3 Ground station computers, 1 jetson
 JETSON_ADDR = ('127.0.0.1',8081)
 MY_IP = '127.0.0.1'
 PORT = 5005
 CONNECTIONS = []
 MESSAGE_QUEUE = deque([]) # Format for this should be (DESTINATION_IP, message)
-IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_ODCL": '127.0.0.1'} #Change to actual values
+IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_DETECTION": '127.0.0.1', "MANUAL_CLASSIFICATION": '127.0.0.1'} #Change to actual values
 MISSION_ID = 1
 
 def start():
@@ -24,12 +26,32 @@ def start():
         connect_device(my_socket)
     
     # COMMENTED OUT BELOW LINES FOR TESTING
-    connect_interop("http://localhost:8000", "testuser", "testpass")
-    send_mission_data()
+#    connect_interop("http://localhost:8000", "testuser", "testpass")
+#    send_mission_data()
     sending_thread = threading.Thread(target=send_data)
     sending_thread.start()
 
+    vid_thread = threading.Thread(target=video_capture)
+    vid_thread.start()
+
     #Create a thread for the function send_data(). Make the thread run every x milliseconds (we don't wanna spam or it might break it).
+
+def video_capture():
+    cap = cv2.VideoCapture(0)
+    time.sleep(1)
+    while True:
+        ret, frame = cap.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        nparr = cv2.imencode('.jpg',frame)[1]
+        temp = nparr.tolist()
+        print("Numpy shape:",nparr.shape)
+#        img_bytes = base64.b64decode(temp).decode('utf-8')
+        img_bytes = temp
+        print(type(img_bytes))
+        enqueue(destination=IPS['MANUAL_DETECTION'],header='CAMERA_IMAGE',message=img_bytes)
+        time.sleep(1)
+    cap.release()
+    cv2.destroyAllWindows()
 
 
 def _decode_list(data):
@@ -60,7 +82,7 @@ def _decode_dict(data):
 
 def connect_device(sock):
     conn, addr = sock.accept()
-    listen_thread = threading.Thread(target=listen_from_device, args=conn)
+    listen_thread = threading.Thread(target=listen_from_device, args=(conn,))
     listen_thread.start()
     ip = addr[0]
     CONNECTIONS.append((ip, conn))
@@ -71,7 +93,7 @@ def connect_interop(interop_url, username, password):
     cookie_str = r.headers["Set-Cookie"].split(';')
 
 def send_interop(message):
-    pass
+    print("Interop:", message)
 
 def receive_interop(arg_name):
     global r, cookie_str
@@ -101,8 +123,12 @@ def my_ingest(message_dict):
     header = message_dict['HEADER']
     if header == "TELEMETRY":
         #Save to file
-        #Send to interop
+        send_interop(message_dict['MESSAGE'])
         pass
+    elif header == "PRINT":
+        print(message_dict['MESSAGE'])
+    else:
+        print('Unknown header:',header)
 
 def command_ingest(message_dict):
     #Interpret messages based on header and other stuff
@@ -118,10 +144,11 @@ def send_data():
     while True:
         if MESSAGE_QUEUE:
             nextMessage = MESSAGE_QUEUE.popleft()
-            print(nextMessage)
-            for i in nextMessage['MESSAGE']:
-                print(i)
+#            print(nextMessage)
+#            for i in nextMessage['MESSAGE']:
+#                print(i)
             DESTINATION_IP = nextMessage['DESTINATION']
+            print(type(nextMessage))
             for x in CONNECTIONS:
                 if x[0] == DESTINATION_IP:
                     conn = x[1]
@@ -137,7 +164,8 @@ def listen_from_device(conn):
         data_bytes = conn.recv(1024) 
         data_string = data_bytes.decode("utf-8")
         data_dict = json.loads(data_string)
-        command_ingest(data_dict)
+        ingest_thread = threading.Thread(target=command_ingest, args=data_dict)
+        ingest_thread.start()
 
 if __name__ == "__main__":
     start()
