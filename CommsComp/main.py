@@ -5,7 +5,7 @@ from collections import deque
 import json
 import requests
 import cv2
-import base64
+import os
 
 BUFFER = 1024
 NUM_COMPUTERS = 1 #4 #3 Ground station computers, 1 jetson
@@ -49,7 +49,7 @@ def video_capture():
         img_bytes = temp
         print(type(img_bytes))
         enqueue(destination=IPS['MANUAL_DETECTION'],header='CAMERA_IMAGE',message=img_bytes)
-        time.sleep(1)
+        time.sleep(0.5)
     cap.release()
     cv2.destroyAllWindows()
 
@@ -127,6 +127,8 @@ def my_ingest(message_dict):
         pass
     elif header == "PRINT":
         print(message_dict['MESSAGE'])
+    elif header == "TERMINATE":
+        os._exit(1)
     else:
         print('Unknown header:',header)
 

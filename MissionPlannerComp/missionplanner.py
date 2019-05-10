@@ -12,8 +12,6 @@ def start():
     connect_comms()
     pass
 
-
-
 def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
     sock.connect((COMMS_IP, PORT)) 

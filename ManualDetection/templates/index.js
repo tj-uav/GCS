@@ -38,6 +38,11 @@ function next(){
     img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
     IMG.src = img_filename;
     document.getElementById("current_index").innerHTML = currNum + "";
+    if(currNum > 20 && currNum - 20 > lowest){
+      lowest = currNum - 20;
+      document.getElementById("lowest_index").innerHTML = lowest + "";
+      server_post({"lowest":lowest});
+    }
   }
 }
 
@@ -58,13 +63,36 @@ var updateData = function() {
         });
 };
 
-var doWork = function(){
+/*
+var server_post = function(post_dict){
   // ajax the JSON to the server
-	$.post("receiver", data, function(){
+	$.post("receiver", post_dict, function(){
 
 	});
 	// stop link reloading the page
  event.preventDefault();
+}
+*/
+
+function server_post(post_dict){
+  $.ajax({
+      url: 'receiver',
+      type: 'POST',
+      dataType: 'json',
+      data: JSON.stringify(post_dict),
+      contentType:"application/json; charset=UTF-8"
+  })
+  .done(function(data) {
+      // do stuff here
+      console.log("POSTED DATA");
+      console.log(data);
+  })
+  .fail(function(err) {
+      // do stuff here
+  })
+  .always(function(info) {
+      // do stuff here
+  });
 }
 
 setInterval(updateData, 1000);

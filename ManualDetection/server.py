@@ -3,54 +3,67 @@ import time
 import threading
 import socket
 from flask import Flask, jsonify, render_template, request
-from flask_caching import Cache
 from flask_cors import CORS
 import cv2
 import numpy as np
-import base64
+import os
+from collections import deque
 
-global x
-x = 1
-COMMS_IP = '127.0.0.1'  # Need to change to IP of comms computer
+IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_DETECTION": '127.0.0.1', "MANUAL_CLASSIFICATION": '127.0.0.1'} #Change to actual values
 PORT = 5005
 MY_IP = '127.0.0.1'
 BUFFER_SIZE = 10000000  # Can make this lower if we need speed
+IMAGE_BASENAME = "assets/img/image_"
+IMAGE_ENDING = ".png"
 
-global sock, image_num
+IMAGES_SAVED = []
+
+global sock, image_recent_num
+MESSAGE_QUEUE = deque([])
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-image_num = 0
+image_recent_num = 0
 app = Flask("__name__", static_folder="assets")
 
 def main():
     connect_comms()
+#    sending_thread = threading.Thread(target=send_data)
+#    sending_thread.start()
 
-    cache = Cache(config={'CACHE_TYPE': 'redis'})
     app.config["CACHE_TYPE"] = "null"
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
     # Prevent CORS errors
     CORS(app)
     app.run()
-    x = 0
+    enqueue(destination=IPS['COMMS_COMP'], header='TERMINATE', message='')
+    time.sleep(0.5)
+    os._exit(1)
+
+def delete_image(img_num):
+    filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
+    try:
+        os.remove(filename)
+        IMAGES_SAVED.remove(img_num)
+    except:
+        pass
 
 def save_image(img_string):
-    global image_num
-#    img_bytes = base64.b64encode(img_string)
+    global image_recent_num
     nparr = np.array(img_string, dtype=np.uint8)
     print("Numpy shape:",nparr.shape)
 #    nparr = np.fromstring(img_bytes, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     print("Image shape",img.shape)
-    cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    cv2.imwrite("assets/img/image_" + str(image_num) + ".png", img)
-    image_num += 1
-    print(image_num)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(IMAGE_BASENAME + str(image_recent_num) + IMAGE_ENDING, img)
+    IMAGES_SAVED.append(image_recent_num)
+    image_recent_num += 1
+    print(image_recent_num)
 
 def connect_comms():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
-    sock.connect((COMMS_IP, PORT)) 
-
+    sock.connect((IPS['COMMS_COMP'], PORT)) 
     listen_thread = threading.Thread(target=listen)
     listen_thread.start()
 
@@ -64,6 +77,18 @@ def listen():
         ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
         ingest_thread.start()
 
+def send_data():
+    #Check if MESSAGE_QUEUE is empty. If it is not empty, send that message to the corresponding device
+    while True:
+        if MESSAGE_QUEUE:
+            nextMessage = MESSAGE_QUEUE.popleft()
+            print(nextMessage)
+            DESTINATION_IP = nextMessage['DESTINATION']
+            nextMessage_json = json.dumps(nextMessage)
+            nextMessage_bytes = nextMessage_json.encode('utf-8')
+            sock.send(nextMessage_bytes)
+            time.sleep(0.5) #Can be changed
+
 def command_ingest(message_dict):
     header = message_dict['HEADER']
     if header == "CAMERA_IMAGE":
@@ -75,19 +100,37 @@ def command_ingest(message_dict):
     else:
         print("Unkown header:", header)
 
+def enqueue(destination, header, message, subheader = None):
+    to_send = {}
+    to_send['SOURCE'] = MY_IP
+    to_send['DESTINATION'] = destination
+    to_send['HEADER'] = header
+    to_send['MESSAGE'] = message
+    if subheader:
+        to_send['SUBHEADER'] = subheader
+    MESSAGE_QUEUE.append(to_send)
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route('/receiver')
+@app.route('/receiver', methods = ["GET", "POST"])
 def receiver():
-	data = request.get_json()
-	print(data)
+    if request.method == "POST":
+        data = request.get_json()
+        lowest = data['lowest']
+        print(lowest)
+        i = lowest - 1
+        while i in IMAGES_SAVED:
+            delete_image(i)
+            i -= 1
+
+    return 'OK'
 
 @app.route("/data")
 def data():
-    global image_num
-    return jsonify({"highest":image_num})
+    global image_recent_num
+    return jsonify({"highest":image_recent_num})
 
 # No caching at all for API endpoints.
 @app.after_request
@@ -99,8 +142,4 @@ def add_header(response):
     return response
 
 if __name__ == "__main__":
-#    cache.init_app(app)
-#    cache.clear()
     main()
-#    with app.app_context():
-#        cache.clear()

@@ -9,13 +9,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
             {% include "index.css" %}
-		</style>
+    </style>
+
+    {% block javascript1 %}
+    <script type="text/javascript">
+      {% include "jquery.js" %}
+    </script>
+    {% endblock %}
+
+
     {% endblock %}
 </head>
 
 <body>
   {% block body %}
-    <div id="root" style="display: flex;">
+  <div id="root" style="display: flex;">
       <div id="imageDiv">
         <img width="450" height="450" id="myImage">
         <div id="button-group">
