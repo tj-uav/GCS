@@ -9,15 +9,20 @@ var highest = 0;
 function init(){
   currNum = 0;
   lowest = 0;
-  highest = 20;
-//  IMG = document.getElementById('myImage');
+  highest = 0;
+  IMG = document.getElementById('myImage');
+  document.getElementById("lowest_index").innerHTML = lowest + "";
+  document.getElementById("current_index").innerHTML = currNum + "";
+  document.getElementById("highest_index").innerHTML = highest + "";
 //  IMG.src = 'assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
 }
 
 function previous(){
   if(currNum > lowest){
     currNum -= 1;
-    IMG.src = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+    img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+    IMG.src = img_filename;
+    document.getElementById("current_index").innerHTML = currNum + "";
   }
 }
 
@@ -27,9 +32,12 @@ function send(){
 }
 
 function next(){
-  if(currNum < highest){
+  console.log('hi')
+  if(currNum < highest - 1){
     currNum += 1;
-    img_filename = 'assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+    img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+    IMG.src = img_filename;
+    document.getElementById("current_index").innerHTML = currNum + "";
   }
 }
 
@@ -43,7 +51,7 @@ var updateData = function() {
         .then(function(data) {
             // Update the DOM
             highest = data['highest'];
-            console.log(highest);
+            document.getElementById("highest_index").innerHTML = highest + "";
         })
         .catch(function() {
             console.log("Error occured with data request");

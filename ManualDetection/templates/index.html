@@ -15,13 +15,22 @@
 
 <body>
   {% block body %}
-    <div id="root">
-      <img width="450" height="450" id="myImage" src="../assets/img/generictarget.jpg">
-      <div id="button-group">
-          <button onclick='previous()' type="button">Previous</button>
-          <button onclick='send()' type="button">Send</button>
-          <button onclick='next()' type="button">Next</button>
+    <div id="root" style="display: flex;">
+      <div id="imageDiv">
+        <img width="450" height="450" id="myImage">
+        <div id="button-group">
+            <button onclick='previous()' type="button">Previous</button>
+            <button onclick='send()' type="button">Send</button>
+            <button onclick='next()' type="button">Next</button>
+        </div>
       </div>
+      <div id="textDiv">
+          <h2>Lowest: <span id="lowest_index"></span></h2>
+          <h2>Current: <span id="current_index"></span></h2>
+          <h2>Highest: <span id="highest_index"></span></h2>
+        </div>
+    </div>
+
     </div>
     {% endblock %}
     {% block javascript %}
