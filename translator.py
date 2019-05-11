@@ -25,16 +25,22 @@ data2 = 'POLYGONZ((38.8609639542521 -77.4471759796143, 38.8588252388515 -77.4385
 
 def format(data):
     return 'POLYGONZ'+str(data)
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import BytesIO as StringIO
+shp = StringIO()
 
 filename = 'test.shp'
 geometries = [
     data1,
     data2
 ]
-w = shapefile.Writer('./'+filename, shapeType=shapefile.POLYGONZ)
+w = shapefile.Writer('./'+filename, shp=shp, shapeType=shapefile.POLYGONZ)
 w.field('test', 'N')
 for i,poly in enumerate(geometries):
     w.poly([geometry.from_wkt(poly).exterior.coords])
     w.record(i)
-w.save('test')
+w.save(filename)
+w.null()
 w.close()
