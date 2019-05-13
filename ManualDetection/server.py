@@ -39,12 +39,14 @@ def main():
     time.sleep(0.5)
     os._exit(1)
 def listenImg():
-    yeet, skeet = sock.accept(0)
-    print("Listening to " + skeet)
+    sock.listen(1)
+    yeet, skeet = sock.accept()
+    print("Listening to " + str(skeet))
     while True:
         raw = yeet.recv(BUFFER_SIZE)
         arr = np.fromstring(raw, np.uint8)
         save_image(cv2.imdecode(arr, cv2.CV_LOAD_IMAGE_COLOR))
+        print("image saved !!!1!!1!!")
 def delete_image(img_num):
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
     try:
