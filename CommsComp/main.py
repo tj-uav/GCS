@@ -9,12 +9,11 @@ import os
 
 BUFFER = 1024
 NUM_COMPUTERS = 1 #4 #3 Ground station computers, 1 jetson
-JETSON_ADDR = ('127.0.0.1',8081)
-MY_IP = '127.0.0.1'
-PORT = 5005
 CONNECTIONS = []
-MESSAGE_QUEUE = deque([]) # Format for this should be (DESTINATION_IP, message)
+MESSAGE_QUEUE = deque([]) # Format for this should be dictionary
 IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_DETECTION": '127.0.0.1', "MANUAL_CLASSIFICATION": '127.0.0.1'} #Change to actual values
+MY_IP = IPS["COMMS_COMP"]
+PORT = 5005
 MISSION_ID = 1
 
 def start():
@@ -24,6 +23,7 @@ def start():
     my_socket.listen(5)
     for i in range(NUM_COMPUTERS):
         connect_device(my_socket)
+        print("Connection achieved")
     
     # COMMENTED OUT BELOW LINES FOR TESTING
 #    connect_interop("http://localhost:8000", "testuser", "testpass")
