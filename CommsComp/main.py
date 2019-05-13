@@ -16,26 +16,29 @@ MY_IP = IPS["COMMS_COMP"]
 PORT = 5005
 MISSION_ID = 1
 
-def start():
-    my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    my_socket.bind((MY_IP,PORT))
-    my_socket.listen(5)
-    for i in range(NUM_COMPUTERS):
-        connect_device(my_socket)
-        print("Connection achieved")
-    
-    # COMMENTED OUT BELOW LINES FOR TESTING
-#    connect_interop("http://localhost:8000", "testuser", "testpass")
-#    send_mission_data()
-    sending_thread = threading.Thread(target=send_data)
-    sending_thread.start()
+ODCL_IDS = {}
 
-    vid_thread = threading.Thread(target=video_capture)
-    vid_thread.start()
+def start():
+#    my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+#    my_socket.bind((MY_IP,PORT))
+#    my_socket.listen(5)
+#    for i in range(NUM_COMPUTERS):
+#        connect_device(my_socket)
+#        print("Connection achieved")
+    
+    connect_interop("http://localhost:8000", "testuser", "testpass")
+    # COMMENTED OUT BELOW LINES FOR TESTING
+#    send_mission_data()
+#    sending_thread = threading.Thread(target=send_data)
+#    sending_thread.start()
+
+#    vid_thread = threading.Thread(target=video_capture)
+#    vid_thread.start()
 
     #Create a thread for the function send_data(). Make the thread run every x milliseconds (we don't wanna spam or it might break it).
 
+#Temporary method
 def video_capture():
     cap = cv2.VideoCapture(0)
     time.sleep(1)
@@ -92,21 +95,28 @@ def connect_interop(interop_url, username, password):
     r = requests.post(interop_url + "/api/login", json={"username":username, "password":password}, headers={"Content-Type":"application/json"})
     cookie_str = r.headers["Set-Cookie"].split(';')
 
-def send_interop(message):
-    print("Interop:", message)
-
-def receive_interop(arg_name):
+def post_interop(endpoint, message_dict):
     global r, cookie_str
-    r = requests.get("http://localhost:8000/api/" + arg_name, headers={"Cookie":cookie_str[0]})
+    message_json = json.dumps(message_dict)
+    r = requests.post(url="http://localhost:8000/api/" + endpoint, headers={"Cookie":cookie_str[0]}, data=message_json)
+    return json.loads(r.text, object_hook = _decode_dict)
+
+def put_interop(endpoint, message_dict):
+    global r, cookie_str
+    r = requests.put(url="http://localhost:8000/api/" + endpoint, headers={"Cookie":cookie_str[0]}, data=message_dict)
+    print(r)
+
+def get_interop(endpoint):
+    global r, cookie_str
+    r = requests.get("http://localhost:8000/api/" + endpoint, headers={"Cookie":cookie_str[0]})
 #    print(r.text)
     return json.loads(r.text, object_hook = _decode_dict)
 
 def send_mission_data():
-    mission_data = receive_interop("missions/" + str(MISSION_ID))
-    obstacle_data = receive_interop("obstacles")
+    mission_data = get_interop("missions/" + str(MISSION_ID))
+    obstacle_data = get_interop("obstacles")
     enqueue(destination=IPS['MISSION_PLANNER'], header='MISSION_DATA', message=mission_data)
     enqueue(destination=IPS['MISSION_PLANNER'], header='OBSTACLE_DATA', message=obstacle_data)
-
 
 def enqueue(destination, header, message, subheader = None):
 #    print(message)
@@ -121,10 +131,36 @@ def enqueue(destination, header, message, subheader = None):
 
 def my_ingest(message_dict):
     header = message_dict['HEADER']
-    if header == "TELEMETRY":
-        #Save to file
-        send_interop(message_dict['MESSAGE'])
-        pass
+    message = message_dict['MESSAGE']
+    if header == "TELEMETRY_DATA":
+        post_interop(endpoint="telemetry", message_dict=message_dict['MESSAGE'])
+        #Should also save this to a file or something
+    elif header == 'SUBMIT_ODLC':
+        if 'SUBHEADER' not in message_dict:
+            print("Must be specified either json or image")
+        else:
+            data_type = message_dict['SUBHEADER']
+            if data_type == 'JSON':
+                tempID = message_dict.pop('id', None)
+                response = post_interop(endpoint="odlcs", message_dict=message_dict['MESSAGE'])
+                ODCL_IDS[tempID] = response['id']
+            elif data_type == 'IMAGE':
+                
+            else:
+                print('Unknown ODLC data type')
+    elif header == 'APPEND_ODLC':
+        if 'ID' not in message_dict:
+            print("ODLC object does not have ID")
+            return
+        else:
+            odlc_id = int(message_dict['ID'])
+            put_interop(endpoint='odlcs/'+str(odlc_id), message_dict=message_dict['MESSAGE'])
+    elif header == 'GET_ODLC':
+        if 'ID' not in message_dict:
+            get_interop(endpoint='odlcs')
+        else:
+            odlc_id = int(message['id'])
+            get_interop(endpoint='odlcs/'+str(odlc_id))
     elif header == "PRINT":
         print(message_dict['MESSAGE'])
     elif header == "TERMINATE":
