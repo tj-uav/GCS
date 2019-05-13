@@ -5,7 +5,9 @@ import time
 import socket
 import json
 
-COMMS_IP = '127.0.0.1'
+MESSAGE_QUEUE = deque([]) # Format for this should be dictionary
+IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_DETECTION": '127.0.0.1', "MANUAL_CLASSIFICATION": '127.0.0.1'} #Change to actual values
+MY_IP = IPS["MISSION_PLANNER"]
 PORT = 5005
 
 def start():
@@ -22,7 +24,7 @@ def connect_comms():
 def send_telemetry():
     print "Starting."
     while True:
-        telem = {
+        telem_full = {
         'roll': cs.roll,
         'pitch': cs.pitch,
         'yaw': cs.yaw,
@@ -41,8 +43,26 @@ def send_telemetry():
         'battery_remaining': cs.battery_remaining
         }
 
-        toSend = str(telem)
-        toBytes = toSend.encode('utf-8')
-        sock.send(toBytes)
+        telem_data = {
+                "latitude": cs.lat,
+                "longitude": cs.lng,
+                "altitude": cs.alt,
+                "heading": cs.wind_dir
+        }
+
+        enqueue(destination=IPS['COMMS_COMP'], header='TELEMETRY_DATA', message=telem_data)
         time.sleep(.1)
         print "Sleeping for 5 seconds..."
+
+def enqueue(destination, header, message, subheader = None):
+#    print(message)
+    to_send = {}
+    to_send['SOURCE'] = MY_IP
+    to_send['DESTINATION'] = destination
+    to_send['HEADER'] = header
+    to_send['MESSAGE'] = message
+    if subheader:
+        to_send['SUBHEADER'] = subheader
+    MESSAGE_QUEUE.append(to_send)
+
+
