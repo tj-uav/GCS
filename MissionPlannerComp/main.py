@@ -50,16 +50,32 @@ def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
     sock.connect((COMMS_IP, PORT))
 
-    telemetry_thread = threading.Thread(target=listen_from_device)
-    telemetry_thread.start()
+    listen_thread = threading.Thread(target=listen_from_device)
+    listen_thread.start()
 
-    telemetry_thread = threading.Thread(target=send_data)
-    telemetry_thread.start()
+    send_thread = threading.Thread(target=send_data)
+    send_thread.start()
+
+    telem_data_thread = threading.Thread(target=telem_data)
+    telem_data_thread.start()
 
     time.sleep(10)
     sock.close()
     print(5/0)
     exit()
+
+def telem_data():
+    while True:
+        telem = {
+        'latitude': cs.lat,
+        'longitude': cs.lng,
+        'altitude': cs.alt,
+        'heading': cs.yaw
+        }
+
+        enqueue(destination=COMMS_IP, header='TELEMETRY_DATA', message=telem)
+        print("Sleeping for 0.1 seconds...")
+        time.sleep(.1)
 
 def open_file(filename):
     global f

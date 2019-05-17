@@ -22,6 +22,7 @@ def connect_comms():
 def send_telemetry():
     print "Starting."
     while True:
+        """
         telem = {
         'roll': cs.roll,
         'pitch': cs.pitch,
@@ -40,9 +41,21 @@ def send_telemetry():
         'battery_voltage': cs.battery_voltage,
         'battery_remaining': cs.battery_remaining
         }
+        """
+        telem = {
+        'latitude': cs.lat,
+        'longitude': cs.lng,
+        'altitude': cs.alt,
+        'heading': cs.yaw
+        }
 
-        toSend = str(telem)
+        packet = {}
+        packet['HEADER'] = 'TELEMETRY_DATA'
+        packet['DESTINATION'] = IPS['COMMS_COMP']
+        packet['MESSAGE'] = telem
+
+        toSend = json.dumps(telem)
         toBytes = toSend.encode('utf-8')
         sock.send(toBytes)
         time.sleep(.1)
-        print "Sleeping for 5 seconds..."
+        print "Sleeping for 0.1 seconds..."
