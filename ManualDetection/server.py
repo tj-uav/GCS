@@ -9,11 +9,11 @@ import numpy as np
 import os
 from collections import deque
 
-IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_DETECTION": '127.0.0.1', "MANUAL_CLASSIFICATION": '127.0.0.1'} #Change to actual values
+IPS = {"COMMS_COMP":'127.0.0.1'}#, "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0.0.1', "MANUAL_DETECTION": '127.0.0.1', "MANUAL_CLASSIFICATION": '127.0.0.1'} #Change to actual values
 PORT = 5005
 MY_IP = '127.0.0.1'
 BUFFER_SIZE = 10000000  # Can make this lower if we need speed
-IMAGE_BASENAME = "assets/img/image_"
+IMAGE_BASENAME = "assets/img/"
 IMAGE_ENDING = ".png"
 
 IMAGES_SAVED = []
@@ -38,7 +38,15 @@ def main():
     enqueue(destination=IPS['COMMS_COMP'], header='TERMINATE', message='')
     time.sleep(0.5)
     os._exit(1)
-
+def listenImg():
+    sock.listen(1)
+    yeet, skeet = sock.accept()
+    print("Listening to " + str(skeet))
+    while True:
+        raw = yeet.recv(BUFFER_SIZE)
+        arr = np.fromstring(raw, np.uint8)
+        save_image(cv2.imdecode(arr, cv2.CV_LOAD_IMAGE_COLOR))
+        print("image saved !!!1!!1!!")
 def delete_image(img_num):
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
     try:
@@ -63,8 +71,8 @@ def save_image(img_string):
 def connect_comms():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
-    sock.connect((IPS['COMMS_COMP'], PORT)) 
-    listen_thread = threading.Thread(target=listen)
+    sock.bind((IPS['COMMS_COMP'], PORT))
+    listen_thread = threading.Thread(target=listenImg)
     listen_thread.start()
 
 def listen():

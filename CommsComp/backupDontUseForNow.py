@@ -15,7 +15,6 @@ IPS = {"COMMS_COMP":'127.0.0.1', "MISSION_PLANNER":'127.0.0.1', "JETSON": '127.0
 MY_IP = IPS["COMMS_COMP"]
 PORT = 5005
 MISSION_ID = 1
-BASE_URL = "http://localhost:8000/api/"
 global session
 session = requests.Session()
 
@@ -98,59 +97,22 @@ def connect_interop(interop_url, username, password):
     session.mount('http://', requests.adapters.HTTPAdapter(pool_maxsize=128,max_retries=10))
     post_interop('/api/login', json={"username":username, "password":password})
 
-def post_interop(endpoint, message_data):
-    session.post(url=BASE_URL + endpoint, data=message_data)
-    print(r)
-    return r
+def post_interop(endpoint, message_dict):
+    global r, cookie_str
+    message_json = json.dumps(message_dict)
+    r = requests.post(url="http://localhost:8000/api/" + endpoint, headers={"Cookie":cookie_str[0]}, data=message_json)
+    return json.loads(r.text, object_hook = _decode_dict)
 
 def put_interop(endpoint, message_dict):
-    r = session.put(url=BASE_URL + endpoint, data=message_dict)
+    global r, cookie_str
+    r = requests.put(url="http://localhost:8000/api/" + endpoint, headers={"Cookie":cookie_str[0]}, data=message_dict)
     print(r)
-    return r
 
 def get_interop(endpoint):
-    r = session.get(url=BASE_URL + endpoint)
-    print(r)
-    return r
-
-def interop_handler(action, endpoint, message_data=None, datatype='JSON'):
-    if action == 'POST':
-        if message_data is None:
-            print('Missing message data')
-            return
-        if datatype == 'JSON':
-            r = post_interop(endpoint, data=message_data)
-            pass
-        elif datatype == 'IMAGE':
-            r = put_interop(endpoint, data=message_data)
-        else:
-            print('Response type unknown: ', responsetype)
-            return
-    elif action == 'PUT':
-        if message_data is None:
-            print('Missing message data')
-            return
-        if datatype == 'JSON':
-            r = put_interop(endpoint, data=message_data)
-            pass
-        elif datatype == 'IMAGE':
-            r = put_interop(endpoint, data=message_data)
-        else:
-            print('Response type unknown: ', responsetype)
-            return
-    elif action == 'GET':
-        r = get_interop(endpoint)
-        responsetype = r.headers['Content-Type']
-    else:
-        print('Unknown action')
-        return
-    responsetype = r.headers['Content-Type']
-    if responsetype == 'application/json':
-        return json.loads(r.text, object_hook = _decode_dict) 
-    elif responsetype == 'image/jpeg':
-        return r.text
-    else:
-        print('Response type unknown: ', responsetype)
+    global r, cookie_str
+    r = requests.get("http://localhost:8000/api/" + endpoint, headers={"Cookie":cookie_str[0]})
+#    print(r.text)
+    return json.loads(r.text, object_hook = _decode_dict)
 
 def send_mission_data():
     mission_data = get_interop("missions/" + str(MISSION_ID))
