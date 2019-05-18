@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Folder><name>test</name>
+  <Placemark>
+	<name>polygon1</name>
+	<Style><LineStyle><color>ffffffff</color></LineStyle><PolyStyle><fill>1</fill></PolyStyle></Style>
+      <MultiGeometry>
+        <Polygon>
+          <outerBoundaryIs><LinearRing><coordinates>
+        -77.4728393554688,38.861164455523
+        -77.4670457839966,38.8619998713995
+        -77.4666166305542,38.8574550904945
+        -77.4706506729126,38.8579229489991
+        -77.4732685089111,38.8593265060448
+        -77.4728393554688,38.861164455523
+      </coordinates></LinearRing></outerBoundaryIs>
+    </Polygon>
+      <Polygon>
+        <outerBoundaryIs><LinearRing><coordinates>
+        -77.4471759796143,38.8609639542521
+        -77.4385070800781,38.8588252388515
+        -77.4397945404053,38.8502697340142
+        -77.4490642547607,38.8519408119263
+      </coordinates></LinearRing></outerBoundaryIs>
+    </Polygon>
+  </MultiGeometry>
+  </Placemark>
+</Folder>
+</Document>
+</kml>
