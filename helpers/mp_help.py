@@ -2,13 +2,11 @@
 import geopy
 import geopy.distance
 
-num_points = 40
-
-POINT_RADIUS = 15
-CONSTANT = 0.62137119  # Miles to kilometers
-
 #Radius assumes feet
-def circleToPoints(centerx, centery, radius):
+def circleToPoints(centerx, centery, radius, num_points=40):
+    POINT_RADIUS = 15
+    CONSTANT = 0.62137119  # Miles to kilometers
+
     start = geopy.Point(centerx, centery)
     radius_km = (radius/5280)/CONSTANT
     dist = geopy.distance.geodesic(kilometers=radius_km)
@@ -38,7 +36,7 @@ def circleToPoints(centerx, centery, radius):
         circlePoints.append(final_coords)
     return circlePoints
 
-def KMLbeginning():
+def KmlBeginning():
     return """<?xml version="1.0" encoding="utf-8" ?>
     <kml xmlns="http://www.opengis.net/kml/2.2">
     <Document id="root_doc">
@@ -48,7 +46,8 @@ def KMLbeginning():
 	<Style><LineStyle><color>ffffffff</color></LineStyle><PolyStyle><fill>1</fill></PolyStyle></Style>
     <MultiGeometry>
     """
-def KMLending():
+
+def KmlEnding():
     return """
     </MultiGeometry>
     </Placemark>
@@ -57,7 +56,7 @@ def KMLending():
     </kml>
     """
 
-def KMLpolygon(points):
+def KmlPolygon(points):
     string = """
     <Polygon>
     <outerBoundaryIs><LinearRing><coordinates>
@@ -71,24 +70,25 @@ def KMLpolygon(points):
     """
     return string
 
-def makeKML(filename, points=[], obstacles=[], zones=[]):
+def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
     KMLSTRING = ""
-    KMLSTRING += KMLbeginning()
+    KMLSTRING += KmlBeginning()
     for point in points:
         toAdd = circleToPoints(point[0], point[1], POINT_RADIUS)
-        KMLSTRING += KMLpolygon(toAdd)
+        KMLSTRING += KmlPolygon(toAdd)
     for obstacle in obstacles:
         toAdd = circleToPoints(obstacle[0], obstacle[1], obstacle[2])
-        KMLSTRING += KMLpolygon(toAdd)
+        KMLSTRING += KmlPolygon(toAdd)
     for zone in zones:
-        KMLSTRING += KMLpolygon(zone)
-    KMLSTRING += KMLending()
+        KMLSTRING += KmlPolygon(zone)
+    KMLSTRING += KmlEnding()
     with open(filename, 'w+') as file:
         file.write(KMLSTRING)
         file.close()
 
-obstacles = [[38.861164455523,-77.4728393554688,500]]
-zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781,38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
-zoneStringPoints = zoneString.split(" ")
-zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
-makeKML('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
+def testMethod():
+    obstacles = [[38.861164455523,-77.4728393554688,500]]
+    zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781,38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
+    zoneStringPoints = zoneString.split(" ")
+    zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
+    makeKml('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
