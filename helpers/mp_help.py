@@ -4,6 +4,7 @@ import geopy.distance
 
 #Radius assumes feet
 def circleToPoints(centerx, centery, radius, num_points=40):
+    global POINT_RADIUS
     POINT_RADIUS = 15
     CONSTANT = 0.62137119  # Miles to kilometers
 
@@ -91,4 +92,7 @@ def testMethod():
     zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781,38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
     zoneStringPoints = zoneString.split(" ")
     zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
-    makeKml('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
+    makeKmlFile('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
+
+if __name__ == "__main__":
+    testMethod()
