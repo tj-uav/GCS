@@ -3,12 +3,13 @@ from google.protobuf import json_format
 import socket
 
 ADDRESS = '192.168.86.135'
-PORT = 5005
+PORT = 5012
 
 def init():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((ADDRESS, PORT))
+    print("Connection established.")
 
 def main():
     cl = client.Client(url='192.168.86.138', username='testuser', password='testpass')
