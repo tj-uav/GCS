@@ -2,7 +2,7 @@ import socket
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('192.168.86.135', 5012))
+    sock.bind(('', 5012))
     sock.listen()
     print("Server up")
     conn, addr = sock.accept()
