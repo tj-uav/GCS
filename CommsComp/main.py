@@ -108,8 +108,8 @@ def connect_interop(interop_url, username, password):
     cl = client.Client(url='http://127.0.0.1:8000',
                        username='testuser',
                        password='testpass')
-"""
-def make_odlc_from_data(message_data, odlc_id):
+
+def make_odlc_from_data(message_data):
     odlc = interop_api_pb2.Odlc()
     if 'type' in message_data and type(message_data['type']) == str:
         odlc.type = message_data['type']
@@ -142,13 +142,13 @@ def interop_handler(action, subaction, message_data=None):
         if message_data is None:
             print('Missing message data')
             return
-        assert(type(message_data) == dict)
-        if subaction == 'ODCL':
-            odlc = make_odlc_from_data(odlc)
-            odlc = cl.post_odlc(odlc)
-            if 'image_data' in message_data and type(message_data['image_data']) == bytes:
-                cl.put_odlc_image(odlc.id, message_data['image_data'])
-            return odlc
+#        assert(type(message_data) == dict)
+#        if subaction == 'ODCL':
+#            odlc = make_odlc_from_data(message_data=message_data)
+#            odlc = cl.post_odlc(odlc)
+#            if 'image_data' in message_data and type(message_data['image_data']) == bytes:
+#                cl.put_odlc_image(image_data=message_data['image_data'], odlc_id=odlc.id)
+#            return odlc
         elif subaction == 'TELEMETRY':
             telemetry = interop_api_pb2.Telemetry()
             reqs = [('latitude',float), ('longitude',float), ('altitude',int), ('heading',int)]
@@ -165,18 +165,18 @@ def interop_handler(action, subaction, message_data=None):
         if message_data is None:
             print('Missing message data')
             return
-        if 'ODCL_ID' not in message_data or type(message_data['ODCL_ID']) != int:
-            print('ERROR: Cannot PUT ODCL or ODCLIMAGE without valid ODCL_ID')
-            return
-        assert(type(message_data) == dict)
-        odlc_id = message_data['ODCL_ID']
-        if subaction == 'ODCL':
-            odlc = make_odlc_from_data(message_data=message_data, odlc_id=odlc_id)
-            odlc = cl.put_odlc(odlc)
-            return odlc
-        elif subaction == 'ODCLIMAGE':
-            if 'image_data' in message_data and type(message_data['image_data']) == bytes:
-                return cl.put_odlc_image(odlc_id, message_data['image_data'])
+#        if 'ODCL_ID' not in message_data or type(message_data['ODCL_ID']) != int:
+#            print('ERROR: Cannot PUT ODCL or ODCLIMAGE without valid ODCL_ID')
+#            return
+#        assert(type(message_data) == dict)
+#        odlc_id = message_data['ODCL_ID']
+#        if subaction == 'ODCL':
+#            odlc = make_odlc_from_data(message_data=message_data, odlc_id=odlc_id)
+#            odlc = cl.put_odlc(odlc)
+#            return odlc
+#        elif subaction == 'ODCLIMAGE':
+#            if 'image_data' in message_data and type(message_data['image_data']) == bytes:
+#            return cl.put_odlc_image(odlc_id, message_data['image_data'])
     elif action == 'GET':
         if subaction == 'MISSION':
             return cl.get_mission(MISSION_ID)
@@ -208,7 +208,7 @@ def interop_handler(action, subaction, message_data=None):
             cl.delete_odlc(odlc_id)
         elif subaction == 'ODCLIMAGE':
             cl.delete_odlc_image(odlc_id)
-"""
+
 def enqueue(destination, header, message, subheader = None):
 #    print(message)
     to_send = {}
