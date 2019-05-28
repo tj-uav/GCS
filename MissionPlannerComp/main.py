@@ -14,7 +14,8 @@ MILES_TO_KILOMETERS = 0.62137119  # Miles to kilometers
 COMMS_IP = '127.0.0.1'
 PORT = 5005
 MESSAGE_QUEUE = deque([])
-
+global x
+x = 5
 
 def start():
     connect_comms()
@@ -65,12 +66,12 @@ def connect_comms():
     send_thread = threading.Thread(target=send_data)
     send_thread.start()
 
-    telem_data_thread = threading.Thread(target=telem_data)
-    telem_data_thread.start()
-
-    time.sleep(10)
+#    telem_data_thread = threading.Thread(target=telem_data)
+#    telem_data_thread.start()
+    time.sleep(2)
+    global x
+    x = 0
     sock.close()
-    print(5/0)
     exit()
 
 def telem_data():
@@ -85,21 +86,6 @@ def telem_data():
         enqueue(destination=COMMS_IP, header='TELEMETRY_DATA', message=telem)
         print("Sleeping for 0.1 seconds...")
         time.sleep(.1)
-
-def open_file(filename):
-    global f
-    try:
-        f = open(filename, 'w+')  # Write to file, if file doesn't exist, create new
-    except FileNotFoundError as e:
-        print(e)
-
-def create_file(data):
-    for i in data:
-        toAdd = str(i[0]) + " " + str(i[1])
-        f.write(toAdd + "\n")
-    f.close()
-
-# from geopy.distance import vincenty
 
 #Radius assumes feet
 def circleToPoints(centerx, centery, radius, num_points=40):
@@ -187,24 +173,46 @@ def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
 
 def testMethod():
     obstacles = [[38.861164455523,-77.4728393554688,500]]
-    zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781,38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
+    zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781, 38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
     zoneStringPoints = zoneString.split(" ")
     zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
     makeKml('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
 
 
 def process_mission_data(mission_data):
-    json_format.Parse(mission_data, mission)
     print(mission_data)
-    mission_id = int(mission_data.id)
-    fly_zone_data = mission_data.fly_zones
-    fly_zone_pts = fly_zone_data['boundary_pts']
-    home_pos = mission_data['home_pos']
-    fence_pts = [home_pos] + fly_zone_pts
-    print('Fence: ',fence_pts)
-    obstacles_data = mission_data['stationary_obstacles']
+    mission_id = int(mission_data['id'])
 
-    makeKmlFile('mission_kml.kml', , obstacles[], zones=[])
+    fly_zone_data = mission_data['fly_zones']
+    fence_pts = []
+    for pt in fly_zone_data['boundary_pts']:
+        fence_pts.append((pt['latitude'],pt['longitude']))
+    maxAlt = float(fly_zone_data['altitudeMax'])
+    minAlt = float(fly_zone_data['altitudeMin'])
+
+    grid_pts = []
+    for pt in mission_data['searchGridPoints']:
+        grid_pts.append((float(pt['latitude']),float(pt['longitude'])))
+
+    waypoints = []
+    for pt in mission_data['waypoints']:
+        waypoints.append((float(pt['latitude']),float(pt['longitude']),float(pt['altitude'])))
+
+    obstacles_data = mission_data['stationary_obstacles']
+    obstacles = []
+    for obs in obstacles_data:
+        obstacles.append((float(obs['latitude']),float(obs['longitude']),float(obs['radius'])))
+
+    airDropPos_data = mission_data['airDropPos']
+    airDropPos = (float(airDropPos_data['latitude'], float(airDropPos_data['longitude'])))
+    offAxisPos_data = mission_data['offAxisOdlcPos']
+    offAxisPos = (float(offAxisPos_data['latitude'], float(offAxisPos_data['longitude'])))
+    emergentPos_data = mission_data['emergentLastKnownPos']
+    emergentPos = (float(emergentPos_data['latitude'], float(emergentPos_data['longitude'])))
+    
+    points_to_draw = airDropPos + offAxisPos + emergentPos + waypoints
+
+    makeKmlFile('mission_kml.kml', points=points_to_draw, obstacles=obstacles, zones=[grid_pts, fence_pts])
 #    filename = 'mission_boundary.fen'
 #    open_file(filename)
 #    create_file(filename,fence_pts)
@@ -229,7 +237,9 @@ def listen_from_device():
         data_string = data_bytes.decode("utf-8")
         data_dict = json.loads(data_string, object_hook = _decode_dict)
         command_ingest(data_dict)
-        break
+        global x
+        if x == 0:
+            return
 
 def command_ingest(message_dict):
     #Interpret messages based on header and other stuff
@@ -259,6 +269,9 @@ def send_data():
             nextMessage_bytes = nextMessage_json.encode('utf-8')
             sock.send(nextMessage_bytes)
             time.sleep(0.05) #Can be changed
+            global x
+            if x == 0:
+                return
 
 if __name__ == '__main__':
     start()
