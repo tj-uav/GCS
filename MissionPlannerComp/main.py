@@ -6,7 +6,7 @@ import time
 from collections import deque
 import json
 
-from ../helpers/mp_help import circleToPoints, makeKmlFile
+from mp_help import circleToPoints, makeKmlFile
 
 NUM_OBSTACLE_POINTS = 10
 MILES_TO_KILOMETERS = 0.62137119  # Miles to kilometers
@@ -23,26 +23,33 @@ def start():
 def _decode_list(data):
     rv = []
     for item in data:
-        if isinstance(item, unicode):
-            item = item.encode('utf-8')
-        elif isinstance(item, list):
+        if isinstance(item, list):
             item = _decode_list(item)
         elif isinstance(item, dict):
             item = _decode_dict(item)
+        else:
+            item = item.encode('utf-8')
         rv.append(item)
     return rv
 
 def _decode_dict(data):
     rv = {}
     for key, value in data.iteritems():
-        if isinstance(key, unicode):
-            key = key.encode('utf-8')
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
-        elif isinstance(value, list):
+        if isinstance(value, list):
             value = _decode_list(value)
         elif isinstance(value, dict):
             value = _decode_dict(value)
+        else:
+            key = key.encode('utf-8')
+            value = key.encode('utf-8')
+#        if isinstance(key, unicode):
+#            key = key.encode('utf-8')
+#        if isinstance(value, unicode):
+#            value = value.encode('utf-8')
+#        elif isinstance(value, list):
+#            value = _decode_list(value)
+#        elif isinstance(value, dict):
+#            value = _decode_dict(value)
         rv[key] = value
     return rv
 
@@ -92,14 +99,17 @@ def create_file(data):
         f.write(toAdd + "\n")
     f.close()
 
+# from geopy.distance import vincenty
 
-def obstacle_to_waypoints(obstacle):
-    coord = [obsatcle['latitude'], obstacle['longitude']]
-    radius = obstacle['radius']
-    start = geopy.Point(coord[0], coord[1])
-    km = (radius/5280)/MILES_TO_KILOMETERS
-    dist = geopy.distance.geodesic(kilometers=km)
-    obstacle_waypoints = []
+#Radius assumes feet
+def circleToPoints(centerx, centery, radius, num_points=40):
+    POINT_RADIUS = 15
+    CONSTANT = 0.62137119  # Miles to kilometers
+
+    start = geopy.Point(centerx, centery)
+    radius_km = (radius/5280)/CONSTANT
+    dist = geopy.distance.geodesic(kilometers=radius_km)
+    circlePoints = []
 
     for i in range(num_points):
         bearing_interval = int(360/num_points)
@@ -110,24 +120,91 @@ def obstacle_to_waypoints(obstacle):
         first = new_coord[0].split(" ")  # North/south
         north_south = float(first[0]) + (float(first[1][0:len(first[1])-1]))/60 + \
             (float(first[2][0:len(first[2])-1]))/3600
+        
+        if first[len(first)-1].strip() == "S":
+            north_south *= -1
 
         second = new_coord[1].split(" ")
         east_west = float(second[0]) + (float(second[1][0:len(second[1])-1]))/60 + \
             (float(second[2][0:len(second[2])-1]))/3600
 
-        final_coord = [north_south, east_west]
-        obstacle_waypoints.append(final_coord)
-    return obstacle_waypoints
+        if second[len(first)-1].strip() == "W":
+            east_west *= -1
+
+        final_coords = [north_south, east_west]
+        circlePoints.append(final_coords)
+    return circlePoints
+
+def KmlBeginning():
+    return """<?xml version="1.0" encoding="utf-8" ?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document id="root_doc">
+    <Folder><name>test</name>
+    <Placemark>
+	<name>polygon1</name>
+	<Style><LineStyle><color>ffffffff</color></LineStyle><PolyStyle><fill>1</fill></PolyStyle></Style>
+    <MultiGeometry>
+    """
+
+def KmlEnding():
+    return """
+    </MultiGeometry>
+    </Placemark>
+    </Folder>
+    </Document>
+    </kml>
+    """
+
+def KmlPolygon(points):
+    string = """
+    <Polygon>
+    <outerBoundaryIs><LinearRing><coordinates>
+    """
+    for point in points:
+        [a,b] = point
+        string += str(b) + "," + str(a) + "\n"
+    string += """
+    </coordinates></LinearRing></outerBoundaryIs>
+    </Polygon>
+    """
+    return string
+
+def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
+    KMLSTRING = ""
+    KMLSTRING += KmlBeginning()
+    for point in points:
+        toAdd = circleToPoints(point[0], point[1], POINT_RADIUS)
+        KMLSTRING += KmlPolygon(toAdd)
+    for obstacle in obstacles:
+        toAdd = circleToPoints(obstacle[0], obstacle[1], obstacle[2])
+        KMLSTRING += KmlPolygon(toAdd)
+    for zone in zones:
+        KMLSTRING += KmlPolygon(zone)
+    KMLSTRING += KmlEnding()
+    with open(filename, 'w+') as file:
+        file.write(KMLSTRING)
+        file.close()
+
+def testMethod():
+    obstacles = [[38.861164455523,-77.4728393554688,500]]
+    zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781,38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
+    zoneStringPoints = zoneString.split(" ")
+    zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
+    makeKml('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
 
 
 def process_mission_data(mission_data):
+    json_format.Parse(mission_data, mission)
     print(mission_data)
-    mission_id = int(mission_data['id'])
-    fly_zone_data = mission_data['fly_zones'][0]
+    mission_id = int(mission_data.id)
+    fly_zone_data = mission_data.fly_zones
     fly_zone_pts = fly_zone_data['boundary_pts']
     home_pos = mission_data['home_pos']
     fence_pts = [home_pos] + fly_zone_pts
     print('Fence: ',fence_pts)
+    obstacles_data = mission_data['stationary_obstacles']
+
+    makeKmlFile('mission_kml.kml', , obstacles[], zones=[])
 #    filename = 'mission_boundary.fen'
 #    open_file(filename)
 #    create_file(filename,fence_pts)
@@ -135,12 +212,12 @@ def process_mission_data(mission_data):
 #    open_file(filename)
 #    create_file(filename,obstacles_waypoints)
     
-def process_obstacle_data(obstacle_data):
-    obstacles_data = mission_data['stationary_obstacles']
-    obstacles_pts = []
-    for obstacle in obstacles_data:
-        obstacles_pts.append(obstacle_to_waypoints(obstacle))
-    print('Obstacles: ', obstacle_pnts)
+#def process_obstacle_data(mission_data):
+#    obstacles_data = mission_data['stationary_obstacles']
+#    obstacles_pts = []
+#    for obstacle in obstacles_data:
+#        obstacles_pts.append(obstacle_to_waypoints(obstacle))
+#    print('Obstacles: ', obstacle_pnts)
 
 
 def listen_from_device():
@@ -160,8 +237,7 @@ def command_ingest(message_dict):
     header = message_dict['HEADER']
     if header == 'MISSION_DATA':
         process_mission_data(message_dict['MESSAGE'])
-    elif header == 'OBSTACLE_DATA':
-        process_obstacle_data(message_dict['MESSAGE'])
+    
 
 def enqueue(destination, header, message, subheader = None):
     to_send = {}
