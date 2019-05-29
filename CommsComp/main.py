@@ -7,6 +7,7 @@ import json
 import requests
 import cv2
 import os
+from google.protobuf import json_format
 
 # AUVSI imports
 from auvsi_suas.client import client
@@ -30,6 +31,8 @@ ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6,
 global cl, saved_image_num
 cl = None
 saved_image_num = 0
+global x
+x = 5
 
 def start():
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -95,16 +98,16 @@ def video_capture():
 
 def connect_device(sock):
     conn, addr = sock.accept()
-    listen_thread = threading.Thread(target=listen_from_device, args=(conn,))
+    listen_thread = threading.Thread(target=listen_from_device, args=(conn,addr,))
     listen_thread.start()
     ip = addr[0]
     CONNECTIONS.append((ip, conn))
 
 def connect_interop(interop_url, username, password):
     global cl
-    cl = client.AsyncClient(url='http://127.0.0.1:8000',
-                       username='testuser',
-                       password='testpass')
+    cl = client.AsyncClient(url=interop_url,
+                       username=username,
+                       password=password)
 
 def make_odlc_from_data(message_data):
     odlc = interop_api_pb2.Odlc()
@@ -127,7 +130,7 @@ def make_odlc_from_data(message_data):
     return odlc
 
 
-def interop_handler(action, subaction, message_data=None):
+def interop_handler(action, subaction, sender, message_data=None):
     global cl
     if action not in ALLACTIONS:
         print("Action not found")
@@ -176,7 +179,9 @@ def interop_handler(action, subaction, message_data=None):
 #            return cl.put_odlc_image(odlc_id, message_data['image_data'])
     elif action == 'GET':
         if subaction == 'MISSION':
-            return cl.get_mission(MISSION_ID).result()
+            mission_obj = cl.get_mission(MISSION_ID).result()
+            mission_dict = json_format.MessageToDict(mission_obj)
+            enqueue(destination=sender, header='MISSION_DATA', message=mission_dict)
         elif subaction == 'ALLODCLS':
             return cl.get_odlcs(mission=MISSION_ID).result()
         else:
@@ -221,11 +226,11 @@ def my_ingest(message_dict):
     header = message_dict['HEADER']
     message = message_dict['MESSAGE']
     if header == 'INTEROP':
-        if 'subheader' not in message_dict:
+        if 'SUBHEADER' not in message_dict:
             print('Missing Subheader for Interop message')
             return
-        (action,subaction) = message_dict['subheader'].split(" ")
-        interop_handler(action, subaction, message)
+        (action,subaction) = message_dict['SUBHEADER'].split(" ")
+        interop_handler(action, subaction, message_dict['SOURCE'], message)
     elif header == "PRINT":
         print(message_dict['MESSAGE'])
     elif header == "TERMINATE":
@@ -260,14 +265,16 @@ def send_data():
             if x == 0:
                 return
 
-def listen_from_device(conn):
+def listen_from_device(conn, addr):
     #Constantly be listening
     #Upon receiving a message, pass it through the command_ingest
+    print(addr)
     while True:
         data_bytes = conn.recv(1024) 
+        print('GOTTEM')
         data_string = data_bytes.decode("utf-8")
         data_dict = json.loads(data_string)
-        ingest_thread = threading.Thread(target=command_ingest, args=data_dict)
+        ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
         ingest_thread.start()
         global x
         if x == 0:

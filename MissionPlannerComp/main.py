@@ -6,12 +6,14 @@ import time
 from collections import deque
 import json
 
-from mp_help import circleToPoints, makeKmlFile
+#from mp_help import circleToPoints, makeKmlFile
 
+POINT_RADIUS=15
 NUM_OBSTACLE_POINTS = 10
 MILES_TO_KILOMETERS = 0.62137119  # Miles to kilometers
 
 COMMS_IP = '127.0.0.1'
+MY_IP = '127.0.0.1'
 PORT = 5005
 MESSAGE_QUEUE = deque([])
 global x
@@ -60,15 +62,19 @@ def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
     sock.connect((COMMS_IP, PORT))
 
-    listen_thread = threading.Thread(target=listen_from_device)
+    listen_thread = threading.Thread(target=listen_from_device, args=(sock,))
     listen_thread.start()
 
-    send_thread = threading.Thread(target=send_data)
+    send_thread = threading.Thread(target=send_data, args=(sock,))
     send_thread.start()
+
+    time.sleep(2)
+    print('Requesting Mission')
+    enqueue(destination=COMMS_IP, header='INTEROP', subheader='GET MISSION', message={})
 
 #    telem_data_thread = threading.Thread(target=telem_data)
 #    telem_data_thread.start()
-    time.sleep(2)
+    time.sleep(4)
     global x
     x = 0
     sock.close()
@@ -175,17 +181,17 @@ def testMethod():
     obstacles = [[38.861164455523,-77.4728393554688,500]]
     zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781, 38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
     zoneStringPoints = zoneString.split(" ")
-    zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
-    makeKml('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
+    zones = [[(float(z.split(",")[1]), float(z.split(",")[0])) for z in zoneStringPoints]]
+    makeKmlFile('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
 
 
 def process_mission_data(mission_data):
     print(mission_data)
     mission_id = int(mission_data['id'])
 
-    fly_zone_data = mission_data['fly_zones']
+    fly_zone_data = mission_data['flyZones'][0]
     fence_pts = []
-    for pt in fly_zone_data['boundary_pts']:
+    for pt in fly_zone_data['boundaryPoints']:
         fence_pts.append((pt['latitude'],pt['longitude']))
     maxAlt = float(fly_zone_data['altitudeMax'])
     minAlt = float(fly_zone_data['altitudeMin'])
@@ -198,19 +204,19 @@ def process_mission_data(mission_data):
     for pt in mission_data['waypoints']:
         waypoints.append((float(pt['latitude']),float(pt['longitude']),float(pt['altitude'])))
 
-    obstacles_data = mission_data['stationary_obstacles']
+    obstacles_data = mission_data['stationaryObstacles']
     obstacles = []
     for obs in obstacles_data:
         obstacles.append((float(obs['latitude']),float(obs['longitude']),float(obs['radius'])))
 
     airDropPos_data = mission_data['airDropPos']
-    airDropPos = (float(airDropPos_data['latitude'], float(airDropPos_data['longitude'])))
+    airDropPos = (float(airDropPos_data['latitude']), float(airDropPos_data['longitude']))
     offAxisPos_data = mission_data['offAxisOdlcPos']
-    offAxisPos = (float(offAxisPos_data['latitude'], float(offAxisPos_data['longitude'])))
+    offAxisPos = (float(offAxisPos_data['latitude']), float(offAxisPos_data['longitude']))
     emergentPos_data = mission_data['emergentLastKnownPos']
-    emergentPos = (float(emergentPos_data['latitude'], float(emergentPos_data['longitude'])))
+    emergentPos = (float(emergentPos_data['latitude']), float(emergentPos_data['longitude']))
     
-    points_to_draw = airDropPos + offAxisPos + emergentPos + waypoints
+    points_to_draw = [airDropPos, offAxisPos, emergentPos] + waypoints
 
     makeKmlFile('mission_kml.kml', points=points_to_draw, obstacles=obstacles, zones=[grid_pts, fence_pts])
 #    filename = 'mission_boundary.fen'
@@ -219,24 +225,17 @@ def process_mission_data(mission_data):
 #    filename = 'obstacles.poly'
 #    open_file(filename)
 #    create_file(filename,obstacles_waypoints)
-    
-#def process_obstacle_data(mission_data):
-#    obstacles_data = mission_data['stationary_obstacles']
-#    obstacles_pts = []
-#    for obstacle in obstacles_data:
-#        obstacles_pts.append(obstacle_to_waypoints(obstacle))
-#    print('Obstacles: ', obstacle_pnts)
 
 
-def listen_from_device():
+def listen_from_device(sock):
     #Constantly be listening
     #Upon receiving a message, pass it through the command_ingest
     while True:
-        data_bytes = sock.recv(102400)
-        print('GOTTEM')
+        data_bytes = sock.recv(10240)
         data_string = data_bytes.decode("utf-8")
-        data_dict = json.loads(data_string, object_hook = _decode_dict)
-        command_ingest(data_dict)
+        data_dict = json.loads(data_string)
+        ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
+        ingest_thread.start()
         global x
         if x == 0:
             return
@@ -247,7 +246,6 @@ def command_ingest(message_dict):
     header = message_dict['HEADER']
     if header == 'MISSION_DATA':
         process_mission_data(message_dict['MESSAGE'])
-    
 
 def enqueue(destination, header, message, subheader = None):
     to_send = {}
@@ -259,9 +257,9 @@ def enqueue(destination, header, message, subheader = None):
         to_send['SUBHEADER'] = subheader
     MESSAGE_QUEUE.append(to_send)
 
-def send_data():
+def send_data(sock):
     #Check if MESSAGE_QUEUE is empty. If it is not empty, send that message to the corresponding device
-    if True:
+    while True:
         if MESSAGE_QUEUE:
             nextMessage = MESSAGE_QUEUE.popleft()
             DESTINATION_IP = nextMessage['DESTINATION']
