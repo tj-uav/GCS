@@ -2,7 +2,7 @@ from auvsi_suas.client import client
 from google.protobuf import json_format
 import socket
 
-ADDRESS = '10.16.188.191'
+ADDRESS = '192.168.137.27'
 
 PORT = 5005
 
