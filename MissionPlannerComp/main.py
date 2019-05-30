@@ -6,21 +6,30 @@ import time
 from collections import deque
 import json
 
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
+from google.protobuf import json_format
+
+
 #from mp_help import circleToPoints, makeKmlFile
 
 POINT_RADIUS=15
 NUM_OBSTACLE_POINTS = 10
 MILES_TO_KILOMETERS = 0.62137119  # Miles to kilometers
 
-COMMS_IP = '127.0.0.1'
 MY_IP = '127.0.0.1'
+ODCL_IP = '127.0.0.1'
 PORT = 5005
 MESSAGE_QUEUE = deque([])
+MISSION_ID = 1
 global x
 x = 5
 
 def start():
-    connect_comms()
+    connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
+    print('Connected')
+    process_mission_data()
+
 
 #HELPER METHODS
 def _decode_list(data):
@@ -56,6 +65,11 @@ def _decode_dict(data):
         rv[key] = value
     return rv
 
+def connect_interop(interop_url, username, password):
+    global cl
+    cl = client.AsyncClient(url=interop_url,
+                       username=username,
+                       password=password)
 
 def connect_comms():
     global sock
@@ -177,17 +191,11 @@ def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
         file.write(KMLSTRING)
         file.close()
 
-def testMethod():
-    obstacles = [[38.861164455523,-77.4728393554688,500]]
-    zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781, 38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
-    zoneStringPoints = zoneString.split(" ")
-    zones = [[(float(z.split(",")[1]), float(z.split(",")[0])) for z in zoneStringPoints]]
-    makeKmlFile('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
-
-
-def process_mission_data(mission_data):
-    print(mission_data)
-    mission_id = int(mission_data['id'])
+def process_mission_data():
+    global cl
+    mission_obj = cl.get_mission(MISSION_ID).result()
+    mission_data = json_format.MessageToDict(mission_obj)
+    print(mission_dict)
 
     fly_zone_data = mission_data['flyZones'][0]
     fence_pts = []

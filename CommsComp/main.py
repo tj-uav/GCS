@@ -43,7 +43,7 @@ def start():
         connect_device(my_socket)
         print("Connection achieved")
     
-    connect_interop("http://localhost:8000", "testuser", "testpass")
+    connect_interop("http://192.168.0.27:8000", "testuser", "testpass")
     # COMMENTED OUT BELOW LINES FOR TESTING
 #    send_mission_data()
     sending_thread = threading.Thread(target=send_data)
@@ -128,7 +128,6 @@ def make_odlc_from_data(message_data):
     if 'alphanumeric_color' in message_data and message_data['alphanumeric_color'] in ODCL_COLORCONV:
         odlc.alphanumeric_color = ODCL_COLORCONV[ message_data['alphanumeric_color']]
     return odlc
-
 
 def interop_handler(action, subaction, sender, message_data=None):
     global cl
