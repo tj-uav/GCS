@@ -1,3 +1,8 @@
+import sys
+sys.path.append("C:/Python27/Lib")
+sys.path.append("C:/Python27/Lib/site-packages")
+sys.path.append("E:/Jason/UAV/interop/client")
+print('Hi')
 import geopy
 import geopy.distance
 import socket
@@ -5,10 +10,12 @@ import threading
 import time
 from collections import deque
 import json
+print('Almost done')
 
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
+print('Done Importing')
 
 #from mp_help import circleToPoints, makeKmlFile
 
@@ -24,10 +31,12 @@ global x
 x = 5
 
 def start():
-    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
-    process_mission_data()
-    telem_thread = threading.Thread(target=telem_data)
-    telem_thread.start()
+    print('Starting')
+    connect_interop(interop_url='http://192.168.137.86:8000', username='testuser', password='testpass')
+    print('Connected')
+#    process_mission_data()
+#    telem_thread = threading.Thread(target=telem_data)
+#    telem_thread.start()
 
 #HELPER METHODS
 def _decode_list(data):
@@ -94,6 +103,7 @@ def connect_comms():
     exit()
 
 def telem_data():
+    global cl
     while True:
         telem = {
         'latitude': cs.lat,

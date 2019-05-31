@@ -1,6 +1,7 @@
 # from geopy.distance import vincenty
 import geopy
 import geopy.distance
+cs = None
 
 #Radius assumes feet
 def circleToPoints(centerx, centery, radius, num_points=40):
