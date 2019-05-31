@@ -2,7 +2,8 @@ import sys
 sys.path.append("C:/Python27/Lib")
 sys.path.append("C:/Python27/Lib/site-packages")
 sys.path.append("E:/Jason/UAV/interop/client")
-print('Hi')
+
+print('Started importing')
 import geopy
 import geopy.distance
 import socket
@@ -78,7 +79,7 @@ def connect_interop(interop_url, username, password):
                        username=username,
                        password=password)
 
-
+"""
 def connect_comms():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
@@ -101,6 +102,7 @@ def connect_comms():
     x = 0
     sock.close()
     exit()
+"""
 
 def telem_data():
     global cl
