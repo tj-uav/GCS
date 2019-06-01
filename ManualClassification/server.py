@@ -12,24 +12,33 @@ from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
 
-CLASSIFICATION_IP = '192.168.86.157'  # Need to change to IP of comms computer
-PORT = 5005
-BUFFER_SIZE = 1024000  # Can make this lower if we need speed
 IMAGE_BASENAME = 'assets/img/img_'
 IMAGE_ENDING = '.png'
 IMAGES_SAVED = {}
 
+CLASSIFICATION_IP = '127.0.0.1'  # Need to change to IP of comms computer
+PORT = 5050
+BUFFER_SIZE = 1024000  # Can make this lower if we need speed
+
 ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGLE' : 4, 'SQUARE' : 5, 'RECTANGLE' : 6, 'TRAPEZOID' : 7, 'PENTAGON' : 8, 'HEXAGON' : 9, 'HEPTAGON' : 10, 'OCTAGON' : 11, 'STAR' : 12, 'CROSS' : 13}
 ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
-MESSAGE_QUEUE = deque([])
-global app
-app = Flask("__name__", static_folder="assets")
 
-global image_num
+global app, image_num
+app = Flask("__name__", static_folder="assets")
 image_num = 0
 
-def save_image(image_string, geoloc):
+def main():
+    global app
+    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
+    connect_comms()
+    listen_thread = threading.Thread(target=listen)
+    listen_thread.start()
+	# Prevent CORS errors
+    CORS(app)
+    app.run()
+
+def save_image(image_string, img_geoloc):
     global image_num
 #    image_string = image_bytes.decode('utf-8')
     nparr = np.fromstring(image_string, np.uint8)
@@ -102,7 +111,7 @@ def listen():
 
 def command_ingest(message_dict):
     if 'IMAGE' not in message_dict or 'GEOLOC' not in message_dict:
-        print("Message dict is missing192.168.137.86 important aspects of image")
+        print("Message dict is missing important aspects of image")
     geoloc = (float(message_dict['GEOLOC']['LAT']), float(message_dict['GEOLOC']['LNG']), float(message_dict['GEOLOC']['ALT']))
     save_image(message_dict['IMAGE'], geoloc)
     return
@@ -117,12 +126,4 @@ def data():
     return 'hi'
 
 if __name__ == "__main__":
-    connect_interop(interop_url='http://98.:8000', username='testuser', password='testpass')
-    connect_comms()
-    listening_thread = threading.Thread(target=listen)
-    listening_thread.start()
-#	sock_thread = threading.Thread(target=sock_recv)
-#	sock_thread.start()
-	# Prevent CORS errors
-    CORS(app)
-    app.run()
+    main()

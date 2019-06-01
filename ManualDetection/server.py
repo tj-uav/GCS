@@ -9,7 +9,7 @@ import numpy as np
 import os
 from collections import deque
 
-PORT = 5005
+PORT = 5050
 MY_IP = '127.0.0.1'
 BUFFER_SIZE = 10000000  # Can make this lower if we need speed
 IMAGE_BASENAME = "assets/img/"
@@ -17,22 +17,25 @@ IMAGE_ENDING = ".png"
 CLASSIFICATION_IP = '127.0.0.1'
 
 IMAGES_SAVED = {}
-MESSAGE_QUEUE = deque([])
 
 global image_recent_num, MESSAGE_QUEUE, app
 image_recent_num = 0
 app = Flask("__name__", static_folder="assets")
+MESSAGE_QUEUE = deque([])
+sock = None
 
 def main():
     global app
     connect_comms()
+    sending_thread = threading.Thread(target=send_data)
+    sending_thread.start()
 
     app.config["CACHE_TYPE"] = "null"
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
     # Prevent CORS errors
     CORS(app)
-    app.run()
+    app.run(port=5005)
     time.sleep(0.5)
     os._exit(1)
 
@@ -84,6 +87,7 @@ def save_image(img_string, img_geoloc):
     print(image_recent_num)
 
 def connect_comms():
+    global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((MY_IP, PORT))
     sock.listen(1)
