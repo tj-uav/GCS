@@ -10,7 +10,6 @@ from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
 
-
 #from mp_help import circleToPoints, makeKmlFile
 
 POINT_RADIUS=15
@@ -29,7 +28,7 @@ def start():
     connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
     print('Connected')
     process_mission_data()
-
+    print('Created')
 
 #HELPER METHODS
 def _decode_list(data):
@@ -194,35 +193,33 @@ def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
 def process_mission_data():
     global cl
     mission_obj = cl.get_mission(MISSION_ID).result()
-    mission_data = json_format.MessageToDict(mission_obj)
-    print(mission_dict)
 
-    fly_zone_data = mission_data['flyZones'][0]
+    fly_zone_data = mission_obj.fly_zones[0]
     fence_pts = []
-    for pt in fly_zone_data['boundaryPoints']:
-        fence_pts.append((pt['latitude'],pt['longitude']))
-    maxAlt = float(fly_zone_data['altitudeMax'])
-    minAlt = float(fly_zone_data['altitudeMin'])
+    for pt in fly_zone_data.boundary_points:
+        fence_pts.append((pt.latitude,pt.longitude))
+    maxAlt = fly_zone_data.altitude_max
+    minAlt = fly_zone_data.altitude_min
 
     grid_pts = []
-    for pt in mission_data['searchGridPoints']:
-        grid_pts.append((float(pt['latitude']),float(pt['longitude'])))
+    for pt in mission_obj.search_grid_points:
+        grid_pts.append((pt.latitude, pt.longitude))
 
     waypoints = []
-    for pt in mission_data['waypoints']:
-        waypoints.append((float(pt['latitude']),float(pt['longitude']),float(pt['altitude'])))
+    for pt in mission_obj.waypoints:
+        waypoints.append((pt.latitude, pt.longitude, pt.altitude))
 
-    obstacles_data = mission_data['stationaryObstacles']
+    obstacles_data = mission_obj.stationary_obstacles
     obstacles = []
     for obs in obstacles_data:
-        obstacles.append((float(obs['latitude']),float(obs['longitude']),float(obs['radius'])))
+        obstacles.append((obs.latitude, obs.longitude, obs.radius))
 
-    airDropPos_data = mission_data['airDropPos']
-    airDropPos = (float(airDropPos_data['latitude']), float(airDropPos_data['longitude']))
-    offAxisPos_data = mission_data['offAxisOdlcPos']
-    offAxisPos = (float(offAxisPos_data['latitude']), float(offAxisPos_data['longitude']))
-    emergentPos_data = mission_data['emergentLastKnownPos']
-    emergentPos = (float(emergentPos_data['latitude']), float(emergentPos_data['longitude']))
+    airDropPos_data = mission_obj.air_drop_pos
+    airDropPos = (airDropPos_data.latitude, airDropPos_data.longitude)
+    offAxisPos_data = mission_obj.off_axis_odlc_pos
+    offAxisPos = (offAxisPos_data.latitude, offAxisPos_data.longitude)
+    emergentPos_data = mission_obj.emergent_last_known_pos
+    emergentPos = (emergentPos_data.latitude, emergentPos_data.longitude)
     
     points_to_draw = [airDropPos, offAxisPos, emergentPos] + waypoints
 

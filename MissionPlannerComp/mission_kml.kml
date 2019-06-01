@@ -299,10 +299,6 @@
     </coordinates></LinearRing></outerBoundaryIs>
     </Polygon>
     
-    <Point>
-    <coordinates>-90.86948943473118,48.25450093195546,0</coordinates>
-  </Point>
-   
     </MultiGeometry>
     </Placemark>
     </Folder>
