@@ -1,8 +1,9 @@
 import socket
+ADDRESS = '192.168.137.27'
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('localhost', 5012))
+    sock.bind((ADDRESS, 5005))
     sock.listen()
     print("Server up")
     conn, addr = sock.accept()

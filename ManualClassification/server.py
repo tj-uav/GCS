@@ -7,12 +7,12 @@ from flask_cors import CORS
 import cv2
 import numpy as np
 
-TCP_IP = '127.0.0.1'  # Need to change to IP of comms computer
-TCP_PORT = 5005
+MY_IP = '127.0.0.1'  # Need to change to IP of comms computer
+PORT = 5005
 BUFFER_SIZE = 1024  # Can make this lower if we need speed
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#sock.connect((TCP_IP, TCP_PORT))
+
+
 global image_num
 image_num = 0
 
@@ -25,18 +25,22 @@ def save_image(image_string):
     cv2.imwrite("assets/LiveImage" + str(image_num) + ".png", img)
     image_num += 1
 
-def sock_recv():
-    while True:
-        temp = sock.recv(1000000)
-        save_image(temp)
+def connect_comms():
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock.bind((TCP_IP, PORT))
+	sock.listen(1)
+	global conn
+	conn, addr = sock.accept()
 
-sock_thread = threading.Thread(target=sock_recv)
-sock_thread.start()
 
-app = Flask("__name__", static_folder="assets")
+#def sock_recv():
+#	global
+#    while True:
+#        temp = conn.recv(1000000)
+#		ingest(temp.decode('utf-8'))
+#        save_image(temp)
 
-# Prevent CORS errors
-CORS(app)
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -45,5 +49,12 @@ def index():
 def data():
     print('hi')
     return 'hi'
+
 if __name__ == "__main__":
+	connect_comms()
+#	sock_thread = threading.Thread(target=sock_recv)
+#	sock_thread.start()
+	app = Flask("__name__", static_folder="assets")
+	# Prevent CORS errors
+	CORS(app)
     app.run()

@@ -1,3 +1,9 @@
+import sys
+sys.path.append("C:/Python27/Lib")
+sys.path.append("C:/Python27/Lib/site-packages")
+sys.path.append("E:/Jason/UAV/interop/client")
+
+print('Started importing')
 import geopy
 import geopy.distance
 import socket
@@ -5,6 +11,12 @@ import threading
 import time
 from collections import deque
 import json
+print('Almost done')
+
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
+from google.protobuf import json_format
+print('Done Importing')
 
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
@@ -12,10 +24,14 @@ from google.protobuf import json_format
 
 #from mp_help import circleToPoints, makeKmlFile
 
-POINT_RADIUS=15
+POINT_RADIUS = 15
 NUM_OBSTACLE_POINTS = 10
 MILES_TO_KILOMETERS = 0.62137119  # Miles to kilometers
 
+<<<<<<< HEAD
+=======
+MISSION_ID = 1
+>>>>>>> 3cac1b3c1b845affee26e57759d5039a450183da
 MY_IP = '127.0.0.1'
 ODCL_IP = '127.0.0.1'
 PORT = 5005
@@ -25,10 +41,19 @@ global x
 x = 5
 
 def start():
+<<<<<<< HEAD
     connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
     print('Connected')
     process_mission_data()
     print('Created')
+=======
+    print('Starting')
+    connect_interop(interop_url='http://192.168.137.86:8000', username='testuser', password='testpass')
+    print('Connected')
+#    process_mission_data()
+#    telem_thread = threading.Thread(target=telem_data)
+#    telem_thread.start()
+>>>>>>> 3cac1b3c1b845affee26e57759d5039a450183da
 
 #HELPER METHODS
 def _decode_list(data):
@@ -70,6 +95,7 @@ def connect_interop(interop_url, username, password):
                        username=username,
                        password=password)
 
+"""
 def connect_comms():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
@@ -92,8 +118,10 @@ def connect_comms():
     x = 0
     sock.close()
     exit()
+"""
 
 def telem_data():
+    global cl
     while True:
         telem = {
         'latitude': cs.lat,
@@ -102,7 +130,8 @@ def telem_data():
         'heading': cs.yaw
         }
 
-        enqueue(destination=COMMS_IP, header='TELEMETRY_DATA', message=telem)
+#        enqueue(destination=COMMS_IP, header='TELEMETRY_DATA', message=telem)
+        cl.post_telemetry(telem)
         print("Sleeping for 0.1 seconds...")
         time.sleep(.1)
 
@@ -193,6 +222,12 @@ def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
 def process_mission_data():
     global cl
     mission_obj = cl.get_mission(MISSION_ID).result()
+<<<<<<< HEAD
+=======
+    mission_data = json_format.MessageToDict(mission_obj)
+    mission_id = int(mission_data['id'])
+    print(mission_data)
+>>>>>>> 3cac1b3c1b845affee26e57759d5039a450183da
 
     fly_zone_data = mission_obj.fly_zones[0]
     fence_pts = []
@@ -231,7 +266,7 @@ def process_mission_data():
 #    open_file(filename)
 #    create_file(filename,obstacles_waypoints)
 
-
+"""
 def listen_from_device(sock):
     #Constantly be listening
     #Upon receiving a message, pass it through the command_ingest
@@ -275,6 +310,6 @@ def send_data(sock):
             global x
             if x == 0:
                 return
-
+"""
 if __name__ == '__main__':
     start()
