@@ -30,8 +30,6 @@ def main():
     global app
     connect_interop(interop_url='http://192.168.137.86:8000', username='testuser', password='testpass')
     connect_comms()
-    listening_thread = threading.Thread(target=listen)
-    listening_thread.start()
 
     app.config["CACHE_TYPE"] = "null"
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -63,6 +61,12 @@ def enqueue(destination, header, message, subheader = None):
     if subheader:
         to_send['SUBHEADER'] = subheader
     MESSAGE_QUEUE.append(to_send)
+
+def send(image_num):
+    message_dict = {}
+    message_dict['IMAGE'] = cv2.imread(IMAGE_BASENAME + str(image_num) + IMAGE_ENDING)
+    message_dict['GEOLOC'] = GEOLOCS[i]
+    enqueue(destination=CLASSIFICATION_IP, header='IMAGE_DATA', )
 
 def delete_image(img_num):
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING

@@ -6,8 +6,9 @@ from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 import cv2
 import numpy as np
+from collections import deque
 
-MY_IP = '127.0.0.1'  # Need to change to IP of comms computer
+CLASSIFICATION_IP = '192.168.86.157'  # Need to change to IP of comms computer
 PORT = 5005
 BUFFER_SIZE = 1024  # Can make this lower if we need speed
 
@@ -15,6 +16,8 @@ ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGL
 ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
 MESSAGE_QUEUE = deque([])
+global app
+app = Flask("__name__", static_folder="assets")
 
 global image_num
 image_num = 0
@@ -73,13 +76,6 @@ def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
     sock.connect((CLASSIFICATION_IP, PORT))
 
-#def sock_recv():
-#	global
-#    while True:
-#        temp = conn.recv(1000000)
-#		ingest(temp.decode('utf-8'))
-#        save_image(temp)
-
 def listen():
     global sock
     while True:
@@ -106,16 +102,12 @@ def data():
     print('hi')
     return 'hi'
 
-@app.route("/data")
-def data():
-    print('hi')
-    return
-
 if __name__ == "__main__":
-	connect_comms()
+    connect_comms()
+    listening_thread = threading.Thread(target=listen)
+    listening_thread.start()
 #	sock_thread = threading.Thread(target=sock_recv)
 #	sock_thread.start()
-	app = Flask("__name__", static_folder="assets")
 	# Prevent CORS errors
-	CORS(app)
+    CORS(app)
     app.run()
