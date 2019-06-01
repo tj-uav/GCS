@@ -9,10 +9,6 @@ import numpy as np
 import os
 from collections import deque
 
-from auvsi_suas.client import client
-from auvsi_suas.proto import interop_api_pb2
-from google.protobuf import json_format
-
 PORT = 5005
 MY_IP = '127.0.0.1'
 BUFFER_SIZE = 10000000  # Can make this lower if we need speed
@@ -21,6 +17,7 @@ IMAGE_ENDING = ".png"
 CLASSIFICATION_IP = '127.0.0.1'
 
 IMAGES_SAVED = {}
+MESSAGE_QUEUE = deque([])
 
 global image_recent_num, MESSAGE_QUEUE, app
 image_recent_num = 0
@@ -28,7 +25,6 @@ app = Flask("__name__", static_folder="assets")
 
 def main():
     global app
-    connect_interop(interop_url='http://192.168.137.86:8000', username='testuser', password='testpass')
     connect_comms()
 
     app.config["CACHE_TYPE"] = "null"
@@ -62,11 +58,11 @@ def enqueue(destination, header, message, subheader = None):
         to_send['SUBHEADER'] = subheader
     MESSAGE_QUEUE.append(to_send)
 
-def send(image_num):
+def send_image(image_num):
     message_dict = {}
     message_dict['IMAGE'] = cv2.imread(IMAGE_BASENAME + str(image_num) + IMAGE_ENDING)
-    message_dict['GEOLOC'] = GEOLOCS[i]
-    enqueue(destination=CLASSIFICATION_IP, header='IMAGE_DATA', )
+    message_dict['GEOLOC'] = IMAGES_SAVED[IMAGE_BASENAME + str(image_num) + IMAGE_ENDING]
+    enqueue(destination=CLASSIFICATION_IP, header='IMAGE_DATA', message=message_dict)
 
 def delete_image(img_num):
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
@@ -89,16 +85,10 @@ def save_image(img_string, img_geoloc):
 
 def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sock.bind((TCP_IP, PORT))
-	sock.listen(1)
-	global conn
-	conn, addr = sock.accept()
-
-def connect_interop(interop_url, username, password):
-    global cl
-    cl = client.AsyncClient(url=interop_url,
-                       username=username,
-                       password=password)
+    sock.bind((MY_IP, PORT))
+    sock.listen(1)
+    global conn
+    conn, addr = sock.accept()
 
 @app.route("/")
 def index():
