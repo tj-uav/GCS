@@ -10,7 +10,7 @@ from collections import deque
 
 CLASSIFICATION_IP = '192.168.86.157'  # Need to change to IP of comms computer
 PORT = 5005
-BUFFER_SIZE = 1024  # Can make this lower if we need speed
+BUFFER_SIZE = 1024000  # Can make this lower if we need speed
 
 ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGLE' : 4, 'SQUARE' : 5, 'RECTANGLE' : 6, 'TRAPEZOID' : 7, 'PENTAGON' : 8, 'HEXAGON' : 9, 'HEPTAGON' : 10, 'OCTAGON' : 11, 'STAR' : 12, 'CROSS' : 13}
 ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
