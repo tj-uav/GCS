@@ -13,7 +13,7 @@ from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
 
-PORT = 5005
+PORT = 5000
 MY_IP = '127.0.0.1'
 BUFFER_SIZE = 10000000  # Can make this lower if we need speed
 IMAGE_BASENAME = "assets/img/"
@@ -25,13 +25,15 @@ IMAGES_SAVED = {}
 global image_recent_num, MESSAGE_QUEUE, app
 image_recent_num = 0
 app = Flask("__name__", static_folder="assets")
+MESSAGE_QUEUE = deque([])
+sock = None
 
 def main():
     global app
-    connect_interop(interop_url='http://192.168.137.86:8000', username='testuser', password='testpass')
+#    connect_interop(interop_url='http://192.168.137.86:8000', username='testuser', password='testpass')
     connect_comms()
-    listening_thread = threading.Thread(target=listen)
-    listening_thread.start()
+    sending_thread = threading.Thread(target=send_data)
+    sending_thread.start()
 
     app.config["CACHE_TYPE"] = "null"
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -84,11 +86,12 @@ def save_image(img_string, img_geoloc):
     print(image_recent_num)
 
 def connect_comms():
+    global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sock.bind((TCP_IP, PORT))
-	sock.listen(1)
-	global conn
-	conn, addr = sock.accept()
+    sock.bind((MY_IP, PORT))
+    sock.listen(1)
+    global conn
+    conn, addr = sock.accept()
 
 def connect_interop(interop_url, username, password):
     global cl

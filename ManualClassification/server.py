@@ -8,16 +8,27 @@ import cv2
 import numpy as np
 
 MY_IP = '127.0.0.1'  # Need to change to IP of comms computer
-PORT = 5005
+PORT = 5000
 BUFFER_SIZE = 1024  # Can make this lower if we need speed
 
 ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGLE' : 4, 'SQUARE' : 5, 'RECTANGLE' : 6, 'TRAPEZOID' : 7, 'PENTAGON' : 8, 'HEXAGON' : 9, 'HEPTAGON' : 10, 'OCTAGON' : 11, 'STAR' : 12, 'CROSS' : 13}
 ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
-MESSAGE_QUEUE = deque([])
 
 global image_num
 image_num = 0
+
+global app
+app = Flask("__name__", static_folder="assets")
+
+def main():
+    connect_comms()
+#	sock_thread = threading.Thread(target=sock_recv)
+#	sock_thread.start()
+    app = Flask("__name__", static_folder="assets")
+	# Prevent CORS errors
+    CORS(app)
+    app.run()
 
 def save_image(image_string):
     global image_num
@@ -71,7 +82,7 @@ def submit_odcl(img_num, data):
 def connect_comms():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
-    sock.connect((CLASSIFICATION_IP, PORT))
+    sock.connect((MY_IP, PORT))
 
 #def sock_recv():
 #	global
@@ -106,16 +117,5 @@ def data():
     print('hi')
     return 'hi'
 
-@app.route("/data")
-def data():
-    print('hi')
-    return
-
 if __name__ == "__main__":
-	connect_comms()
-#	sock_thread = threading.Thread(target=sock_recv)
-#	sock_thread.start()
-	app = Flask("__name__", static_folder="assets")
-	# Prevent CORS errors
-	CORS(app)
-    app.run()
+    main()
