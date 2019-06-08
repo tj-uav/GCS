@@ -145,6 +145,7 @@ function submit_standard(){
   dict['alphanumericColor'] = alpha_color_dropdown.value;
   dict['autonomous'] = false;
   add_submission(dict);
+  server_post(dict)
 }
 
 function add_submission(dict, image){
@@ -212,3 +213,24 @@ var updateData = function () {
     });
 };
 setInterval(updateData, 500)
+
+function server_post(post_dict){
+  $.ajax({
+      url: 'receiver',
+      type: 'POST',
+      dataType: 'json',
+      data: JSON.stringify(post_dict),
+      contentType:"application/json; charset=UTF-8"
+  })
+  .done(function(data) {
+      // do stuff here
+      console.log("POSTED DATA");
+      console.log(data);
+  })
+  .fail(function(err) {
+      // do stuff here
+  })
+  .always(function(info) {
+      // do stuff here
+  });
+}

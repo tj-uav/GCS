@@ -25,6 +25,9 @@ ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGL
 ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
 
+writepath = "C:/Users/Ganes/Documents/hi.txt"
+writer = open(writepath, "w")
+
 global app, image_num
 app = Flask("__name__", static_folder="assets")
 image_num = 1
@@ -72,6 +75,7 @@ def delete_image(img_num):
         pass
 
 def make_odlc_from_data(message_data):
+    
     odlc = interop_api_pb2.Odlc()
     if 'type' in message_data and isinstance(message_data['type'], str):
         odlc.type = message_data['type']
@@ -146,6 +150,15 @@ def data():
     DIR = 'assets/img'
     files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR,name))]
     return json.dumps({'highest': len(files)})
+
+@app.route('/receiver', methods = ["GET", "POST"])
+def receiver():
+    if request.method == "POST":
+        data = request.get_json()
+        writer.write(dict)
+        
+    return 'OK'
+
 
 if __name__ == "__main__":
     main()
