@@ -1,26 +1,36 @@
 import sys
+#print(sys.path)
+#from google.protobuf import json_format
 sys.path.append("C:/Python27/Lib")
 sys.path.append("C:/Python27/Lib/site-packages")
+sys.path.append("C:/Python27/Lib/site-packages/google")
+sys.path.append("C:/Python27/Lib/site-packages/google/protobuf")
 sys.path.append("E:/Jason/UAV/interop/client")
-
+import google.protobuf.json_format
+#to_import = [ 'E:/Jason/UAV/interop/client', 'C:/WINDOWS/SYSTEM32/python27.zip', 'C:/Python27/DLLs', 'C:/Python27/lib',
+#    'C:/Python27/lib/plat-win', 'C:/Python27/lib/lib-tk', 'C:/Python27', 'C:/Python27/lib/site-packages']
+#for path in to_import:
+#    sys.path.append(path)
 print('Started importing')
+print("\n", sys.path)
+#import google
+#import json_format
 import geopy
 import geopy.distance
 import socket
 import threading
 import time
-from collections import deque
+from collections import deque   
 import json
 print('Almost done')
 
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
-from google.protobuf import json_format
 print('Done Importing')
 
-from auvsi_suas.client import client
-from auvsi_suas.proto import interop_api_pb2
-from google.protobuf import json_format
+#from auvsi_suas.client import client
+#from auvsi_suas.proto import interop_api_pb2
+#from google.protobuf import json_format
 
 #from mp_help import circleToPoints, makeKmlFile
 
