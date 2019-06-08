@@ -146,7 +146,7 @@ function submit_standard(){
   dict['alphanumericColor'] = alpha_color_dropdown.value;
   dict['autonomous'] = false;
   add_submission(dict);
-  server_post({})
+  server_post(dict)
   console.log("haw")
 }
 
@@ -232,7 +232,7 @@ function server_post(post_dict){
   .fail(function(err) {
       // do stuff here
   })
-  .always(function(info) {
+  .always(function(info) {  
       // do stuff here
   });
 }

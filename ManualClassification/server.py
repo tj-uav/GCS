@@ -153,10 +153,10 @@ def data():
 
 @app.route('/receiver', methods = ["GET", "POST"])
 def receiver():
+    print('hi')
     if request.method == "POST":
         data = request.get_json()
-        writer.write(dict)
-        
+        print(data)
     return 'OK'
 
 
