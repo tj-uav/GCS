@@ -17,7 +17,7 @@
   {% block body %}
     <div id="root">
       <div id="imageDiv" style="float: left;">
-        <img width="350" height="350" src="{{ url_for('static', filename='img/generictarget.jpg')}}" id="myImage">
+        <img width="350" height="350" src="{{ url_for('static', filename='img/1.jpg')}}" id="myImage">
         <div ID="rubberBand"></div>
         <img id="cropView" style="display: block; padding: 50 25px;">
         <script type="text/javascript" src="{{ url_for('static', filename='build/image-clipper.js')}}"></script>
@@ -27,10 +27,11 @@
         </script>
         {% endblock %}
       </div>
+
         <!-- Tab links -->
         <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'ImageInfo')" left="100px">Image Info</button>
             <button class="tablinks" onclick="openTab(event, 'Standard')" left="100px">Standard</button>
-            <button class="tablinks" onclick="openTab(event, 'Emergent')" left="100px">Emergent</button>
             <button class="tablinks" onclick="openTab(event, 'Submissions')" left="100px">Submissions</button>
         </div>
 
@@ -72,9 +73,23 @@
         </div>
 
 
-        <div id="Emergent" class="tabcontent">
-            <h3>Emergent Object Submission</h3>
-            <p>Emergent.</p>
+        <div id="ImageInfo" class="tabcontent">
+          <div id="textDiv">
+            <h2>Lowest: <span id="lowest_index"></span></h2>
+            <h2>Current: <span id="current_index"></span></h2>
+            <h2>Highest: <span id="highest_index"></span></h2>
+          </div>
+          <input id="goto_input" placeholder="image number" type="number" onkeyup="gotoBoundary(this)">
+          <button id="goto_btn" onclick="gotoImage(parseInt(document.getElementById('goto_input').value))" type='button'>Go to</button>
+          <div id="button-group" style="padding-top: 20px;">
+            <button onclick='previous()' type="button">Previous</button>
+            <button onclick='next()' type="button">Next</button>
+          </div>
+  <!--
+            <div class="slidecontainer" style="float: left; display: block; padding-top: 80px;">
+              <input type="range" min="0" max="100" value="0" class="slider" id="image_slide" oninput="gotoImage(parseInt(this.value))">
+            </div>
+-->
         </div>
 
         <div id="Submissions" class="tabcontent">

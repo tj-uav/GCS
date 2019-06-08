@@ -1,8 +1,20 @@
 var IMG;
 var subCount;
-//const COMMS_SOCKET = new WebSocket('ws://127.0.0.1:5000')
+const IMG_FILENAME = '';
+const IMG_EXTENSION = '.PNG';
+var IMG;
+var currNum = 0;
+var lowest = 0;
+var highest = 100;
 
 function init(){
+  currNum = 0;
+  lowest = 0;
+  highest = 0;
+  document.getElementById("lowest_index").innerHTML = lowest + "";
+  document.getElementById("current_index").innerHTML = currNum + "";
+  document.getElementById("highest_index").innerHTML = highest + "";
+
   subCount = 0;
   SHAPE_OPTIONS = ["Circle", "Semicircle", "Quarter_circle", "Triangle", "Square", "Rectangle", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Star", "Cross"]
   COLOR_OPTIONS = ["Black", "Gray", "White", "Red", "Blue", "Green", "Brown", "Orange", "Yellow", "Purple"]
@@ -21,6 +33,39 @@ function init(){
 }
 
 init();
+
+function previous(){
+  if(currNum > lowest + 1){
+    currNum -= 1;
+    setImageCurr();
+  }
+}
+
+function next(){
+  console.log('hi')
+  if(currNum < highest){
+    currNum += 1;
+    setImageCurr();
+  }
+}
+
+function setImageCurr(){
+  img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+  IMG.src = img_filename;
+  document.getElementById("current_index").innerHTML = currNum + "";
+}
+
+function gotoBoundary(inp){
+  let val = parseInt(inp.value);
+  val = Math.max(lowest, val);
+  val = Math.min(highest,val);
+}
+
+function gotoImage(value){
+  let val = parseInt(value);
+  currNum = val;
+  setImageCurr();
+}
 
 function openTab(evt, tabName) {
   // Declare all variables
@@ -151,36 +196,19 @@ function add_submission(dict, image){
   subCount++;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-var updateData = function() {
-    fetch("http://localhost:5000/data")
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            // Update the DOM
-
-        })
-        .catch(function() {
-            console.log("Error occured with data request");
-        });
+var updateData = function () {
+  fetch("http://localhost:5000/data")
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      // Update the DOM
+      highest = data['highest'];
+      document.getElementById("highest_index").innerHTML = highest + "";
+      document.getElementById('image_slide').max = highest;
+    })
+    .catch(function () {
+      console.log("Error occured with data request");
+    });
 };
-*/
-//setInterval(updateData, 5);
+setInterval(updateData, 500)

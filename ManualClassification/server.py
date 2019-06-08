@@ -7,12 +7,13 @@ from flask_cors import CORS
 import cv2
 import numpy as np
 from collections import deque
+import os
 
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
 
-IMAGE_BASENAME = 'assets/img/img_'
+IMAGE_BASENAME = 'assets/img/'
 IMAGE_ENDING = '.png'
 IMAGES_SAVED = {}
 
@@ -26,26 +27,39 @@ ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6,
 
 global app, image_num
 app = Flask("__name__", static_folder="assets")
-image_num = 0
+image_num = 1
 
 def main():
     global app
-    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
-    connect_comms()
-    listen_thread = threading.Thread(target=listen)
-    listen_thread.start()
+#    print('Trying to connect')
+#    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
+#    connect_comms()
+#    print('Connected')
+#    listen_thread = threading.Thread(target=listen)
+#    listen_thread.start()
 	# Prevent CORS errors
     CORS(app)
     app.run()
+
+def recvall(count):
+    global sock
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf: return None
+        buf += newbuf
+        count -= len(newbuf)
+    return buf
 
 def save_image(image_string, img_geoloc):
     global image_num
 #    image_string = image_bytes.decode('utf-8')
     nparr = np.fromstring(image_string, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+#    cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     cv2.imwrite(IMAGE_BASENAME + str(image_num) + IMAGE_ENDING, img)
-    IMAGES_SAVED[image_recent_num] = img_geoloc
+    if img_geoloc:
+        IMAGES_SAVED[image_recent_num] = img_geoloc
     image_num += 1
 
 def delete_image(img_num):
@@ -102,19 +116,26 @@ def connect_interop(interop_url, username, password):
 def listen():
     global sock
     while True:
-        data_bytes = sock.recv(BUFFER_SIZE)
-        print("RECEIVED")
-        data_string = data_bytes.decode('utf-8')
-        data_dict = json.loads(data_string)
-        ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
-        ingest_thread.start()
+        length = recvall(16).decode()
+        stringData = recvall(int(length))
+ #       data = numpy.fromstring(stringData, dtype='uint8')
+#        img = cv2.imdecode(data,1)
+        save_image(stringData, None)
+#        data_bytes = sock.recv(BUFFER_SIZE)
+#        print("RECEIVED")
+#        data_string = data_bytes.decode('utf-8')
+#        data_dict = json.loads(data_string)
+#        ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
+#        ingest_thread.start()
 
-def command_ingest(message_dict):
-    if 'IMAGE' not in message_dict or 'GEOLOC' not in message_dict:
-        print("Message dict is missing important aspects of image")
-    geoloc = (float(message_dict['GEOLOC']['LAT']), float(message_dict['GEOLOC']['LNG']), float(message_dict['GEOLOC']['ALT']))
-    save_image(message_dict['IMAGE'], geoloc)
-    return
+#def command_ingest(message_dict):
+#    if 'IMAGE' not in message_dict or 'GEOLOC' not in message_dict:
+#        print("Message dict is missing important aspects of image")
+#    geoloc = None
+#    if 'GEOLOC' in message_dict:
+#        geoloc = (float(message_dict['GEOLOC']['LAT']), float(message_dict['GEOLOC']['LNG']), float(message_dict['GEOLOC']['ALT']))
+#    save_image(message_dict['IMAGE'], geoloc)
+#    return
 
 @app.route("/")
 def index():
@@ -122,8 +143,9 @@ def index():
 
 @app.route("/data")
 def data():
-    print('hi')
-    return 'hi'
+    DIR = 'assets/img'
+    files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR,name))]
+    return json.dumps({'highest': len(files)})
 
 if __name__ == "__main__":
     main()
