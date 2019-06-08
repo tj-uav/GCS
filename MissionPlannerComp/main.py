@@ -6,15 +6,16 @@ sys.path.append("C:/Python27/Lib/site-packages")
 sys.path.append("C:/Python27/Lib/site-packages/google")
 sys.path.append("C:/Python27/Lib/site-packages/google/protobuf")
 sys.path.append("E:/Jason/UAV/interop/client")
-import google.protobuf.json_format
+#import google.protobuf.json_format
 #to_import = [ 'E:/Jason/UAV/interop/client', 'C:/WINDOWS/SYSTEM32/python27.zip', 'C:/Python27/DLLs', 'C:/Python27/lib',
 #    'C:/Python27/lib/plat-win', 'C:/Python27/lib/lib-tk', 'C:/Python27', 'C:/Python27/lib/site-packages']
 #for path in to_import:
 #    sys.path.append(path)
 print('Started importing')
-print("\n", sys.path)
+print(sys.path)
 #import google
 #import json_format
+#from google.protobuf import json_format
 import geopy
 import geopy.distance
 import socket
