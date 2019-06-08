@@ -110,15 +110,13 @@ def connect_comms():
 def telem_data():
     global cl
     while True:
-        telem = {
-        'latitude': cs.lat,
-        'longitude': cs.lng,
-        'altitude': cs.alt,
-        'heading': cs.yaw
-        }
-
+        telemetry = interop_api_pb2.Telemetry()
+        telemetry.altitude = cs.lat
+        telemetry.longitude = cs.lng
+        telemetry.alt = cs.alt
+        telemetry.heading = cs.yaw
 #        enqueue(destination=COMMS_IP, header='TELEMETRY_DATA', message=telem)
-        cl.post_telemetry(telem)
+        cl.post_telemetry(telemetry)
         print("Sleeping for 0.1 seconds...")
         time.sleep(.1)
 
