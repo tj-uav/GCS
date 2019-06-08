@@ -127,6 +127,7 @@ function getClosestOrientation(val){
 }
 
 function submit_standard(){
+  console.log("yee")
   let slide = document.getElementById("slide");
   let shape_dropdown = document.getElementById("shape_dropdown");
   let shape_color_dropdown = document.getElementById("shape_color_dropdown");
@@ -145,7 +146,8 @@ function submit_standard(){
   dict['alphanumericColor'] = alpha_color_dropdown.value;
   dict['autonomous'] = false;
   add_submission(dict);
-  server_post(dict)
+  server_post({})
+  console.log("haw")
 }
 
 function add_submission(dict, image){

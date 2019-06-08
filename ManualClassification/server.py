@@ -34,8 +34,8 @@ image_num = 1
 
 def main():
     global app
-#    print('Trying to connect')
-#    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
+   # print('Trying to connect')
+   # connect_interop(interop_url='http://192.168.1.109:8000', username='testuser', password='testpass')
 #    connect_comms()
 #    print('Connected')
 #    listen_thread = threading.Thread(target=listen)

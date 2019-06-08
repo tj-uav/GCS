@@ -100,9 +100,12 @@
             </nav>
         </div>
         {% block javascript1 %}
+      
         <script type="text/javascript">
+          {% include "jquery.js" %}
           {% include "index.js" %}
         </script>
+        
         {% endblock %}
     </div>
     {% endblock %}
