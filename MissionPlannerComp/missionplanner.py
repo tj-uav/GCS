@@ -43,8 +43,8 @@ def telem_data():
 #        packet['lng'] = cs.lng
 #        packet['alt'] = cs.alt
 #        packet['head'] = cs.yaw
-        packet['lat'] = random.random() * 180
-        packet['lng'] = random.random() * 90
+        packet['lat'] = random.random() * 90
+        packet['lng'] = random.random() * 180
         packet['alt'] = random.randrange(100,200)
         packet['head'] = random.randrange(0,360)
         enqueue(header='TELEMETRY', message=packet)
@@ -73,5 +73,4 @@ def send_data(sock):
             if x == 0:
                 return
 
-if __name__ == '__main__':
-    start()
+start()
