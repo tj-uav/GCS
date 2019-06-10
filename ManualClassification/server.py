@@ -35,7 +35,7 @@ MISSION_ID = 1
 
 def main():
     global app
-    connect_interop(interop_url='http://192.168.0.27:8000', username='testuser', password='testpass')
+    connect_interop(interop_url='http://98.169.139.31:8000', username='testuser', password='testpass')
     print('Connected to interop')
 	# Prevent CORS errors
     CORS(app)
@@ -68,13 +68,16 @@ def make_odlc_from_data(message_data):
     odlc.mission = MISSION_ID
 #    if 'type' in message_data and isinstance(message_data['type'], str):
 #        odlc.type = message_data['type']
+    print(message_data)
+    for key in message_data:
+        print(key, message_data[key], type(message_data[key]))
     odlc.type = interop_api_pb2.Odlc.STANDARD
-    if 'latitude' in message_data and isinstance(message_data['latitude'], float):
+    if 'latitude' in message_data:
         odlc.latitude = message_data['latitude']
-    if 'longitude' in message_data and isinstance(message_data['longitude'], float):
+    if 'longitude' in message_data:
         odlc.longitude = message_data['longitude']
     if 'orientation' in message_data and message_data['orientation'] in ODCL_ORIENTATIONCONV:
-        odlc.orientation = ODCL_ORIENTATIONCONV['orientation']
+        odlc.orientation = ODCL_ORIENTATIONCONV[message_data['orientation']]
     if 'shape' in message_data and message_data['shape'] in ODCL_SHAPECONV:
         odlc.shape = ODCL_SHAPECONV[message_data['shape']]
     if 'shape_color' in message_data and message_data['shape_color'] in ODCL_COLORCONV:
@@ -82,7 +85,7 @@ def make_odlc_from_data(message_data):
     if 'alphanumeric' in message_data and isinstance(message_data['alphanumeric'], str):
         odlc.alphanumeric = message_data['alphanumeric']
     if 'alphanumeric_color' in message_data and message_data['alphanumeric_color'] in ODCL_COLORCONV:
-        odlc.alphanumeric_color = ODCL_COLORCONV[ message_data['alphanumeric_color']]
+        odlc.alphanumeric_color = ODCL_COLORCONV[message_data['alphanumeric_color']]
     return odlc
 
 def submit_odcl(img_num, data):
@@ -124,7 +127,7 @@ def receiver():
         data = request.get_json()
         img_num = data['img_num']
         odcl_data = data['odcl']
-        submit_odcl(img_num, data)
+        submit_odcl(img_num, odcl_data)
     return 'OK'
 
 

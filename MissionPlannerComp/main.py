@@ -27,10 +27,11 @@ global x
 x = 5
 
 def start():
-#    connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
-    connect_interop("http://192.168.0.27:8000", "testuser", "testpass")
+    connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
+#    connect_interop("http://192.168.0.27:8000", "testuser", "testpass")
+    print('Connected to interop')
     connect_comms()
-    print('Connected')
+    print('Connected to Mission Planner script')
     process_mission_data()
     print('Created')
 
@@ -182,6 +183,7 @@ def listen_from_device(sock):
         data_bytes = sock.recv(1024)
         data_string = data_bytes.decode("utf-8")
         data_dict = json.loads(data_string)
+        print(data_dict)
         ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
         ingest_thread.start()
         global x
@@ -192,6 +194,7 @@ def command_ingest(message_dict):
     #Interpret messages based on header and other stuff
     #Examples include: Changing the buffer value, forwarding messages to other devices, submitting to interop, etc.
     header = message_dict['HEADER']
+    print(message_dict)
     if header == 'TELEMETRY':
         msg = message_dict['MESSAGE']
         telemetry = interop_api_pb2.Telemetry()
@@ -200,6 +203,8 @@ def command_ingest(message_dict):
         telemetry.altitude = msg['alt']
         telemetry.heading = msg['head']
         cl.post_telemetry(telemetry)
+        print(telemetry)
+        print('Submitted')
 
 
 if __name__ == '__main__':
