@@ -15,7 +15,6 @@ from google.protobuf import json_format
 
 IMAGE_BASENAME = 'assets/img/'
 IMAGE_ENDING = '.jpg'
-IMAGES_SAVED = {}
 
 BUFFER_SIZE = 1024000  # Can make this lower if we need speed
 
@@ -30,40 +29,16 @@ MISSION_ID = 1
 
 def main():
     global app
-#    connect_interop(interop_url='http://98.169.139.31:8000', username='testuser', password='testpass')
-    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
+    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
+#    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
     print('Connected to interop')
 	# Prevent CORS errors
     CORS(app)
     app.run()
 
-"""
-def save_image(image_string, img_geoloc):
-    global image_num
-#    image_string = image_bytes.decode('utf-8')
-    nparr = np.fromstring(image_string, np.uint8)
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-#    cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(IMAGE_BASENAME + str(image_num) + IMAGE_ENDING, img)
-    if img_geoloc:
-        IMAGES_SAVED[image_recent_num] = img_geoloc
-    image_num += 1
-
-def delete_image(img_num):
-    filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
-    try:
-        os.remove(filename)
-        if i in IMAGES_SAVED:
-            IMAGES_SAVED.remove(i)
-    except:
-        pass
-"""
-
 def make_odlc_from_data(message_data):    
     odlc = interop_api_pb2.Odlc()
     odlc.mission = MISSION_ID
-#    if 'type' in message_data and isinstance(message_data['type'], str):
-#        odlc.type = message_data['type']
     print(message_data)
     for key in message_data:
         print(key, message_data[key], type(message_data[key]))
@@ -85,9 +60,6 @@ def make_odlc_from_data(message_data):
     return odlc
 
 def submit_odcl(img_num, data):
-#    if img_num not in IMAGES_SAVED:
-#        print("Image not found in directory")
-#        return
     odlc_object = make_odlc_from_data(data)
     odlc_object = cl.post_odlc(odlc_object).result()
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
