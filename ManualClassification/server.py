@@ -14,19 +14,14 @@ from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
 
 IMAGE_BASENAME = 'assets/img/'
-IMAGE_ENDING = '.png'
+IMAGE_ENDING = '.jpg'
 IMAGES_SAVED = {}
 
-CLASSIFICATION_IP = '127.0.0.1'  # Need to change to IP of comms computer
-PORT = 5050
 BUFFER_SIZE = 1024000  # Can make this lower if we need speed
 
 ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGLE' : 4, 'SQUARE' : 5, 'RECTANGLE' : 6, 'TRAPEZOID' : 7, 'PENTAGON' : 8, 'HEXAGON' : 9, 'HEPTAGON' : 10, 'OCTAGON' : 11, 'STAR' : 12, 'CROSS' : 13}
 ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
-
-writepath = "data.txt"
-writer = open(writepath, "w+")
 
 global app, image_num, MISSION_ID
 app = Flask("__name__", static_folder="assets")
@@ -35,7 +30,8 @@ MISSION_ID = 1
 
 def main():
     global app
-    connect_interop(interop_url='http://98.169.139.31:8000', username='testuser', password='testpass')
+#    connect_interop(interop_url='http://98.169.139.31:8000', username='testuser', password='testpass')
+    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
     print('Connected to interop')
 	# Prevent CORS errors
     CORS(app)
@@ -98,11 +94,6 @@ def submit_odcl(img_num, data):
     with open(filename, 'rb') as f:
         image_data = f.read()
         cl.post_odlc_image(odlc_object.id, image_data)
-
-def connect_comms():
-    global sock
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
-    sock.connect((CLASSIFICATION_IP, PORT))
 
 def connect_interop(interop_url, username, password):
     global cl

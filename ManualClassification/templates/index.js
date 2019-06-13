@@ -1,7 +1,7 @@
 var IMG;
 var subCount;
 const IMG_FILENAME = '';
-const IMG_EXTENSION = '.PNG';
+const IMG_EXTENSION = '.jpg';
 var IMG;
 var currNum = 0;
 var lowest = 0;

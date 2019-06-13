@@ -1,6 +1,6 @@
 //const COMMS_SOCKET = new WebSocket('ws://127.0.0.1:5000')
-const IMG_FILENAME = 'image_';
-const IMG_EXTENSION = '.PNG';
+const IMG_FILENAME = '';
+const IMG_EXTENSION = '.jpg';
 var IMG;
 var currNum = 0;
 var lowest = 0;
