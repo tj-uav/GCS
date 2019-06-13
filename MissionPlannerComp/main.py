@@ -27,8 +27,8 @@ global x
 x = 5
 
 def start():
-    connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
-#    connect_interop("http://192.168.0.27:8000", "testuser", "testpass")
+#    connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
+    connect_interop("http://192.168.1.102:8000", "testuser", "testpass")
     print('Connected to interop')
     connect_comms()
     print('Connected to Mission Planner script')
