@@ -39,18 +39,18 @@ def telem_data():
     global cl
     while True:
         packet = {}
-        print(type(cs.lat))
-        print(type(cs.lng))
-        print(type(cs.alt))
-        print(type(cs.yaw))
+#        print(type(cs.lat))
+#        print(type(cs.lng))
+#        print(type(cs.alt))
+#        print(type(cs.yaw))
         packet['lat'] = float(cs.lat)
         packet['lng'] = float(cs.lng)
         packet['alt'] = int(cs.alt)
         packet['head'] = int(cs.yaw)
-#        packet['lat'] = random.random() * 90
-#        packet['lng'] = random.random() * 180
-#        packet['alt'] = random.randrange(-200,200)
-#        packet['head'] = random.randrange(0,360)
+        #packet['lat'] = random.random() * 90
+        #packet['lng'] = random.random() * 180
+        #packet['alt'] = random.randrange(-200,200)
+        #packet['head'] = random.randrange(0,360)
         enqueue(header='TELEMETRY', message=packet)
 #        print(type(packet['lat']))
 #        print(type(packet['lng']))
