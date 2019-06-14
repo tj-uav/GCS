@@ -137,8 +137,8 @@ function submit_standard(){
   console.log(View.src);
   let dict = {};
   dict['type'] = 'STANDARD';
-  dict['latitude'] = 0;
-  dict['longitude'] = 0;
+  dict['latitude'] = 38.1443113;
+  dict['longitude'] = -76.4257693;
 //  dict['orientation'] = getClosestOrientation(slide.value + gps["orientation"]);
   dict['orientation'] = getClosestOrientation(slide.value);
   dict['shape'] = shape_dropdown.value;
