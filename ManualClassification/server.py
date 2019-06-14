@@ -29,7 +29,7 @@ MISSION_ID = 1
 
 def main():
     global app
-    connect_interop(interop_url='http://127.0.0.1:8000', username='testuser', password='testpass')
+    connect_interop(interop_url='http://192.168.1.102:8000', username='testuser', password='testpass')
 #    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
     print('Connected to interop')
 	# Prevent CORS errors
