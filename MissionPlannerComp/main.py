@@ -27,8 +27,8 @@ global x
 x = 5
 
 def start():
-#    connect_interop("http://98.169.139.31:8000", "testuser", "testpass")
-    connect_interop("http://192.168.1.102:8000", "testuser", "testpass")
+    connect_interop("http://10.10.130.10:80", 'jefferson', "8450259628")
+#    connect_interop("http://192.168.1.102:8000", "testuser", "testpass")
     print('Connected to interop')
     connect_comms()
     print('Connected to Mission Planner script')
@@ -37,9 +37,7 @@ def start():
 
 def connect_interop(interop_url, username, password):
     global cl
-    cl = client.AsyncClient(url=interop_url,
-                       username=username,
-                       password=password)
+    cl = client.AsyncClient(url=interop_url,username=username,password=password)
 
 def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
@@ -54,7 +52,7 @@ def connect_comms():
 #Radius assumes feet
 def circleToPoints(centerx, centery, radius, num_points=40):
     POINT_RADIUS = 15
-    CONSTANT = 0.62137119  # Miles to kilometers
+    CONSTANT = 0.62137119  # Miles to kilometersa
 
     start = geopy.Point(centerx, centery)
     radius_km = (radius/5280)/CONSTANT
@@ -183,7 +181,7 @@ def listen_from_device(sock):
         data_bytes = sock.recv(1024)
         data_string = data_bytes.decode("utf-8")
         data_dict = json.loads(data_string)
-        print(data_dict)
+#        print(data_dict)
         ingest_thread = threading.Thread(target=command_ingest, args=(data_dict,))
         ingest_thread.start()
         global x
@@ -197,6 +195,7 @@ def command_ingest(message_dict):
     print(message_dict)
     if header == 'TELEMETRY':
         msg = message_dict['MESSAGE']
+        print(msg)
         telemetry = interop_api_pb2.Telemetry()
         telemetry.latitude = msg['lat']
         telemetry.longitude = msg['lng']
