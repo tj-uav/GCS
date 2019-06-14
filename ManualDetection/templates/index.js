@@ -1,5 +1,5 @@
 //const COMMS_SOCKET = new WebSocket('ws://127.0.0.1:5000')
-const IMG_FILENAME = '';
+const IMG_FILENAME = '../assets/img/';
 const IMG_EXTENSION = '.jpg';
 var IMG;
 var currNum = 0;
@@ -20,7 +20,7 @@ function init(){
 function previous(){
   if(currNum > lowest){
     currNum -= 1;
-    img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+    img_filename = IMG_FILENAME + currNum + IMG_EXTENSION;
     IMG.src = img_filename;
     document.getElementById("current_index").innerHTML = currNum + "";
   }
@@ -35,7 +35,7 @@ function next(){
   console.log('hi')
   if(currNum < highest - 1){
     currNum += 1;
-    img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+    img_filename = IMG_FILENAME + currNum + IMG_EXTENSION;
     IMG.src = img_filename;
     document.getElementById("current_index").innerHTML = currNum + "";
     if(currNum > 20 && currNum - 20 > lowest){
@@ -95,5 +95,6 @@ function server_post(post_dict){
   });
 }
 
-setInterval(updateData, 1000);
+updateData()
+//setInterval(updateData, 1000);
 //setInterval(sendData, 1000);

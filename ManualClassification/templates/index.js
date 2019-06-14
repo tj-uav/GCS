@@ -134,6 +134,7 @@ function submit_standard(){
   let alpha_dropdown = document.getElementById("alpha_dropdown");
   let alpha_color_dropdown = document.getElementById("alpha_color_dropdown");
   let View = document.getElementById('cropView');
+  console.log(View.src);
   let dict = {};
   dict['type'] = 'STANDARD';
   dict['latitude'] = 0;
@@ -149,6 +150,17 @@ function submit_standard(){
   post_dict = {};
   post_dict['odcl'] = dict;
   post_dict['img_num'] = currNum;
+//  post_dict['img_url'] = View.src;
+  let rb = document.getElementById("rubberBand");
+  let crop_dict = {};
+  let width_scale = 4208/350;
+  let height_scale = 3120/350;
+  crop_dict['x'] = parseInt(parseInt(rb.style.left) * width_scale);
+  crop_dict['y'] = parseInt(parseInt(rb.style.top) * height_scale);
+  crop_dict['w'] = parseInt(parseInt(rb.style.width) * width_scale);
+  crop_dict['h'] = parseInt(parseInt(rb.style.height) * height_scale);
+  post_dict['img_crop'] = crop_dict;
+  console.log(post_dict)
   server_post(post_dict)
   console.log("haw")
 }

@@ -93,9 +93,9 @@ function crop(){
   let previewW = 230 * w / (1.5 * larger);
   let previewH = 230 * h / (1.5 * larger);
 
-  console.log(previewW);
+//  console.log(previewW);
   cropCoords(oriX, oriY, oriW, oriH, imageSrc, preview, previewW, previewH);
-  console.log('Done');
+//  console.log('Done');
 }
 
 IMG = document.getElementById('myImage');

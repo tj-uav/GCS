@@ -59,11 +59,19 @@ def make_odlc_from_data(message_data):
         odlc.alphanumeric_color = ODCL_COLORCONV[message_data['alphanumeric_color']]
     return odlc
 
-def submit_odcl(img_num, data):
+def submit_odcl(img_num, data, img_crop):
     odlc_object = make_odlc_from_data(data)
     odlc_object = cl.post_odlc(odlc_object).result()
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
-    with open(filename, 'rb') as f:
+    x = img_crop['x']
+    y = img_crop['y']
+    w = img_crop['w']
+    h = img_crop['h']
+    img = cv2.imread(filename)
+    img = img[y:y+h, x:x+w]
+    cropped_filename = IMAGE_BASENAME + str(img_num) + "_cropped" + IMAGE_ENDING
+    cv2.imwrite(cropped_filename, img)
+    with open(cropped_filename, 'rb') as f:
         image_data = f.read()
         cl.post_odlc_image(odlc_object.id, image_data)
 
@@ -90,7 +98,11 @@ def receiver():
         data = request.get_json()
         img_num = data['img_num']
         odcl_data = data['odcl']
-        submit_odcl(img_num, odcl_data)
+        img_crop = data['img_crop']
+        print("DICTIONARY DATA")
+        print(data)
+        submit_odcl(img_num, odcl_data, img_crop)
+#        submit_odcl(img_url, odcl_data)
     return 'OK'
 
 

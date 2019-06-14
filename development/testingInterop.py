@@ -12,9 +12,12 @@ ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, '
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
 
 
-url = "http://10.10.130.10:80/api/"
-username = "jefferson"
-password = "8450259628"
+#url = "http://10.10.130.10:80/api/"
+#username = "jefferson"
+#password = "8450259628"
+url = "http://127.0.0.1:8000"
+username = "testuser"
+password = "testpass"
 
 def connect_interop(interop_url, username, password):
     global cl
@@ -60,4 +63,7 @@ def submit_odcl(filename, data):
 
 filepath = ''
 data = {}
-submit_odcl('')
+connect_interop(interop_url=url, username=username, password=password)
+global cl
+print(cl.get_mission(1).result())
+#submit_odcl('')
