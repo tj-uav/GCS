@@ -35,18 +35,18 @@ function init(){
 init();
 
 function previous(){
-  if(currNum > lowest + 1){
+//  if(currNum > lowest + 1){
     currNum -= 1;
     setImageCurr();
-  }
+//  }
 }
 
 function next(){
   console.log('hi')
-  if(currNum < highest){
+//  if(currNum < highest){
     currNum += 1;
     setImageCurr();
-  }
+//  }
 }
 
 function setImageCurr(){
@@ -57,8 +57,8 @@ function setImageCurr(){
 
 function gotoBoundary(inp){
   let val = parseInt(inp.value);
-  val = Math.max(lowest, val);
-  val = Math.min(highest,val);
+//  val = Math.max(lowest, val);
+//  val = Math.min(highest,val);
 }
 
 function gotoImage(value){

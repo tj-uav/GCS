@@ -25,12 +25,12 @@ ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6,
 global app, image_num, MISSION_ID
 app = Flask("__name__", static_folder="assets")
 image_num = 1
-MISSION_ID = 1
+MISSION_ID = 3
 
 def main():
     global app
-    connect_interop(interop_url='http://192.168.1.102:8000', username='testuser', password='testpass')
-#    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
+#   connect_interop(interop_url='http://192.168.1.102:8000', username='testuser', password='testpass')
+    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
     print('Connected to interop')
 	# Prevent CORS errors
     CORS(app)
