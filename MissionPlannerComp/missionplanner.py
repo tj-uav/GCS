@@ -1,7 +1,6 @@
 import sys
 sys.path.append("C:/Python27/Lib")
 sys.path.append("C:/Python27/Lib/site-packages")
-print('Started importing')
 
 import socket
 import threading
@@ -9,8 +8,6 @@ import time
 from collections import deque   
 import json
 import random
-
-print('Done importing')
 
 MY_IP = '127.0.0.1'
 PORT = 5005
@@ -32,30 +29,18 @@ def connect_comms():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # Over Internet, TCP protocol
     sock.connect((MY_IP, PORT))
 
-    send_thread = threading.Thread(target=send_data, args=(sock,))
+    send_thread = threading.Thread(target=send_data, args=(sock))
     send_thread.start()
 
 def telem_data():
     global cl
     while True:
         packet = {}
-#        print(type(cs.lat))
-#        print(type(cs.lng))
-#        print(type(cs.alt))
-#        print(type(cs.yaw))
         packet['lat'] = float(cs.lat)
         packet['lng'] = float(cs.lng)
         packet['alt'] = int(cs.alt)
         packet['head'] = int(cs.yaw)
-        #packet['lat'] = random.random() * 90
-        #packet['lng'] = random.random() * 180
-        #packet['alt'] = random.randrange(-200,200)
-        #packet['head'] = random.randrange(0,360)
         enqueue(header='TELEMETRY', message=packet)
-#        print(type(packet['lat']))
-#        print(type(packet['lng']))
-#        print(type(packet['alt']))
-#        print(type(packet['head']))
         print(packet)
         time.sleep(.2)
 
