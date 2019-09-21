@@ -1,4 +1,5 @@
 import socket
+import time
 
 BUFFER = 1000000
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -9,4 +10,5 @@ while True:
     data = str(num)
     data = data.encode()
     sock.send(data)
+    time.sleep(.2)
     num += 100
