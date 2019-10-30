@@ -11,7 +11,7 @@ class Connection:
         self.recv_queue = []
         self.buffer = 1024
 
-    def enq(self, message):
+    def enqueue(self, message):
         self.send_queue.append(json.dumps(message))
     
     def send(self):

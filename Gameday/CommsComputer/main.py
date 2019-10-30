@@ -1,7 +1,9 @@
 #from ../helpers import Connection
 import json
 
-def load_config(filename="config.json"):
+connections = {}
+
+def load_config(filename="config.json": str):
     return json.load(open(filename,"r"))
 
 def create_connections():
@@ -22,7 +24,25 @@ def create_connections():
         connections.get(tuple(addr),[]).append(Connection(addr[0], addr[1], conn))
     return connections
 
+def interop_submit():
+
+def ingest(data: dict):
+    global connections
+    action = data["ACTION"]
+    args = data["ARGUMENTS"]
+    if action == "FORWARD":
+        assert(len(args) == 1)
+        ip, port = args[0]
+        conn = connections[(ip,port)]
+        conn.enqueue(data)
+    elif action == "INTEROP":
+        assert(len(args) = 2)
+        endpoint = args[0]
+        interop_submit(endpoint)
+
+
 def start():
+    global connections
     connections = create_connections()
     print(connections)
 
