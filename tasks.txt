@@ -1,0 +1,6 @@
+interop communication (read/process mission details, submit odlc objects, submit telemetry data)
+MP communication (send telemetry data, upload waypoints from OA code)
+odlc (manual odlc gui, odlc submissions)
+bullet communications (get data from plane / send data to plane)
+
+start working on self-made MP for next year
