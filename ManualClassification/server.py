@@ -27,14 +27,16 @@ app = Flask("__name__", static_folder="assets")
 image_num = 1
 MISSION_ID = 3
 
+
 def main():
     global app
 #   connect_interop(interop_url='http://192.168.1.102:8000', username='testuser', password='testpass')
-    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
+#    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
     print('Connected to interop')
 	# Prevent CORS errors
     CORS(app)
     app.run()
+
 
 def make_odlc_from_data(message_data):    
     odlc = interop_api_pb2.Odlc()
