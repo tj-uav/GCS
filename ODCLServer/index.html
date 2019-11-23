@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <style>
-    .submission {
-      background-color: black;
-      color: white;
-      margin: 20px;
-      padding: 20px;
-      flex-wrap: wrap;
-    }
-    </style>
-    <meta charset="utf-8">
-    <title>Server </title>
-    <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
 
-  </head>
-  <body>
-    <h1 align="center">Server</h1>
-    <div class="submission" id="s1">
-      <figure>
-      <img src="submit.jpg" style="margin-left:0px; width:200px; display:block" />
-      <figcaption>Submission 1</figcaption>
-      </figure>
-    </div>
-    <script src='./renderer.js'></script>
-    <script src='thing.js'></script>
-  </body>
+<head>
+	<style>
+		.submission {
+			border: 1px solid black;
+			/* color: white; */
+			margin: 20px;
+			padding: 20px;
+			/* flex-wrap: wrap; */
+		}
+	</style>
+	<meta charset="utf-8">
+	<title>Server </title>
+	<link rel="stylesheet" type="text/css" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+
+</head>
+
+<body>
+	<h1 style="text-align:center">Server</h1>
+	<div id="submissions"></div>
+	<!-- <div class="submission" id="s1">
+		<figure>
+			<img src="submit.jpg" style="margin-left:0px; width:200px; display:block" />
+			<figcaption>Submission 1</figcaption>
+		</figure>
+	</div> -->
+	<script src='./renderer.js'></script>
+	<script src='thing.js'></script>
+</body>
+
 </html>
