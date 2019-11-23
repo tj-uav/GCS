@@ -1,10 +1,10 @@
-var submissions = 0
-
-var parent = document.createElement("div")
-parent.classList.add("submission")
-document.getElementById("submissions").appendChild(parent)
+let submissions = 0
 
 function addSubmission(image_path) {
+	var parent = document.createElement("div")
+	parent.classList.add("submission")
+	document.getElementById("submissions").appendChild(parent)
+
 	let image = document.createElement("img")
 	image.src = `${image_path}`
 	parent.appendChild(image)
@@ -14,4 +14,6 @@ function addSubmission(image_path) {
 	parent.appendChild(caption)
 }
 
-addSubmission("submit.jpg")
+for (let i = 0; i < 5; i++) {
+	addSubmission("submit.jpg")
+}
