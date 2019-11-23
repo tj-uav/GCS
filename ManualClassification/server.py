@@ -32,11 +32,40 @@ def main():
     global app
 #   connect_interop(interop_url='http://192.168.1.102:8000', username='testuser', password='testpass')
 #    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
+#    connect_server(server_url='127.0.0.1)
     print('Connected to interop')
 	# Prevent CORS errors
     CORS(app)
     app.run()
 
+def connect_server(server_url, port):
+    global sock
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((server_url, port))
+    recv_thread = threading.Thread(target=img_recv_loop)
+    recv_thread.daemon = True
+    recv_thread.start()
+
+
+def img_recv_loop():
+    global sock
+    while True:
+        buffer = int(sock.recv(1024).decode())
+        data = sock.recv(BUFFER).decode()
+        npimg = np.fromstring(img, dtype=np.uint8)
+
+        decimg=cv2.imdecode(data, cv2.IMREAD_COLOR)
+        data = json.loads(data)
+        img = data["image"]
+        decimg=cv2.imdecode(data,1)
+        cv2.imwrite()
+
+
+def connect_interop(interop_url, username, password):
+    global cl
+    cl = client.AsyncClient(url=interop_url,
+                       username=username,
+                       password=password)
 
 def make_odlc_from_data(message_data):    
     odlc = interop_api_pb2.Odlc()
@@ -76,12 +105,6 @@ def submit_odcl(img_num, data, img_crop):
     with open(cropped_filename, 'rb') as f:
         image_data = f.read()
         cl.post_odlc_image(odlc_object.id, image_data)
-
-def connect_interop(interop_url, username, password):
-    global cl
-    cl = client.AsyncClient(url=interop_url,
-                       username=username,
-                       password=password)
 
 @app.route("/")
 def index():
