@@ -1,4 +1,4 @@
-let submissions = 0
+let submissions = 0;
 
 function addSubmission(path, shape_info, letter_info, position_info) {
 	let parent = document.createElement("div")
@@ -77,7 +77,42 @@ function addSubmission(path, shape_info, letter_info, position_info) {
 	textContainer.appendChild(submitContainer)
 }
 
+var fetchSubmission = function () {
+	fetch("http://localhost:5000/recent")
+	  .then(function (response) {
+		return response.json();
+	  })
+	  .then(function (data) {
+		console.log(data);
+		if(data["id"] < submissions){
+			return;
+		}
+		let img_name = data["img_name"];
+		let shape_info = {
+			shape: data["shape"],
+			color: data["shapeColor"]
+		};
+		let letter_info = {
+			letter: data["alpha"],
+			color: data["alphaColor"]
+		};
+		let position_info = {
+			latitude: data["latitude"],
+			longitude: data["longitude"],
+			heading: data["orientation"]
+		}
+		addSubmission("{{ url_for('static', filename='" + img_name + "') }}" ,shape_info, letter_info, position_info)
+	  })
+	  .catch(function () {
+		console.log("Error occured with data request");
+	  });
+  };
+setInterval(fetchSubmission, 500)
+  
+
 for (let i = 0; i < 5; i++) {
+	console.log(i);
+	/*
 	addSubmission("{{ url_for('static', filename='submit.jpg') }}", {
 		shape: "circle",
 		color: "orange"
@@ -89,4 +124,5 @@ for (let i = 0; i < 5; i++) {
 		longitude: Math.round(Math.random() * 10000),
 		heading: Math.round(Math.random() * 360)
 	})
+	*/
 }
