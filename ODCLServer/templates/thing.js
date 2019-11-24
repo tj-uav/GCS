@@ -78,7 +78,7 @@ function addSubmission(path, shape_info, letter_info, position_info) {
 }
 
 for (let i = 0; i < 5; i++) {
-	addSubmission("submit.jpg", {
+	addSubmission("{{ url_for('static', filename='submit.jpg') }}", {
 		shape: "circle",
 		color: "orange"
 	}, {
