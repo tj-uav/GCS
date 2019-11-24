@@ -7,7 +7,7 @@ import json
 # submission_id = "submission1.jpg"
 # img.convert('RGB').save(submission_id)
 
-characteristics = {
+data = {
     "id": 1,
     "mission": 1,
     "type": "STANDARD",
@@ -16,6 +16,8 @@ characteristics = {
     "orientation": "N",
     "shape": "RECTANGLE",
     "shapeColor": "RED",
+    "alphanumeric": "T",
+    "alphanumericColor": "GREEN",
     "autonomous": True
 }
 
@@ -24,17 +26,17 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/post')
-def interactive():
-	return jsonify(characteristics)
-
 @app.route('/thing.js')
 def thing():
-    return render_template('thing.js')
+    return render_template('thing.js', data=data)
+
+@app.route('/post')
+def interactive():
+	return jsonify(data)
 
 if __name__ == '__main__':
     app.secret_key='password'
     app.run(debug=True)
 
 # with open('submission1.txt', 'w') as outfile:
-#     json.dump(characteristics, outfile)
+#     json.dump(data, outfile)

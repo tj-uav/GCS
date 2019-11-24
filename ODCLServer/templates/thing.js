@@ -1,6 +1,6 @@
 let submissions = 0
 
-function addSubmission(path, shape_info, letter_info, position_info) {
+function addSubmission(path, data, letter_info, position_info) {
 	let parent = document.createElement("div")
 	parent.classList.add("submission")
 	document.getElementById("submissions").appendChild(parent)
@@ -29,10 +29,10 @@ function addSubmission(path, shape_info, letter_info, position_info) {
 	shapeLabel.textContent = `Shape Information: `
 	shapeContainer.appendChild(shapeLabel)
 	let shape = document.createElement("p")
-	shape.textContent = `Shape: ${shape_info.shape}`
+	shape.textContent = `Shape: ${data.shape}`
 	shapeContainer.appendChild(shape)
 	let shape_color = document.createElement("p")
-	shape_color.textContent = `Color: ${shape_info.color}`
+	shape_color.textContent = `Color: ${data.shapeColor}`
 	shapeContainer.appendChild(shape_color)
 	infoContainer.appendChild(shapeContainer)
 
@@ -42,10 +42,10 @@ function addSubmission(path, shape_info, letter_info, position_info) {
 	letterLabel.textContent = `Letter Information: `
 	letterContainer.appendChild(letterLabel)
 	let letter = document.createElement("p")
-	letter.textContent = `Alphanumeric: ${letter_info.letter}`
+	letter.textContent = `Alphanumeric: ${data.alphanumeric}`
 	letterContainer.appendChild(letter)
 	let letter_color = document.createElement("p")
-	letter_color.textContent = `Color: ${letter_info.color}`
+	letter_color.textContent = `Color: ${data.alphanumericColor}`
 	letterContainer.appendChild(letter_color)
 	infoContainer.appendChild(letterContainer)
 
@@ -55,13 +55,13 @@ function addSubmission(path, shape_info, letter_info, position_info) {
 	positionLabel.textContent = `Position Information: `
 	positionContainer.appendChild(positionLabel)
 	let latitude = document.createElement("p")
-	latitude.textContent = `Latitude: ${position_info.latitude}`
+	latitude.textContent = `Latitude: ${data.latitude}`
 	positionContainer.appendChild(latitude)
 	let longitude = document.createElement("p")
-	longitude.textContent = `Longitude: ${position_info.longitude}`
+	longitude.textContent = `Longitude: ${data.longitude}`
 	positionContainer.appendChild(longitude)
 	let heading = document.createElement("p")
-	heading.textContent = `Heading: ${position_info.heading}`
+	heading.textContent = `Heading: ${data.orientation}`
 	positionContainer.appendChild(heading)
 	infoContainer.appendChild(positionContainer)
 
@@ -78,10 +78,7 @@ function addSubmission(path, shape_info, letter_info, position_info) {
 }
 
 for (let i = 0; i < 5; i++) {
-	addSubmission("{{ url_for('static', filename='submit.jpg') }}", {
-		shape: "circle",
-		color: "orange"
-	}, {
+	addSubmission("{{ url_for('static', filename='submit.jpg') }}", JSON.parse('{{ data | tojson | safe}}'), {
 		letter: "A",
 		color: "blue"
 	}, {
