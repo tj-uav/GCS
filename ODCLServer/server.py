@@ -3,6 +3,7 @@ from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 import json
 import threading
+#from interop_helpers import *
 
 # img = Image.open("submit.jpg")
 # img = img.crop((0, 0, img.size[0] / 2, img.size[1] / 2))
@@ -33,7 +34,7 @@ def index():
 
 @app.route('/thing.js')
 def thing():
-    return render_template('thing.js', data=data)
+    return render_template('thing.js')
 
 @app.route('/post')
 def interactive():

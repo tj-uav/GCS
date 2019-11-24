@@ -87,30 +87,26 @@ var fetchSubmission = function () {
 			return;
 		}
 		console.log(data)
-		console.log(data["img_name"])
-		addSubmission("{{ url_for('static', filename=data['img_name']) }}", data)
-		console.log("{{ url_for('static', filename=data['img_name']) }}");
+		let img_name = data["img_name"]
+		addSubmission("/static/" + img_name, data)
 		})
 	  .catch(function () {
 		console.log("Error occured with data request");
 	  });
   };
 setInterval(fetchSubmission, 500)
-  
 
-for (let i = 0; i < 5; i++) {
-	console.log(i);
-	/*
-	addSubmission("{{ url_for('static', filename='submit.jpg') }}", {
-		shape: "circle",
-		color: "orange"
-	}, {
-		letter: "A",
-		color: "blue"
-	}, {
-		latitude: Math.round(Math.random() * 10000),
-		longitude: Math.round(Math.random() * 10000),
-		heading: Math.round(Math.random() * 360)
-	})
-	*/
-}
+
+/*
+addSubmission("{{ url_for('static', filename='submit.jpg') }}", {
+	shape: "circle",
+	color: "orange"
+}, {
+	letter: "A",
+	color: "blue"
+}, {
+	latitude: Math.round(Math.random() * 10000),
+	longitude: Math.round(Math.random() * 10000),
+	heading: Math.round(Math.random() * 360)
+})
+*/
