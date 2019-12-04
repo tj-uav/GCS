@@ -1,12 +1,12 @@
 let submissions = 0;
 
-function addSubmission(path, data, letter_info, position_info) {
+function addSubmission(data) {
 	let parent = document.createElement("div")
 	parent.classList.add("submission")
 	document.getElementById("submissions").appendChild(parent)
 
 	let image = document.createElement("img")
-	image.src = `${path}`
+	image.src = `${/*path*/data.img_path}`
 	parent.appendChild(image)
 
 	let textContainer = document.createElement("div")
@@ -77,23 +77,26 @@ function addSubmission(path, data, letter_info, position_info) {
 	textContainer.appendChild(submitContainer)
 }
 
+function submitSubmission(path, data) {
+
+}
+
 var fetchSubmission = function () {
 	fetch("http://localhost:5000/post")
-	  .then(function (response) {
-		return response.json();
-	  })
-	  .then(function (data) {
-		if(data["id"] < submissions){
-			return;
-		}
-		console.log(data)
-		let img_name = data["img_name"]
-		addSubmission("/static/" + img_name, data)
+		.then(function (response) {
+			return response.json();
 		})
-	  .catch(function () {
-		console.log("Error occured with data request");
-	  });
-  };
+		.then(function (data) {
+			if (data["id"] < submissions) {
+				return;
+			}
+			console.log(data)
+			addSubmission(data)
+		})
+		.catch(function () {
+			console.log("Error occured with data request");
+		});
+};
 setInterval(fetchSubmission, 500)
 
 

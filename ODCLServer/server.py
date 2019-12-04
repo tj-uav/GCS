@@ -13,7 +13,7 @@ import threading
 global data
 data = {
     "id": 0,
-    "img_name": "submit.jpg",
+    "img_path": "/static/submit.jpg",
     "mission": 1,
     "type": "STANDARD",
     "latitude": 38,
@@ -32,14 +32,17 @@ CORS(app)
 def index():
     return render_template('index.html')
 
+
 @app.route('/thing.js')
 def thing():
     return render_template('thing.js')
+
 
 @app.route('/post')
 def interactive():
     global data
     return jsonify(data)
+
 
 def update_thread():
     import time
@@ -48,7 +51,7 @@ def update_thread():
     global data
     data = {
         "id": 1,
-        "img_name": "submit2.png",
+        "img_path": "/static/submit2.png",
         "mission": 1,
         "type": "STANDARD",
         "latitude": 42,
@@ -61,14 +64,13 @@ def update_thread():
         "autonomous": True
     }
 
+
 if __name__ == '__main__':
     update = threading.Thread(target=update_thread)
     update.daemon = True
     update.start()
-    app.secret_key='password'
+    app.secret_key = 'password'
     app.run(debug=True)
-
-            
 
 
 # with open('submission1.txt', 'w') as outfile:
