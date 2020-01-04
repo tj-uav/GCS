@@ -32,11 +32,17 @@ CORS(app)
 def index():
     return render_template('index.html')
 
+@app.route('/submissions')
+def submissions():
+    return render_template('submissions.html')
 
-@app.route('/thing.js')
-def thing():
-    return render_template('thing.js')
+@app.route('/sub.js')
+def sub():
+    return render_template('sub.js')
 
+@app.route('/main.js')
+def main():
+    return render_template('main.js')
 
 @app.route('/post')
 def interactive():

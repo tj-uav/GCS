@@ -1,12 +1,23 @@
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
+import cv2
+
+ODCL_SHAPECONV = {'CIRCLE' : 1, 'SEMICRICLE' : 2, 'QUARTER_CIRCLE' : 3, 'TRIANGLE' : 4, 'SQUARE' : 5, 'RECTANGLE' : 6, 'TRAPEZOID' : 7, 'PENTAGON' : 8, 'HEXAGON' : 9, 'HEPTAGON' : 10, 'OCTAGON' : 11, 'STAR' : 12, 'CROSS' : 13}
+ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, 'GREEN' : 6, 'YELLOW' : 7, 'PURPLE' : 8, 'BROWN' : 9, 'ORANGE' : 10}
+ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
+
+IMAGE_BASENAME = 'assets/img/'
+IMAGE_ENDING = '.jpg'
+
 def connect_interop(interop_url, username, password):
-    global cl
     cl = client.AsyncClient(url=interop_url,
                        username=username,
                        password=password)
+    return cl
 
-def make_odlc_from_data(message_data):    
+def make_odlc_from_data(mission_id, message_data):    
     odlc = interop_api_pb2.Odlc()
-    odlc.mission = MISSION_ID
+    odlc.mission = mission_id
     print(message_data)
     for key in message_data:
         print(key, message_data[key], type(message_data[key]))
@@ -27,7 +38,7 @@ def make_odlc_from_data(message_data):
         odlc.alphanumeric_color = ODCL_COLORCONV[message_data['alphanumeric_color']]
     return odlc
 
-def submit_odcl(img_num, data, img_crop):
+def submit_odcl(cl, img_num, data, img_crop):
     odlc_object = make_odlc_from_data(data)
     odlc_object = cl.post_odlc(odlc_object).result()
     filename = IMAGE_BASENAME + str(img_num) + IMAGE_ENDING
