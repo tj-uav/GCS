@@ -81,7 +81,7 @@ var clear = () => {
 
 
 //  import image  //
-var importImage = (path, width, height) => {
+function importImage(path, width, height) {
 	rectCanvas.width = image.width = width
 	rectCanvas.height = image.height = height
 	image.src = path
