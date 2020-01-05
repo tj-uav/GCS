@@ -1,25 +1,32 @@
 //  variable with rectangle information //
 //  note: this defines the center of the rectangle stroke //
 let rect = {}
-
-let image = new Image()
-let rectCanvas = document.createElement("canvas")
-let rectContext = rectCanvas.getContext('2d')
-rectCanvas.id = 'rectCanvas'
 let clicks = []
 
-importImage('../Unknown.jpg', 960, 640)
+let image = new Image()
+
+let rectCanvas = document.createElement("canvas")
+let rectContext = rectCanvas.getContext('2d')
+rectCanvas.style.position = 'absolute'
+rectCanvas.style.zIndex = image.style.zIndex + 1
+rectCanvas.id = 'rectCanvas'
+
+importImage('Unknown.jpg', 960, 640)
 
 document.querySelector('body').appendChild(rectCanvas)
 document.querySelector('body').appendChild(image)
 
+let imageBorder = image.getBoundingClientRect()
+console.log(imageBorder)
 
+rectCanvas.style.top = imageBorder.top + 'px'
+rectCanvas.style.left = imageBorder.left + 'px'
 
 //  handle mouse movement  //
 window.addEventListener('mousemove', e => {
 	handleMove({
-		x: Math.min(e.clientX, rectCanvas.width),
-		y: Math.min(e.clientY, rectCanvas.height)
+		x: clamp(0, e.clientX - imageBorder.left, rectCanvas.width),
+		y: clamp(0, e.clientY - imageBorder.top, rectCanvas.height)
 	}, e)
 })
 
@@ -28,8 +35,8 @@ window.addEventListener('mousemove', e => {
 //  handle click //
 window.addEventListener('mousedown', e => {
 	clicks.push({
-		x: Math.min(e.clientX, rectCanvas.width),
-		y: Math.min(e.clientY, rectCanvas.height)
+		x: clamp(0, e.clientX - imageBorder.left, rectCanvas.width),
+		y: clamp(0, e.clientY - imageBorder.top, rectCanvas.height)
 	})
 })
 
@@ -45,7 +52,7 @@ window.addEventListener('keydown', e => {
 })
 
 
-
+//  runs whenever mouse moves; draws preview rect  //
 var handleMove = (mouse, e) => {
 	if (clicks.length % 2 !== 0) {
 		clear(e)
@@ -74,8 +81,16 @@ var clear = () => {
 
 
 //  import image  //
-function importImage(path, width, height) {
+var importImage = (path, width, height) => {
 	rectCanvas.width = image.width = width
 	rectCanvas.height = image.height = height
 	image.src = path
+}
+
+
+//  helper method  //
+var clamp = (min, num, max) => {
+	num = Math.min(num, max)
+	num = Math.max(num, min)
+	return num
 }
