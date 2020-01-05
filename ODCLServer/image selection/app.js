@@ -17,16 +17,17 @@ document.querySelector('body').appendChild(rectCanvas)
 document.querySelector('body').appendChild(image)
 
 let imageBorder = image.getBoundingClientRect()
-console.log(imageBorder)
 
 rectCanvas.style.top = imageBorder.top + 'px'
 rectCanvas.style.left = imageBorder.left + 'px'
 
+
+
 //  handle mouse movement  //
 window.addEventListener('mousemove', e => {
 	handleMove({
-		x: clamp(0, e.clientX - imageBorder.left, rectCanvas.width),
-		y: clamp(0, e.clientY - imageBorder.top, rectCanvas.height)
+		x: clamp(imageBorder.left, e.pageX, imageBorder.right) - imageBorder.left,
+		y: clamp(imageBorder.top, e.pageY, imageBorder.bottom) - imageBorder.top
 	}, e)
 })
 
@@ -35,8 +36,8 @@ window.addEventListener('mousemove', e => {
 //  handle click //
 window.addEventListener('mousedown', e => {
 	clicks.push({
-		x: clamp(0, e.clientX - imageBorder.left, rectCanvas.width),
-		y: clamp(0, e.clientY - imageBorder.top, rectCanvas.height)
+		x: clamp(imageBorder.left, e.pageX, imageBorder.right) - imageBorder.left,
+		y: clamp(imageBorder.top, e.pageY, imageBorder.bottom) - imageBorder.top
 	})
 })
 
@@ -46,10 +47,18 @@ window.addEventListener('mousedown', e => {
 window.addEventListener('keydown', e => {
 	var key = e.which || e.keyCode
 	if (key === 27) //if its escape
-		rectContext.clearRect(0, 0, window.innerWidth, window.innerHeight)
+		clear()
 	if (key === 13) //if its enter
 		alert(`x: ${rect.x}\ny: ${rect.y}\nwidth: ${rect.width}\nheight: ${rect.height}`)
 })
+
+
+
+//  reloads window to avoid bugs from resizing  //
+window.addEventListener('resize', () => {
+	location.reload()
+})
+
 
 
 //  runs whenever mouse moves; draws preview rect  //
@@ -75,7 +84,7 @@ var handleMove = (mouse, e) => {
 
 //  clear the entire rect canvas  //
 var clear = () => {
-	rectContext.clearRect(0, 0, window.innerWidth, window.innerHeight)
+	rectContext.clearRect(0, 0, imageBorder.width, imageBorder.height)
 }
 
 
