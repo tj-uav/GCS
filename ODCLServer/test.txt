@@ -1,0 +1,33 @@
+global data
+data = {
+    "id": 0,
+    "img_path": "/static/submit.jpg",
+    "mission": 1,
+    "type": "STANDARD",
+    "latitude": 38,
+    "longitude": -76,
+    "orientation": "N",
+    "shape": "RECTANGLE",
+    "shapeColor": "RED",
+    "alphanumeric": "T",
+    "alphanumericColor": "GREEN",
+    "autonomous": True
+}
+
+
+
+global data
+    data = {
+        "id": 1,
+        "img_path": "/static/submit2.png",
+        "mission": 1,
+        "type": "STANDARD",
+        "latitude": 42,
+        "longitude": -71,
+        "orientation": "W",
+        "shape": "SQUARE",
+        "shapeColor": "GREEN",
+        "alpha": "B",
+        "alphaColor": "YELLOW",
+        "autonomous": True
+    }
