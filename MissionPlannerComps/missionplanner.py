@@ -11,7 +11,7 @@ import random
 
 MY_IP = '127.0.0.1'
 PORT = 5005
-MESSAGE_QUEUE = deque([])
+message_queue = deque([])
 MISSION_ID = 1
 global x
 x = 5
@@ -51,16 +51,16 @@ def enqueue(header, message, subheader = None):
     to_send['MESSAGE'] = message
     if subheader:
         to_send['SUBHEADER'] = subheader
-    MESSAGE_QUEUE.append(to_send)
+    message_queue.append(to_send)
 
 def send_data(sock):
-    #Check if MESSAGE_QUEUE is empty. If it is not empty, send that message to the corresponding device
+    #Check if message_queue is empty. If it is not empty, send that message to the corresponding device
     while True:
-        if MESSAGE_QUEUE:
-            nextMessage = MESSAGE_QUEUE.popleft()
-            nextMessage_json = json.dumps(nextMessage)
-            nextMessage_bytes = nextMessage_json.encode('utf-8')
-            sock.send(nextMessage_bytes)
+        if message_queue:
+            next_message = message_queue.popleft()
+            next_message_json = json.dumps(next_message)
+            next_message_bytes = next_message_json.encode('utf-8')
+            sock.send(next_message_bytes)
             time.sleep(0.05) #Can be changed
             global x
             if x == 0:

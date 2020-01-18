@@ -3,7 +3,7 @@ import geopy
 import geopy.distance
 
 #Radius assumes feet
-def circleToPoints(centerx, centery, radius, num_points=40):
+def circle_to_points(centerx, centery, radius, num_points=40):
     POINT_RADIUS = 15
     CONSTANT = 0.62137119  # Miles to kilometers
 
@@ -35,14 +35,14 @@ def circleToPoints(centerx, centery, radius, num_points=40):
         circlePoints.append(final_coords)
     return circlePoints
 
-def testMethod():
+def test_method():
     obstacles = [[38.861164455523,-77.4728393554688,500]]
     zoneString = "-77.4471759796143,38.8609639542521 -77.4385070800781,38.8588252388515 -77.4397945404053,38.8502697340142 -77.4490642547607,38.8519408119263"
     zoneStringPoints = zoneString.split(" ")
     zones = [[[float((z.split(",")[1])), float((z.split(",")[0]))] for z in zoneStringPoints]]
     makeKml('MissionPlannerComp/testing.kml', obstacles=obstacles, zones=zones)
 
-def KmlBeginning():
+def kml_beginning():
     return """<?xml version="1.0" encoding="utf-8" ?>
     <kml xmlns="http://www.opengis.net/kml/2.2">
     <Document id="root_doc">
@@ -53,7 +53,7 @@ def KmlBeginning():
     <MultiGeometry>
     """
 
-def KmlEnding():
+def kml_ending():
     return """
     </MultiGeometry>
     </Placemark>
@@ -62,7 +62,7 @@ def KmlEnding():
     </kml>
     """
 
-def KmlPolygon(points):
+def kml_polygon(points):
     string = """
     <Polygon>
     <outerBoundaryIs><LinearRing><coordinates>
@@ -76,27 +76,27 @@ def KmlPolygon(points):
     """
     return string
 
-def makeKmlFile(filename, points=[], obstacles=[], zones=[]):
+def make_kml_file(filename, points=[], obstacles=[], zones=[]):
     POINT_RADIUS = 15
     NUM_OBSTACLE_POINTS = 10
     MILES_TO_KILOMETERS = 0.62137119  # Miles to kilometers
     
     KMLSTRING = ""
-    KMLSTRING += KmlBeginning()
+    KMLSTRING += kml_beginning()
     for point in points:
-        toAdd = circleToPoints(point[0], point[1], POINT_RADIUS)
-        KMLSTRING += KmlPolygon(toAdd)
+        toAdd = circle_to_points(point[0], point[1], POINT_RADIUS)
+        KMLSTRING += kml_polygon(toAdd)
     for obstacle in obstacles:
-        toAdd = circleToPoints(obstacle[0], obstacle[1], obstacle[2])
-        KMLSTRING += KmlPolygon(toAdd)
+        toAdd = circle_to_points(obstacle[0], obstacle[1], obstacle[2])
+        KMLSTRING += kml_polygon(toAdd)
     for zone in zones:
-        KMLSTRING += KmlPolygon(zone)
-    KMLSTRING += KmlEnding()
+        KMLSTRING += kml_polygon(zone)
+    KMLSTRING += kml_ending()
     with open(filename, 'w+') as file:
         file.write(KMLSTRING)
         file.close()
 
-def makeWpFile(filename, arr):
+def make_wp_file(filename, arr):
     write = open(filename, "w+")
     count = 0
     write.write("QGC WPL 110\n")#0\t1\t0\t16\t0\t0\t0\t38.881657\t-77.260719\t118.669998\n")
