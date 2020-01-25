@@ -15,7 +15,7 @@ ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6,
 #url = "http://10.10.130.10:80/api/"
 #username = "jefferson"
 #password = "8450259628"
-url = "http://127.0.0.1:8000"
+url = "http://100.36.25.24:8000"
 username = "testuser"
 password = "testpass"
 
@@ -66,4 +66,4 @@ data = {}
 connect_interop(interop_url=url, username=username, password=password)
 global cl
 print(cl.get_mission(1).result())
-#submit_odcl('')
+#submit_odcl('C:/Users/Ganes/Pictures/fbi.jpg')
