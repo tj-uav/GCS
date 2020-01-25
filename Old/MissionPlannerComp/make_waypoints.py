@@ -4,10 +4,10 @@ import json
 from google.protobuf import json_format
 import sys
 import mp_help
-
-interop_ip = "http://192.168.137.147:8000"
-user = "testuser"
-password = "testpass"
+import interop_help
+interop_ip = "http://192.168.1.236:8000"
+user = "tjuav"
+password = "#checkforticks"
 mission_id = 1
 
 mission_obj = interop_help.getMissionObj(interop_ip, user, password, mission_id)

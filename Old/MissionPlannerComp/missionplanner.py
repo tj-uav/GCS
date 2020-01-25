@@ -15,6 +15,12 @@ MESSAGE_QUEUE = deque([])
 MISSION_ID = 1
 global x
 x = 5
+class test():
+   def __init__(self):
+      self.lat = 69
+      self.lng = 420
+      self.alt = 69
+      self.yaw = 100
 
 def start():
     connect_comms()
@@ -34,6 +40,7 @@ def connect_comms():
 
 def telem_data():
     global cl
+    cs = test()
     while True:
         packet = {}
         packet['lat'] = float(cs.lat)
