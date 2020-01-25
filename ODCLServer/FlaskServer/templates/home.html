@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+  <html lang="en" dir="ltr">
+    <head>
+      <meta charset="utf-8">
+      <title>Flask Server Test</title>
+    </head>
+    <!-- <script language="javascript">
+      var stat_old = "";
+      function chekUpdate(){
+        $("#stat").load("dir_stat.php",function(){
+            var stat_new = $("#stat").html();
+            if((stat_old != "") && (stat_old != stat_new)){
+                location.reload();
+            }
+            stat_old = stat_new;
+          }
+        );
+      }
+      setInterval(chekUpdate(), 500);
+    </script> -->
+    <script language="javascript">
+      function sendFile(){
+        // var object = new ActiveXObject("Scripting.FileSystemObject");
+        // var file = object.GetFile("C:\\Users\\ronit\\Documents\\GCS\\ODCLServer\\FlaskServer\\static\\images\\generictarget.jpg");
+        // file.Move("C:\\Users\\ronit\\Documents\\GCS\\ODCLServer\\FlaskServer");
+        location.reload();
+      }
+    </script>
+    <body>
+      <h1> Flask Server Test </h1>
+      <p> TJUAV >>> CUAir <button onclick="sendFile()"> Submit Next </button> </p>
+      {% for filename in images %}
+        <img src="{{ filename }}"/>
+      {% endfor %}
+      <!-- <div id="stat">
+      </div> -->
+    </body>
+    <meta http-equiv="refresh" content="2">
+  </html>
