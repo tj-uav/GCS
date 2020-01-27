@@ -5,6 +5,7 @@ import math
 import functools
 import heapq, time, random
 import json
+from mp_help import makeKmlFile
 
 base_lat = 38.147250  # base coords from AUVSI rules
 base_long = -76.426444
@@ -307,8 +308,6 @@ def writeFile(path):
     # str(count+2) + "\t0\t3\t183\t3.000000\t2006.000000\t0.000000\t0.000000\t0.000000\t0.000000\t0.000000\t1\n"+
     # str(count+3) + "\t0\t3\t183\t4.000000\t950.000000\t0.000000\t0.000000\t0.000000\t0.000000\t0.000000\t1\n")
     write.close()
-
-from mp_help import makeKmlFile
 
 def main():
     global waypoint_x, waypoint_y, waypoint_a, waypoint_path_x, waypoint_path_y, waypoint_path_a, obstacle_list, base_lat, base_long, forKML
