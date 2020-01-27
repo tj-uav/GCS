@@ -12,6 +12,7 @@ import numpy as np
 import struct ## new
 import time
 import zlib
+
 def create_blank():
    odlc = interop_api_pb2.Odlc()
    print(odlc)
@@ -25,56 +26,70 @@ def create_blank():
    odlc.alphanumeric = 'A'
    odlc.alphanumeric_color = 1
    return odlc
-fil = open('output.txt', 'w')
-oldtime = time.time()
-HOST=''
-PORT=8485
-s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.bind((HOST,PORT))
+
+def cv2decode(data):
+    img = pickle.loads(data)
+    img = cv2.imdecode(img, 1)
+    return img
+
+file = open('output.txt', 'w')
+HOST = '192.168.1.102'
+PORT = 8485
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((HOST,PORT))
 print('Socket created')
 num=0
 
 print('Socket bind complete')
-s.listen(1)
+sock.listen(1)
 print('Socket now listening')
 
-conn,addr=s.accept()
+conn, addr = sock.accept()
 
 data = b""
 payload_size = struct.calcsize(">L")
 print("payload_size: {}".format(payload_size))
-fil.write('Time\tFPS')
-t0 = time.time()
+file.write('Time\tFPS')
+framenum = 0
+start = None
 while True:
     while len(data) < payload_size:
         print("Recv: {}".format(len(data)))
         data += conn.recv(4096)
+
+    lasttime = time.time()
+    if start is None:
+        start = time.time()
     print("Done Recv: {}".format(len(data)))
     packed_msg_size = data[:payload_size]
     data = data[payload_size:]
     msg_size = struct.unpack(">L", packed_msg_size)[0]
     print("msg_size: {}".format(msg_size))
-    while len(data) < msg_size:
-        data += conn.recv(4096)
-    frame_data = data[:msg_size]
-    data = data[msg_size:]
 
-    frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
-    frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-    #cv2.imwrite('C:/Users/ganes/Pictures/flight_pics/image_'+str(8800+num)+'.jpg',frame)
-   #  if num % 200 == 0:
-   #    f = open('C:/Users/ganes/Pictures/flight_pics/image_'+str(8800+num)+'.jpg', 'rb')
-   #    odlc = create_blank()
-   #    odlc_object = cl.post_odlc(odlc).result()
-   #    cl.put_odlc_image(odlc_object.id, f.read())
-   #    f.close()
-    cv2.imshow("img", frame)
+    while len(data) < msg_size:
+        data += conn.recv(163840)
+
+    print("Received image: {}" .format(time.time() - lasttime))
+    lasttime = time.time()
+
+    frame_data = data[:msg_size]
+
+    frame = cv2decode(frame_data)
+
+    print("Finished decompressing image: {}".format(time.time() - lasttime))
+    lasttime = time.time()
+
+    cv2.imwrite("Frame" + str(framenum) + ".png", frame)
     cv2.waitKey(1)
 
-   #  num=num+1
-   #  if (time.time()-t0)>5:
-   #     f.write('{}\t{}'.format(round(time.time(),3), round((num-oldNum)/5),3))
-   #     oldNum = num
-   #     t0 = time.time()
+    print("Finished saving image {}".format(time.time() - lasttime))
 
-    #print("num: "+ str(num) + ", time: " + str(round(time.time()-oldtime,4)) + ", avg. speed: " + str(round(num/(time.time()-oldtime), 4)) + " fps")
+    framenum += 1
+
+    if framenum >= 20:
+        break
+
+print(time.time() - start)
+
+conn.close()
+sock.close()
