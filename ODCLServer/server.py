@@ -23,7 +23,8 @@ for filename in os.listdir(os.path.abspath('ODCLServer/static')):
         continue
 # print(images)
 # print(len(images))
-data = {
+data = []
+odcl_data = {
     "id": curr_id,
     "img_path": images[curr_id],
     "mission": 1,
@@ -35,7 +36,8 @@ data = {
     "shapeColor": "RED",
     "alphanumeric": "T",
     "alphanumericColor": "GREEN",
-    "autonomous": True
+    "autonomous": True,
+    "submitted": False
 }
 
 app = Flask(__name__)
@@ -65,7 +67,7 @@ def interactive():
 def update_thread():
     import time
     while True:
-        time.sleep(4)
+        # time.sleep(4)
         print("Updated")
         global data, curr_id, images
         images = []
@@ -74,12 +76,16 @@ def update_thread():
                 images.append("/static/" + filename)
             else:
                 continue
+
         # print("1: ", curr_id)
-        if(curr_id < len(images) - 1):
+        if(curr_id <= len(images) - 1):
             curr_id = curr_id + 1
+        else:
+            break
         # print("2: ", curr_id)
-        data["id"] = curr_id
-        data["img_path"] = images[curr_id]
+        data.append({i:odcl_data[i] for i in odcl_data})
+        data[-1]["id"] = curr_id
+        data[-1]["img_path"] = images[curr_id-1]
         # print(data["id"])
         # print(data["img_path"])
 
