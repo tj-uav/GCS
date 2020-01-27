@@ -79,6 +79,7 @@ function addSubmission(data) {
 		discardButton.textContent = "Discard"
 
 		parent.accepted = false
+		parent.discarded = false
 //		parent.appendChild(accepted)
 		submitButton.addEventListener('click', (e) => {
 			data["submitted"] = true
@@ -89,22 +90,23 @@ function addSubmission(data) {
 			// document.getElementById("submissions").style.display = 'block';
 			alert(`You have just submitted! (but not actually)`)
 		})
+		discardButton.addEventListener('click', (e) => {
+			data["discarded"] = true
+			parent.discarded = true
+			refresh()
+			alert(`You have just discarded! (but not actually)`)
+		})
 		buttonContainer.appendChild(submitButton)
 		buttonContainer.appendChild(discardButton)
 		textContainer.appendChild(buttonContainer)
 	}
 }
 
-function submitSubmission(id) {
-	var element = document.getElementById(id);
-	element.parentNode.removeChild(element);
-}
-
 function refresh(){
 	var images = document.getElementById("submissions").children
 	for(var i = 0; i < images.length; i++){
 		console.log(images[i]);
-		if(images[i].accepted == true){
+		if(images[i].accepted == true || images[i].discarded == true){
 			images[i].style.display = 'none'
 		}
 	}

@@ -37,7 +37,8 @@ odcl_data = {
     "alphanumeric": "T",
     "alphanumericColor": "GREEN",
     "autonomous": True,
-    "submitted": False
+    "submitted": False,
+    "discarded": False
 }
 
 app = Flask(__name__)
