@@ -5,6 +5,8 @@ import json
 import threading
 #from interop_helpers import *
 
+# test commit
+
 # img = Image.open("submit.jpg")
 # img = img.crop((0, 0, img.size[0] / 2, img.size[1] / 2))
 # submission_id = "submission1.jpg"
@@ -81,3 +83,4 @@ if __name__ == '__main__':
 
 # with open('submission1.txt', 'w') as outfile:
 #     json.dump(data, outfile)
+# test commit
