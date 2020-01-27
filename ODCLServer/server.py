@@ -3,6 +3,7 @@ from flask import Flask, render_template, jsonify
 from flask_cors import CORS
 import json
 import threading
+import os
 #from interop_helpers import *
 
 # test commit
@@ -12,10 +13,19 @@ import threading
 # submission_id = "submission1.jpg"
 # img.convert('RGB').save(submission_id)
 
-global data
+global data, curr_id, images
+curr_id = 0
+images = []
+for filename in os.listdir(os.path.abspath('ODCLServer/static')):
+    if filename.endswith(".png") or filename.endswith(".jpg"):
+        images.append("/static/" + filename)
+    else:
+        continue
+# print(images)
+# print(len(images))
 data = {
-    "id": 0,
-    "img_path": "/static/submit.jpg",
+    "id": curr_id,
+    "img_path": images[curr_id],
     "mission": 1,
     "type": "STANDARD",
     "latitude": 38,
@@ -32,7 +42,7 @@ app = Flask(__name__)
 CORS(app)
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 @app.route('/submissions')
 def submissions():
@@ -54,23 +64,24 @@ def interactive():
 
 def update_thread():
     import time
-    time.sleep(4)
-    print("Updated")
-    global data
-    data = {
-        "id": 1,
-        "img_path": "/static/submit2.png",
-        "mission": 1,
-        "type": "STANDARD",
-        "latitude": 42,
-        "longitude": -71,
-        "orientation": "W",
-        "shape": "SQUARE",
-        "shapeColor": "GREEN",
-        "alpha": "B",
-        "alphaColor": "YELLOW",
-        "autonomous": True
-    }
+    while True:
+        time.sleep(4)
+        print("Updated")
+        global data, curr_id, images
+        images = []
+        for filename in os.listdir(os.path.abspath('ODCLServer/static')):
+            if filename.endswith(".png") or filename.endswith(".jpg"):
+                images.append("/static/" + filename)
+            else:
+                continue
+        # print("1: ", curr_id)
+        if(curr_id < len(images) - 1):
+            curr_id = curr_id + 1
+        # print("2: ", curr_id)
+        data["id"] = curr_id
+        data["img_path"] = images[curr_id]
+        # print(data["id"])
+        # print(data["img_path"])
 
 
 if __name__ == '__main__':
