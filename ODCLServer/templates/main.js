@@ -1,5 +1,16 @@
 let requests = 0;
+let submissions = 0;
 let requestSet = new Set();
+
+var SHAPES = ['CIRCLE', 'SEMICIRCLE', 'QUARTER CIRCLE', 'TRIANGLE', 'SQUARE', 'RECTANGLE', 'TRAPEZOID', 'PENTAGON', 'HEXAGON', 'HEPTAGON', 'OCTAGON', 'STAR', 'CROSS'];
+var COLORS = ['WHITE', 'BLACK', 'GRAY', 'RED', 'BLUE', 'GREEN', 'BROWN', 'ORANGE', 'YELLOW', 'PURPLE'];
+var ALPHANUMERICS = [];
+for(let i = 0; i < 26; i++){
+	ALPHANUMERICS.push(String.fromCharCode(i+65));
+}
+for(let i = 0; i < 10; i++){
+	ALPHANUMERICS.push(String.fromCharCode(i+48));
+}
 
 function refresh(){
 	let requests = document.getElementById("requests");
@@ -12,7 +23,10 @@ function refresh(){
 			i--;
 		}
 		else if(images[i].accepted == true){
-			accepted.appendChild(images[i]);
+			submissions++;
+			let submission = createSubmission(images[i]);
+			accepted.appendChild(submission);
+			requests.removeChild(images[i]);
 			i--;
 		}
 	}
@@ -118,12 +132,12 @@ function createPositionContainer(data){
 	return positionContainer;
 }
 
-function createTextContainer(data){
+function createTextContainer(data, editable, num){
 	let textContainer = document.createElement("div")
 	textContainer.classList.add("textContainer")
 
 	let caption = document.createElement("figcaption")
-	caption.textContent = `Submission Request ${requests}`
+	caption.textContent = `Submission Request ${num}`
 
 	let captionContainer = document.createElement("div")
 	captionContainer.appendChild(caption)
@@ -133,29 +147,55 @@ function createTextContainer(data){
 	infoContainer.classList.add("infoContainer")
 	textContainer.appendChild(infoContainer)
 
-	let shapeLabel = createHeader(`Shape Information: `);
-	let shape = createParagraph(`Shape: ${data.shape}`);
-	let shape_color = createParagraph(`Color: ${data.shapeColor}`);
-
 	let shapeContainer = document.createElement("div")
 	shapeContainer.classList.add("shapeContainer")
 
+	let shapeLabel = createHeader(`Shape Information: `);
 	shapeContainer.appendChild(shapeLabel)
-	shapeContainer.appendChild(shape)
-	shapeContainer.appendChild(shape_color)
+
+	if(editable){
+		let shape = createDropdown(SHAPES, 'shape_select');
+		shape.classList.add("shape");
+		let shape_color = createDropdown(COLORS, 'shape_color_select');
+		shape_color.classList.add("shapeColor");
+		shapeContainer.appendChild(shape);
+		shapeContainer.appendChild(shape_color);
+	}
+	else{
+		let shape = createParagraph(`Shape: ${data.shape}`);
+		shape.classList.add("shape");
+		let shape_color = createParagraph(`Color: ${data.shapeColor}`);
+		shape_color.classList.add("shapeColor");
+		shapeContainer.appendChild(shape);
+		shapeContainer.appendChild(shape_color);
+	}
+
 	infoContainer.appendChild(shapeContainer)
 
-	let letterLabel = createHeader(`Letter Information: `);
-	let letter = createParagraph(`Alphanumeric: ${data.alphanumeric}`);
-	let letter_color = createParagraph(`Color: ${data.alphanumericColor}`);
+	let alphaContainer = document.createElement("div")
+	alphaContainer.classList.add("alphaContainer")
 
-	let letterContainer = document.createElement("div")
-	letterContainer.classList.add("letterContainer")
+	let alphaLabel = createHeader(`Alphanumeric Information: `);
+	alphaContainer.appendChild(alphaLabel)
 
-	letterContainer.appendChild(letterLabel)
-	letterContainer.appendChild(letter)
-	letterContainer.appendChild(letter_color)
-	infoContainer.appendChild(letterContainer)
+	if(editable){
+		let alpha = createDropdown(ALPHANUMERICS, 'alpha_select');
+		alpha.classList.add("alpha");
+		let alpha_color = createDropdown(COLORS, 'alpha_color_select');	
+		alpha_color.classList.add("alphaColor");
+		alphaContainer.appendChild(alpha);
+		alphaContainer.appendChild(alpha_color);
+	}
+	else{
+		let alpha = createParagraph(`Alphanumeric: ${data.alphanumeric}`);
+		alpha.classList.add("alpha");
+		let alpha_color = createParagraph(`Color: ${data.alphanumericColor}`);
+		alpha_color.classList.add("alphaColor");
+		alphaContainer.appendChild(alpha);
+		alphaContainer.appendChild(alpha_color);
+	}
+
+	infoContainer.appendChild(alphaContainer)
 
 	let positionContainer = createPositionContainer(data);
 	infoContainer.appendChild(positionContainer)
@@ -165,40 +205,40 @@ function createTextContainer(data){
 
 function createRequestButtons(data, parent){
 
-		// Create submit and discard buttons
-		let buttonContainer = document.createElement("div")
-		buttonContainer.classList.add("buttonContainer")
-		let submitButton = document.createElement("button")
-		submitButton.textContent = "Submit"
+	// Create submit and discard buttons
+	let buttonContainer = document.createElement("div")
+	buttonContainer.classList.add("buttonContainer")
+	let submitButton = document.createElement("button")
+	submitButton.textContent = "Submit"
 
-		let discardButton = document.createElement("button")
-		discardButton.textContent = "Discard"
+	let discardButton = document.createElement("button")
+	discardButton.textContent = "Discard"
 
-		parent.accepted = false
-		parent.discarded = false
+	parent.accepted = false
+	parent.discarded = false
 
-		submitButton.addEventListener('click', (e) => {
-			data["submitted"] = true
-			parent.accepted = true
-			refresh()
-			// submitRequest(parent.id)
-			// document.getElementById("requests").style.display = 'none';
-			// document.getElementById("requests").style.display = 'block';
-			alert('Are you sure you want to submit this?')
-		})
+	submitButton.addEventListener('click', (e) => {
+		data["submitted"] = true
+		parent.accepted = true
+		refresh()
+		// submitRequest(parent.id)
+		// document.getElementById("requests").style.display = 'none';
+		// document.getElementById("requests").style.display = 'block';
+		alert('Are you sure you want to submit this?')
+	})
 
-		discardButton.addEventListener('click', (e) => {
-			data["discarded"] = true
-			parent.discarded = true
-			refresh()
-			alert('Are you sure you want to discard this?')
-		})
+	discardButton.addEventListener('click', (e) => {
+		data["discarded"] = true
+		parent.discarded = true
+		refresh()
+		alert('Are you sure you want to discard this?')
+	})
 
-		buttonContainer.appendChild(submitButton)
-		buttonContainer.appendChild(discardButton)
-		buttonContainer.classList.add("buttonContainer")
+	buttonContainer.appendChild(submitButton)
+	buttonContainer.appendChild(discardButton)
+	buttonContainer.classList.add("buttonContainer")
 
-		return buttonContainer;
+	return buttonContainer;
 }
 
 function createRequestBlock(data){
@@ -209,16 +249,50 @@ function createRequestBlock(data){
 	let image = createImageContainer(data);
 	parent.appendChild(image)
 
-	let textContainer = createTextContainer(data);
+	let textContainer = createTextContainer(data, true, requests);
 	parent.appendChild(textContainer)
 
 	let buttonContainer = createRequestButtons(data, parent);
 	textContainer.appendChild(buttonContainer);
 	parent.appendChild(textContainer);
 
+	parent.data = data;
+
 	return parent;
 
 }
+
+function createSubmission(parent){
+
+	let data = parent.data;	
+
+	let infoContainer = parent.getElementsByClassName('textContainer')[0].getElementsByClassName('infoContainer')[0];
+	let shapeContainer = infoContainer.getElementsByClassName('shapeContainer')[0];
+	let shape = shapeContainer.getElementsByClassName('shape')[0];
+	let shape_color = shapeContainer.getElementsByClassName('shapeColor')[0];
+	let alphaContainer = infoContainer.getElementsByClassName('alphaContainer')[0];
+	let alpha = alphaContainer.getElementsByClassName('alpha')[0];
+	let alpha_color = alphaContainer.getElementsByClassName('alphaColor')[0];
+
+	data['shape'] = shape.value;
+	data['shapeColor'] = shape_color.value;
+	data['alphanumeric'] = alpha.value;
+	data['alphanumericColor'] = alpha_color.value;
+
+	let newparent = document.createElement("div");
+	newparent.classList.add("submission");
+
+	let image = createImageContainer(data);
+	newparent.appendChild(image);
+
+	let textContainer = createTextContainer(data, false, submissions);
+	newparent.appendChild(textContainer);
+
+	newparent.data = data;
+
+	return newparent;	
+}
+
 
 function createDropdown(list, id){
 	let dropdown = document.createElement("select");
@@ -239,4 +313,4 @@ function createTextElement(elementType, text){
 }
 
 function createParagraph(text){	return createTextElement("p", text); }
-function createHeader(text){	return createTextElement("h4", text); }
+function createHeader(text){ return createTextElement("h4", text); }
