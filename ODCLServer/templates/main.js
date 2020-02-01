@@ -155,8 +155,10 @@ function createTextContainer(data, editable, num){
 
 	if(editable){
 		let shape = createDropdown(SHAPES, 'shape_select');
+		shape.value = data.shape;
 		shape.classList.add("shape");
 		let shape_color = createDropdown(COLORS, 'shape_color_select');
+		shape_color.value = data.shapeColor;
 		shape_color.classList.add("shapeColor");
 		shapeContainer.appendChild(shape);
 		shapeContainer.appendChild(shape_color);
@@ -180,8 +182,10 @@ function createTextContainer(data, editable, num){
 
 	if(editable){
 		let alpha = createDropdown(ALPHANUMERICS, 'alpha_select');
+		alpha.value = data.alphanumeric;
 		alpha.classList.add("alpha");
 		let alpha_color = createDropdown(COLORS, 'alpha_color_select');	
+		alpha_color.value = data.alphanumericColor;
 		alpha_color.classList.add("alphaColor");
 		alphaContainer.appendChild(alpha);
 		alphaContainer.appendChild(alpha_color);
