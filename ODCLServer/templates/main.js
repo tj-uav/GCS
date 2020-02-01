@@ -4,7 +4,7 @@ let submissionSet = new Set();
 function refresh(){
 	var images = document.getElementById("submissions").children
 	for(var i = 0; i < images.length; i++){
-		console.log(images[i]);
+//		console.log(images[i]);
 		if(images[i].accepted == true || images[i].discarded == true){
 			images[i].style.display = 'none'
 		}
@@ -42,11 +42,11 @@ var fetchSubmission = function () {
 //			}
 //			console.log(data.length);
 			for(let i = 0; i < data.length; i++){
-				console.log("Looping")
-				console.log(i);
+//				console.log("Looping")
+//				console.log(i);
 				let id = data[i]["id"]
-				console.log(id);
-				console.log(submissionSet.has(id));
+//				console.log(id);
+//				console.log(submissionSet.has(id));
 				if(!submissionSet.has(id)){
 					addSubmissionRequest(data[i])
 					submissionSet.add(id)
@@ -70,70 +70,31 @@ setInterval(fetchSubmission, 500)
 
 
 function addSubmissionRequest(data) {
-	console.log("HELLO")
-	console.log(data);
+//	console.log("ADDING")
+//	console.log(data);
 	if(data["submitted"] == false){
 		submissions++;
 
-		let parent = createSubmissionBlock(data);
+		let parent = createSubmissionRequestBlock(data);
 
 		// Add the parent div to the div containing the list of submission requests
 		parent.classList.add("submission")
 		document.getElementById("submissions").appendChild(parent)	
 
-		// Create submit and discard buttons
-		let buttonContainer = document.createElement("div")
-		buttonContainer.classList.add("buttonContainer")
-		let submitButton = document.createElement("button")
-		submitButton.classList.add("submitButton")
-		submitButton.textContent = "Submit"
-
-		console.log("HI")
-
-		let discardButton = document.createElement("button")
-		discardButton.classList.add("discardButton")
-		discardButton.textContent = "Discard"
-	
-		parent.accepted = false
-		parent.discarded = false
-//		parent.appendChild(accepted)
-		console.log("HI")
-		submitButton.addEventListener('click', (e) => {
-			data["submitted"] = true
-			parent.accepted = true
-			refresh()
-			// submitSubmission(parent.id)
-			// document.getElementById("submissions").style.display = 'none';
-			// document.getElementById("submissions").style.display = 'block';
-			alert('You have just submitted! (but not actually)')
-		})
-		console.log("HI")
-		discardButton.addEventListener('click', (e) => {
-			data["discarded"] = true
-			parent.discarded = true
-			refresh()
-			alert('You have just discarded!')
-		})
-		buttonContainer.appendChild(submitButton)
-		buttonContainer.appendChild(discardButton)
-		buttonContainer.classList.add("buttonContainer")
-		parent.appendChild(buttonContainer);
 //		textContainer.appendChild(buttonContainer)
 	}
 	console.log("HI")
 }
 
-function createSubmissionBlock(data){
-	let parent = document.createElement("div")
-	parent.id = "parent"
-
+function createImageContainer(data){
 	let image = document.createElement("img")
 	image.src = `${/*path*/data.img_path}`
-	parent.appendChild(image)
+	return image;
+}
 
+function createTextContainer(data){
 	let textContainer = document.createElement("div")
 	textContainer.classList.add("textContainer")
-	parent.appendChild(textContainer)
 
 	let captionContainer = document.createElement("div")
 	let caption = document.createElement("figcaption")
@@ -186,6 +147,79 @@ function createSubmissionBlock(data){
 	heading.textContent = `Heading: ${data.orientation}`
 	positionContainer.appendChild(heading)
 	infoContainer.appendChild(positionContainer)
+
+	return textContainer;
+}
+
+function createSubmissionRequestButtons(parent){
+
+		// Create submit and discard buttons
+		let buttonContainer = document.createElement("div")
+		buttonContainer.classList.add("buttonContainer")
+		let submitButton = document.createElement("button")
+		submitButton.textContent = "Submit"
+
+		let discardButton = document.createElement("button")
+		discardButton.textContent = "Discard"
+
+		parent.accepted = false
+		parent.discarded = false
+
+		submitButton.addEventListener('click', (e) => {
+			data["submitted"] = true
+			parent.accepted = true
+			refresh()
+			// submitSubmission(parent.id)
+			// document.getElementById("submissions").style.display = 'none';
+			// document.getElementById("submissions").style.display = 'block';
+			alert('You have just submitted! (but not actually)')
+		})
+
+		discardButton.addEventListener('click', (e) => {
+			data["discarded"] = true
+			parent.discarded = true
+			refresh()
+			alert('You have just discarded!')
+		})
+
+		buttonContainer.appendChild(submitButton)
+		buttonContainer.appendChild(discardButton)
+		buttonContainer.classList.add("buttonContainer")
+
+		return buttonContainer;
+}
+
+function createSubmissionRequestBlock(data){
+
+	let parent = document.createElement("div")
+	parent.id = "parent"
+
+	let image = createImageContainer(data);
+	parent.appendChild(image)
+
+	let textContainer = createTextContainer(data);
+	parent.appendChild(textContainer)
+
+	let buttonContainer = createSubmissionRequestButtons(parent);
+	textContainer.appendChild(buttonContainer);
+	parent.appendChild(textContainer);
+
+	return parent;
+}
+
+function createSubmissionBlock(data){
+	let parent = document.createElement("div")
+	parent.id = "parent"
+
+	let image = createImageContainer(data);
+	parent.appendChild(image)
+
+	let textContainer = createTextContainer(data);
+	parent.appendChild(textContainer)
+
+	let buttonContainer = createSubmissionButtons(parent);
+	textContainer.appendChild(buttonContainer);
+	parent.appendChild(textContainer);
 
 	return parent;
 }
