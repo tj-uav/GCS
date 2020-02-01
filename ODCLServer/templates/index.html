@@ -22,18 +22,20 @@
         <div id="submissions" class="tabcontent">
 			<h1 style="text-align:center">Submission Requests</h1>
 			<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-			<script src='./renderer.js'></script>
-			<script src="{{url_for('main')}}"></script>
 		</div>
 
 		<div id="accepted" class="tabcontent">
-            <h3>Previous Submissions</h3>
+			<h1 style="text-align:center">Previous Submissions</h1>
             <nav>
               <ul id="submissionList">
               </ul>
             </nav>
         </div>
 
+		<script type="text/javascript">
+			{% include "main.js" %}
+		  </script>
+  
 
 	</body>
 </html>

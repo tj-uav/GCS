@@ -35,8 +35,10 @@ h4 {
     display: inline-flex;
     align-self: center;
     margin: 20px 0;
-    margin-left: 50%;
+    display: block;
+/*    margin-left: 50%;
     transform: translateX(-50%);
+*/
 }
 
 .submission div {
@@ -53,8 +55,12 @@ div.infoContainer {
     margin: 0 !important;
 }
 
-.textContainer>div {
+div.textContainer {
     margin: 5px 5px;
+}
+
+.buttonContainer {
+    margin-right:-100px;
 }
 
 .infoContainer>div {
@@ -73,10 +79,6 @@ div.infoContainer {
 
 .infoContainer>div>p {
     margin-top: 1em;
-}
-
-div.buttonContainer {
-    padding-left: 0;
 }
 
 .submitButton {

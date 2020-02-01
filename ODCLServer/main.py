@@ -6,11 +6,6 @@ import threading
 import os
 #from interop_helpers import *
 
-# img = Image.open("submit.jpg")
-# img = img.crop((0, 0, img.size[0] / 2, img.size[1] / 2))
-# submission_id = "submission1.jpg"
-# img.convert('RGB').save(submission_id)
-
 global data, curr_id, images
 curr_id = 0
 images = []
@@ -95,8 +90,3 @@ if __name__ == '__main__':
     update.start()
     app.secret_key = 'password'
     app.run(debug=True)
-
-
-# with open('submission1.txt', 'w') as outfile:
-#     json.dump(data, outfile)
-# test commit
