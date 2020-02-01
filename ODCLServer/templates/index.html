@@ -1,110 +1,39 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-			font-family: sans-serif;
-		}
-
-		p {
-			font-size: 1.125em;
-		}
-
-		h4 {
-			font-size: 1.25em;
-		}
-
-		.submission {
-			display: inline-flex;
-			align-self: center;
-			margin: 20px 0;
-			margin-left: 50%;
-			transform: translateX(-50%);
-		}
-
-		.submission div {
-			margin: 0 5px;
-			padding: 5px;
-		}
-
-		div.infoContainer {
-			padding: 0;
-			display: flex;
-		}
-
-		.textContainer {
-			margin: 0 !important;
-		}
-
-		.textContainer>div {
-			margin: 5px 5px;
-		}
-
-		.infoContainer>div {
-			/* padding: 10px; */
-			margin: 0 10px;
-			padding-bottom: 1em;
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-start;
-		}
-
-		.infoContainer>div:last-of-type,
-		.infoContainer>div:first-of-type {
-			margin: 0;
-		}
-
-		.infoContainer>div>p {
-			margin-top: 1em;
-		}
-
-		div.buttonContainer {
-			padding-left: 0;
-		}
-
-		.submitButton {
-			font-size: 1.25em;
-			padding: 5px 25px;
-			background: transparent;
-			border: 1px solid black;
-			transition: box-shadow 0.1s ease;
-		}
-
-		.submitButton:hover {
-			box-shadow: 0 0 2px inset;
-		}
-
-		.discardButton {
-			font-size: 1.25em;
-			padding: 5px 25px;
-			background: transparent;
-			border: 1px solid black;
-			transition: box-shadow 0.1s ease;
-		}
-
-		.discardButton:hover {
-			box-shadow: 0 0 2px inset;
-		}
-
-		.submission figcaption {
-			font-size: 2em;
-			text-decoration: underline;
-		}
-		</style>
+		<link rel="stylesheet" type="text/css" href="index.css">
 		<meta charset="utf-8">
 		<title> Server </title>
-		<link rel="stylesheet" type="text/css" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
+		<style>
+            {% include "index.css" %}
+		</style>
 	</head>
 
 	
 	<body>
-		<h1 style="text-align:center">Main</h1>
-		<div id="submissions"></div>
-		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-		<script src='./renderer.js'></script>
-		<script src="{{url_for('main')}}"></script>
+        <!-- Tab links -->
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'submissions')" left="100px">Submission Requests</button>
+            <button class="tablinks" onclick="openTab(event, 'accepted')" left="100px">Accepted Submissions</button>
+        </div>
+
+
+        <!-- Tab content -->
+        <div id="submissions" class="tabcontent">
+			<h1 style="text-align:center">Submission Requests</h1>
+			<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+			<script src='./renderer.js'></script>
+			<script src="{{url_for('main')}}"></script>
+		</div>
+
+		<div id="accepted" class="tabcontent">
+            <h3>Previous Submissions</h3>
+            <nav>
+              <ul id="submissionList">
+              </ul>
+            </nav>
+        </div>
+
+
 	</body>
 </html>

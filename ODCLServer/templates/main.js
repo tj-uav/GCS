@@ -3,6 +3,7 @@ let submissionSet = new Set();
 
 function addSubmission(data) {
 	if(data["submitted"] == false){
+		submissions++;
 		let parent = document.createElement("div")
 		parent.id = "parent"
 		parent.classList.add("submission")
@@ -18,7 +19,7 @@ function addSubmission(data) {
 
 		let captionContainer = document.createElement("div")
 		let caption = document.createElement("figcaption")
-		caption.textContent = `Submission ${++submissions}`
+		caption.textContent = `Submission Request ${submissions}`
 		captionContainer.appendChild(caption)
 		textContainer.appendChild(captionContainer)
 
@@ -88,13 +89,13 @@ function addSubmission(data) {
 			// submitSubmission(parent.id)
 			// document.getElementById("submissions").style.display = 'none';
 			// document.getElementById("submissions").style.display = 'block';
-			alert(`You have just submitted! (but not actually)`)
+			alert('You have just submitted! (but not actually)')
 		})
 		discardButton.addEventListener('click', (e) => {
 			data["discarded"] = true
 			parent.discarded = true
 			refresh()
-			alert(`You have just discarded! (but not actually)`)
+			alert('You have just discarded!')
 		})
 		buttonContainer.appendChild(submitButton)
 		buttonContainer.appendChild(discardButton)
@@ -111,6 +112,26 @@ function refresh(){
 		}
 	}
 }
+
+function openTab(evt, tabName) {
+	// Declare all variables
+	var i, tabcontent, tablinks;
+	// Get all elements with class="tabcontent" and hide them
+	console.log(tabName);
+	tabcontent = document.getElementsByClassName("tabcontent");
+	for (i = 0; i < tabcontent.length; i++) {
+	  tabcontent[i].style.display = "none";
+	}
+	// Get all elements with class="tablinks" and remove the class "active"
+	tablinks = document.getElementsByClassName("tablinks");
+	for (i = 0; i < tablinks.length; i++) {
+	  tablinks[i].className = tablinks[i].className.replace(" active", "");
+	}
+	// Show the current tab, and add an "active" class to the button that opened the tab
+	document.getElementById(tabName).style.display = "block";
+	evt.currentTarget.className += " active";
+  }
+  
 
 var fetchSubmission = function () {
 	fetch("http://localhost:5000/post")

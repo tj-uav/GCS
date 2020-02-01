@@ -6,8 +6,6 @@ import threading
 import os
 #from interop_helpers import *
 
-# test commit
-
 # img = Image.open("submit.jpg")
 # img = img.crop((0, 0, img.size[0] / 2, img.size[1] / 2))
 # submission_id = "submission1.jpg"
@@ -16,7 +14,7 @@ import os
 global data, curr_id, images
 curr_id = 0
 images = []
-for filename in os.listdir(os.path.abspath('ODCLServer/static')):
+for filename in os.listdir(os.path.abspath('static')):
     if filename.endswith(".png") or filename.endswith(".jpg"):
         images.append("/static/" + filename)
     else:
@@ -72,7 +70,7 @@ def update_thread():
         print("Updated")
         global data, curr_id, images
         images = []
-        for filename in os.listdir(os.path.abspath('ODCLServer/static')):
+        for filename in os.listdir(os.path.abspath('static')):
             if filename.endswith(".png") or filename.endswith(".jpg"):
                 images.append("/static/" + filename)
             else:
