@@ -6,20 +6,15 @@ import threading
 import os
 #from interop_helpers import *
 
-global data, curr_id, images
+MY_IP, PORT = '127.0.0.1', 5010
+
+global data, displayed_images, curr_id
+displayed_images = set()
 curr_id = 0
-images = []
-for filename in os.listdir(os.path.abspath('static')):
-    if filename.endswith(".png") or filename.endswith(".jpg"):
-        images.append("/static/" + filename)
-    else:
-        continue
 # print(images)
 # print(len(images))
 data = []
 odcl_data = {
-    "id": curr_id,
-    "img_path": images[curr_id],
     "mission": 1,
     "type": "STANDARD",
     "latitude": 38,
@@ -58,7 +53,7 @@ def interactive():
     return jsonify(data)
 
 
-def update_thread():
+def pseudo_update():
     import time
     while True:
         # time.sleep(4)
@@ -83,9 +78,39 @@ def update_thread():
         # print(data["id"])
         # print(data["img_path"])
 
+def sock_thread():
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind((MY_IP, PORT))
+    sock.listen(1)
+    conn, addr = sock.accept()
+    while True:
+        img_data = conn.recv()
+        img_data = 
+
+
+
+def real_update():
+    while True:
+        global data, displayed_images, curr_id
+        images = []
+        for filename in os.listdir(os.path.abspath('static')):
+            if filename.endswith(".png") or filename.endswith(".jpg"):
+                if filename in displayed_images:
+                    continue
+
+                print("Updated")
+                odcl_dict = {i:odcl_data[i] for i in odcl_data}
+                odcl_dict["id"] = curr_id
+                odcl_dict["img_path"] = "/static/" + filename
+                data.append(odcl_dict)
+                curr_id += 1
+                displayed_images.add(filename)
+
 
 if __name__ == '__main__':
-    update = threading.Thread(target=update_thread)
+    update = threading.Thread(target=real_update)
+#    update = threading.Thread(target=pseudo_update)
     update.daemon = True
     update.start()
     app.secret_key = 'password'
