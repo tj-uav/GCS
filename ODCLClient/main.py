@@ -30,8 +30,6 @@ MISSION_ID = 3
 
 def main():
     global app
-#   connect_interop(interop_url='http://192.168.1.102:8000', username='testuser', password='testpass')
-#    connect_interop(interop_url='http://10.10.130.10:80', username='jefferson', password='8450259628')
 #    connect_server(server_url='127.0.0.1', port=5005)
     print('Connected to comms comp')
 	# Prevent CORS errors
@@ -51,7 +49,7 @@ def img_recv_loop():
     global sock
     while True:
         buffer = int(sock.recv(1024).decode())
-        data = sock.recv(BUFFER).decode()
+        data = sock.recv(BUFFER
         npimg = np.fromstring(img, dtype=np.uint8)
 
         decimg=cv2.imdecode(data, cv2.IMREAD_COLOR)
@@ -59,6 +57,12 @@ def img_recv_loop():
         img = data["image"]
         decimg=cv2.imdecode(data,1)
         cv2.imwrite()
+
+def decode_img():
+    pass
+
+def encode_img(img):
+    pass
 
 @app.route("/")
 def index():
