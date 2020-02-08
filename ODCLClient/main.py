@@ -9,10 +9,6 @@ import numpy as np
 from collections import deque
 import os
 
-from auvsi_suas.client import client
-from auvsi_suas.proto import interop_api_pb2
-from google.protobuf import json_format
-
 IMAGE_BASENAME = 'assets/img/'
 IMAGE_ENDING = '.jpg'
 
@@ -49,7 +45,7 @@ def img_recv_loop():
     global sock
     while True:
         buffer = int(sock.recv(1024).decode())
-        data = sock.recv(BUFFER
+        data = sock.recv(BUFFER)
         npimg = np.fromstring(img, dtype=np.uint8)
 
         decimg=cv2.imdecode(data, cv2.IMREAD_COLOR)
@@ -60,6 +56,14 @@ def img_recv_loop():
 
 def decode_img():
     pass
+
+def submit_odcl(img_num, odcl_data, img_crop):
+    print("Tryna submit image: ", img_num)
+    img = cv2.imread("assets/img/" + str(img_num) + ".jpg")
+    x,y,w,h = img_crop['x'], img_crop['y'], img_crop['w'], img_crop['h']
+    print(x,y,w,h)
+    crop = img[y:y+h, x:x+h]
+    cv2.imwrite("assets/crop/" + str(img_num) + ".jpg", crop)
 
 def encode_img(img):
     pass
