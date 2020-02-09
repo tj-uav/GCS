@@ -1,10 +1,13 @@
-from PIL import Image
 from flask import Flask, render_template, jsonify
 from flask_cors import CORS
-import json
-import threading
+import cv2
 import os
+import socket, base64, pickle, json
+import threading, logging
 #from interop_helpers import *
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 MY_IP, PORT = '127.0.0.1', 5010
 
@@ -52,41 +55,33 @@ def interactive():
     global data
     return jsonify(data)
 
+def encode_img(img):
+    _, encoded = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 80])
+    return pickle.dumps(encoded)
 
-def pseudo_update():
-    import time
-    while True:
-        # time.sleep(4)
-        print("Updated")
-        global data, curr_id, images
-        images = []
-        for filename in os.listdir(os.path.abspath('static')):
-            if filename.endswith(".png") or filename.endswith(".jpg"):
-                images.append("/static/" + filename)
-            else:
-                continue
+def decode_img(data):
+    img = pickle.loads(data)
+    img = cv2.imdecode(img, 1)
+    return img
 
-        # print("1: ", curr_id)
-        if(curr_id <= len(images) - 1):
-            curr_id = curr_id + 1
-        else:
-            break
-        # print("2: ", curr_id)
-        data.append({i:odcl_data[i] for i in odcl_data})
-        data[-1]["id"] = curr_id
-        data[-1]["img_path"] = images[curr_id-1]
-        # print(data["id"])
-        # print(data["img_path"])
-
-def sock_thread():
-    import socket
+def sock_comms():
+    print("Running socket stuff")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((MY_IP, PORT))
     sock.listen(1)
     conn, addr = sock.accept()
+    img_num = 1
     while True:
-        img_data = conn.recv()
-        img_data = 
+        packet_str = conn.recv(100000)
+        print("Packet: ", packet_str)
+        packet = json.loads(packet_str.decode())
+        odcl_data = packet["odcl_data"]
+        encoded_b64 = packet["image"].encode('ascii')
+        encoded = base64.decodebytes(encoded_b64)
+        img = decode_img(encoded)
+        cv2.imwrite("static/submission" + str(img_num) + ".jpg", img)
+        print("WROTE THE IMAGE TO static/submission" + str(img_num) + ".jpg")
+        img_num += 1
 
 def real_update():
     while True:
@@ -108,8 +103,11 @@ def real_update():
 
 if __name__ == '__main__':
     update = threading.Thread(target=real_update)
-#    update = threading.Thread(target=pseudo_update)
     update.daemon = True
     update.start()
+    sock_thread = threading.Thread(target=sock_comms)
+#    update = threading.Thread(target=pseudo_update)
+    sock_thread.daemon = True
+    sock_thread.start()
     app.secret_key = 'password'
-    app.run(debug=True)
+    app.run(debug=False, port=5000)

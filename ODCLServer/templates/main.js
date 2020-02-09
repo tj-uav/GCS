@@ -110,6 +110,8 @@ function addRequest(data) {
 function createImageContainer(data){
 	let image = document.createElement("img")
 	image.src = `${/*path*/data.img_path}`
+	image.style.width = 200 + "px";
+	image.style.height = 200 + "px";
 	return image;
 }
 
