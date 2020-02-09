@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import random
 import math
@@ -8,9 +7,9 @@ import heapq, time, random
 import json
 
 from mp_help import make_kml_file
+from visualized import *
 
-fig, ax = plt.subplots()
-ax.set_aspect(1)
+MIN_BANK_ANGLE = pi / 6
 
 # base_lat = 38.147250  # base coords from AUVSI rules
 # base_lon = -76.426444
@@ -37,7 +36,7 @@ radius_tolerance = 35
 height_tolerance = 10
 
 dPhi = pi / 12
-dTheta = pi / 6
+dTheta = pi / 12
 MIN_PHI = 0
 MAX_PHI = pi
 
@@ -54,21 +53,17 @@ class Obstacle():
     def inMe(self, x, y, z):
         return (y - self.y) ** 2 + (x - self.x) ** 2 < ((self.r + radius_tolerance) ** 2) and z < (self.z + height_tolerance)
 
-    # return matplotlib friendly shape
-    def plottable(self):
-        return plt.Circle((self.x, self.y), self.r)
-
-
 @functools.total_ordering
 class Node():
-    def __init__(self, x, y, z, parent=None, theta=0, phi=pi / 2):
+    def __init__(self, x, y, z, parent = None, theta = None, phi = pi / 2, traveled = 0):
         self.x, self.y, self.z = x, y, z
         self.parent = parent
         self.phi = phi
         self.theta = theta
+        self.traveled = traveled
 
-    def setF(self, f):
-        self.f = f
+    def setF(self, goal):
+        self.f = self.traveled + self.dist(goal)
 
     def dist(self, n):
         return ((n.x - self.x) ** 2 + (n.y - self.y) ** 2 + (n.z - self.z) ** 2) ** 0.5
@@ -88,17 +83,21 @@ class Node():
                 return True
         return False
 
-    def nbrs(self, obs):
-        global dPhi, dTheta
+    def get_neighbors(self, obs):
         poss = set()
 #        for dp in np.arange(-pi / 12, pi / 12 + dPhi, dPhi):
 #            if self.phi + dp > MAX_PHI or self.phi + dp < MIN_PHI: continue
         if True:
             dp = 0
-            for dt in np.arange(-pi / 6, pi / 6 + dTheta, dTheta):
+            angles = np.arange(-MIN_BANK_ANGLE, MIN_BANK_ANGLE, dTheta)
+            if self.theta is None:
+                self.theta = 0
+                angles = np.arange(0, 2*pi, dTheta)
+            for dt in angles:
                 node = Node(self.x + rho * cos(self.theta + dt) * sin(self.phi + dp),
                                 self.y + rho * sin(self.theta + dt) * sin(self.phi + dp),
-                                self.z + rho * cos(self.phi + dp), self, self.theta + dt, self.phi + dp)
+                                self.z + rho * cos(self.phi + dp), self, self.theta + dt, self.phi + dp,
+                                self.traveled + rho)
                 if not self.check_collision(node, obs):
                     poss.add(node)
 
@@ -110,18 +109,27 @@ class Node():
     def __lt__(self, n):
         return self.f < n.f
 
-def aStar(root, goal, obstacles):
-    f = root.dist(goal)
+def aStar(root, goal, obstacles, live=False):
+    print("Running A*")
+    root.setF(goal)
+    print("Root:", root)
+    print("Goal: ", goal)
+    print("Obstacles: ", obstacles)
+    print("Starting F: ", root.f)
     openSet = [root]
     path = []
     closedSet = set()
     num = 0
     while True:
         node = heapq.heappop(openSet)
+        if live:
+            tempPlot(node)
         if node in closedSet:
             continue
+
         closedSet.add(node)
-        for nbr in node.nbrs(obstacles):
+
+        for nbr in node.get_neighbors(obstacles):
             nbr.parent = node
             if nbr == goal:
                 nbr.x = goal.x
@@ -129,12 +137,15 @@ def aStar(root, goal, obstacles):
                 nbr.z = goal.z
                 while nbr.parent:
                     # if nbr.theta != nbr.parent.theta or nbr.phi != nbr.parent.phi:
-                    path.append(nbr.loc())
+#                    path.append(nbr.loc())
+                    path.append(nbr)
                     nbr = nbr.parent
                 
+                path = path[::-1]
                 return path
 
-            nbr.setF(nbr.dist(goal) - node.dist(goal) + f)
+            nbr.setF(goal)
+#            nbr.setF(nbr.dist(goal) - node.dist(goal) + f)
             heapq.heappush(openSet, nbr)
     
     return path
@@ -173,7 +184,7 @@ def read_mission():
         geo_waypoints.append([lat, lon, alt])
         waypoints.append([dx, dy, alt])
 
-        if len(waypoints) > 1:
+        if len(waypoints) > 2:
             break
 
     return geo_waypoints, waypoints, geo_obstacles, obstacles
@@ -182,11 +193,13 @@ def read_mission():
 def generate_final_path(waypoints, obstacles):
     paths = []
     root = Node(*waypoints[0], None)
+    print("Paths")
     for i in range(1, len(waypoints)):
         goal = Node(*waypoints[i], None)
 #        root = Node(*waypoints[i - 1], None)
-        path = aStar(root, goal, obstacles)
-        paths.append(path)
+        path = aStar(root, goal, obstacles, False)
+#        print(path)
+        paths.append([node.loc() for node in path])
         root = path[-1]
 
     final_path = []
@@ -219,40 +232,10 @@ def writeFile(filename, path):
     write.close()
 
 
-def display(path, waypoints, obstacles):
-    path_x, path_y, path_z = [], [], []
-    for waypoint in path:
-        path_x.append(waypoint[0])
-        path_y.append(waypoint[1])
-        path_z.append(waypoint[2])
-
-    waypoint_x, waypoint_y, waypoint_z = [], [], []
-    for waypoint in waypoints:
-        waypoint_x.append(waypoint[0])
-        waypoint_y.append(waypoint[1])
-        waypoint_z.append(waypoint[2])
-
-    print("waypoints:")
-    print(path_x)
-    print(path_y)
-
-    plt.ylim(-300, 300)
-    plt.xlim(-300, 300)
-
-    ax.grid()
-
-    for obs in obstacles:
-        ax.add_artist(obs.plottable())
-
-    plt.plot(path_x, path_y, 'ro', label='Waypoints')
-    plt.plot(waypoint_x, waypoint_y, 'yo', label='Waypoints')
-    plt.legend()
-    plt.show()
-
-
 def main():
-    global waypoints, forKML
     geo_waypoints, waypoints, geo_obstacles, obstacles = read_mission()
+    display([], waypoints, obstacles, False)
+#    obstacles = []
 
 #    writeFile("original.waypoints", og_waypoints)
     final_path = generate_final_path(waypoints, obstacles)

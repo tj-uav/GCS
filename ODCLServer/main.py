@@ -88,8 +88,6 @@ def sock_thread():
         img_data = conn.recv()
         img_data = 
 
-
-
 def real_update():
     while True:
         global data, displayed_images, curr_id
