@@ -60,11 +60,14 @@ class Node():
       return [self.lat,self.lon,self.z]
    def __hash__(self):
       return int(self.lat*100000000)+int(self.lon)
-   def nbrs(self, obs):
+   def nbrs(self, obs, goal):
       global dPhi, dTheta
       lst = []
+      brng = bearing(*self.loc()[:2], *goal.loc()[:2])
       for dp in np.arange(-pi/12, pi/12+dPhi, dPhi):
          if self.phi+dp > MAX_PHI or self.phi+dp < MIN_PHI: continue
+         # if abs(self.theta-brng) < pi/6:
+         #    lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(brng)*sin(self.phi+dp),rho*sin(brng)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,brng, self.phi+dp))
          for dt in np.arange(-pi/6, pi/6+dTheta, dTheta):
             lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(self.theta+dt)*sin(self.phi+dp),rho*sin(self.theta+dt)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,self.theta+dt, self.phi+dp))
       sEt = set(lst)
@@ -99,18 +102,19 @@ def aStar(root, goal):
    #waypoints.remove(goal.loc())
    closedSet = set()
    num = 0
+   
    while True:
       node = heapq.heappop(openSet)
       if node in closedSet: continue
       closedSet.add(node)
-      for nbr in node.nbrs(obstacle_list):
+      for nbr in node.nbrs(obstacle_list, goal):
          goal.parent = node
          if nbr == goal:
             nbr.lat = goal.lat
             nbr.lon = goal.lon
             nbr.z = goal.z
             while nbr.parent:
-               if nbr.theta != nbr.parent.theta or nbr.phi != nbr.parent.phi:
+               if abs(nbr.theta-nbr.parent.theta) > 1e-10 or nbr.phi != nbr.parent.phi:
                   path.append(nbr.loc())
                nbr = nbr.parent
             return path[::-1]
@@ -150,36 +154,23 @@ def read_mission():
       if len(waypoints) >1: break
    return waypoints
 
-import pyproj
-
-def angleFromCoordinate(lat1, long1, lat2, long2):
-   dLon = (long2 - long1)
-
-   y = math.sin(dLon) * math.cos(lat2)
-   x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dLon)
-
-   brng = math.atan2(y, x)
-
-   brng = math.degrees(brng)
-   brng = (brng + 360) % 360
-   brng =  brng # count degrees clockwise - remove to make counter-clockwise
-
-   return brng
+def bearing(lat1, long1, lat2, long2):
+   lat1 *= pi/180
+   lat2 *= pi/180
+   long1 *= pi/180
+   long2 *= pi/180
+   y = sin(long2-long1) * cos(lat2)
+   x = cos(lat1) * sin(lat2) - sin(lat1)*cos(lat2)*cos(long2-long1)
+   return ((math.atan2(y,x)*180/pi + 360) % 360) * pi/180
 
 def generate_final_path(waypoints):
    final_path = []
-   
-   geodesic = pyproj.Geod(ellps='WGS84')
    for i in range(1,len(waypoints)):
       goal = Node(*waypoints[i], None)
       root = Node(*waypoints[i-1], goal)
-      # give root an initial theta beelining for goal
-      lat1, lon1, lat2, lon2 = *waypoints[i-1][:2], *waypoints[i][:2]
-      root.theta = angleFromCoordinate(lat1, lon1, lat2, lon2)
-      #print(180/pi*root.theta)
-      #exit()
-      final_path += aStar(root, goal)
-   
+      root.theta = bearing(*root.loc()[:2], *goal.loc()[:2])
+      final_path += [root.loc()] + aStar(root, goal)
+   print(final_path)
    return final_path
 
 def writeFile(filename, path):
