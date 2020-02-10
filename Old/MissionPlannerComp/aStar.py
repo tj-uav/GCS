@@ -16,8 +16,8 @@ obstacle_list = []
 # constants in METERS
 # precision is inversely related to speed of algorithm
 # dont set this to <0.05
-precision = 1
-rho = 1
+precision = 5
+rho = 5
 
 # buffer zone around obstacles
 # set this based off GPS accuracy
@@ -150,14 +150,34 @@ def read_mission():
       if len(waypoints) >1: break
    return waypoints
 
+import pyproj
 
+def angleFromCoordinate(lat1, long1, lat2, long2):
+   dLon = (long2 - long1)
+
+   y = math.sin(dLon) * math.cos(lat2)
+   x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(dLon)
+
+   brng = math.atan2(y, x)
+
+   brng = math.degrees(brng)
+   brng = (brng + 360) % 360
+   brng =  brng # count degrees clockwise - remove to make counter-clockwise
+
+   return brng
 
 def generate_final_path(waypoints):
    final_path = []
-   print(great_circle_dist(*waypoints[0][:2], *waypoints[1][:2]))
+   
+   geodesic = pyproj.Geod(ellps='WGS84')
    for i in range(1,len(waypoints)):
       goal = Node(*waypoints[i], None)
       root = Node(*waypoints[i-1], goal)
+      # give root an initial theta beelining for goal
+      lat1, lon1, lat2, lon2 = *waypoints[i-1][:2], *waypoints[i][:2]
+      root.theta = angleFromCoordinate(lat1, lon1, lat2, lon2)
+      #print(180/pi*root.theta)
+      #exit()
       final_path += aStar(root, goal)
    
    return final_path
@@ -181,11 +201,13 @@ def main():
    global obstacle_list
    waypoints = read_mission()
    writeFile("original.waypoints",waypoints)
+   t0 = time.time()
    final_path = generate_final_path(waypoints)
    writeFile("optimized.waypoints",final_path)
    #makeKmlFile("obstacles.kml", obstacle_list)
    for wp in final_path: print(wp)
    print(len(final_path), "waypoints")
+   print(round(time.time()-t0, 3), "seconds")
 
 if __name__ == '__main__':
    main()
