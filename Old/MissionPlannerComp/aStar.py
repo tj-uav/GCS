@@ -21,8 +21,8 @@ rho = 10
 
 # buffer zone around obstacles
 # set this based off GPS accuracy
-radius_tolerance = 20
-height_tolerance = 60
+radius_tolerance = 10
+height_tolerance = 1e99
 
 MAX_RELATIVE_BANK = pi/12
 MAX_RELATIVE_PITCH = pi/12
@@ -72,6 +72,7 @@ class Node():
       brng = bearing(*self.loc()[:2], *goal.loc()[:2])
       for dp in np.arange(-MAX_RELATIVE_PITCH, MAX_RELATIVE_PITCH+dPhi, dPhi):
          if self.phi+dp > MAX_PHI or self.phi+dp < MIN_PHI: continue
+         if (self.z + rho*cos(self.phi+dp)) > MAX_ALTITUDE or (self.z + rho*cos(self.phi+dp)) < MIN_ALTITUDE: continue
          # if abs(self.theta-brng) < pi/6:
          #    lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(brng)*sin(self.phi+dp),rho*sin(brng)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,brng, self.phi+dp))
          for dt in np.arange(-MAX_RELATIVE_BANK, MAX_RELATIVE_BANK+dTheta, dTheta):
@@ -128,7 +129,7 @@ def aStar(root, goal):
          heapq.heappush(openSet, nbr)
 
 def read_mission():
-   global obstacle_list
+   global obstacle_list, MAX_ALTITUDE, MIN_ALTITUDE
    forKML = []
    import requests
    s = requests.Session()
@@ -141,7 +142,8 @@ def read_mission():
    r = open('mission.txt', 'r').read()
    mission_dict = json.loads(r)
    #mission_dict = json.loads(r.text)
-
+   MIN_ALTITUDE = mission_dict["flyZones"][0]["altitudeMin"]
+   MAX_ALTITUDE = mission_dict["flyZones"][0]["altitudeMax"]
    for obstacle in mission_dict["stationaryObstacles"]:
       lat = obstacle["latitude"]
       lon = obstacle["longitude"]
