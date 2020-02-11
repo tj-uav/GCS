@@ -14,18 +14,21 @@ base_long = -76.426444
 obstacle_list = []
 
 # constants in METERS
-# precision is inversely related to speed of algorithm
-# dont set this to <0.05
-precision = 5
-rho = 5
+# waypoint precision
+# rho is inversely related to speed of algorithm
+precision = 30
+rho = 10
 
 # buffer zone around obstacles
 # set this based off GPS accuracy
-radius_tolerance = 35
-height_tolerance = 10
+radius_tolerance = 20
+height_tolerance = 60
+
+MAX_RELATIVE_BANK = pi/12
+MAX_RELATIVE_PITCH = pi/12
 
 dPhi = pi/12
-dTheta = pi/6
+dTheta = pi/12
 MIN_PHI = 0
 MAX_PHI = pi
 class Obstacle():
@@ -41,8 +44,11 @@ class Obstacle():
       return "Center: ({}. {}), Radius: {}".format(round(self.lat, 3), round(self.lon, 3), round(self.r, 3))
 
    def inMe(self, lat, lon, z):
-      global radius_tolerance
-      return False #great_circle_dist(self.lat, self.lon, lat, lon)<=(r+radius_tolerance) + (self.z+height_tolerance) >=z
+      global radius_tolerance, height_tolerance
+      return great_circle_dist(self.lat, self.lon, lat, lon)<=(self.r+radius_tolerance) and z<=(self.z+height_tolerance)
+   
+   def KMLFriendly(self):
+      return [self.lat, self.lon, self.z]
 
 @functools.total_ordering
 class Node():
@@ -61,20 +67,20 @@ class Node():
    def __hash__(self):
       return int(self.lat*100000000)+int(self.lon)
    def nbrs(self, obs, goal):
-      global dPhi, dTheta
+      global dPhi, dTheta, MAX_RELATIVE_BANK, MAX_RELATIVE_PITCH
       lst = []
       brng = bearing(*self.loc()[:2], *goal.loc()[:2])
-      for dp in np.arange(-pi/12, pi/12+dPhi, dPhi):
+      for dp in np.arange(-MAX_RELATIVE_PITCH, MAX_RELATIVE_PITCH+dPhi, dPhi):
          if self.phi+dp > MAX_PHI or self.phi+dp < MIN_PHI: continue
          # if abs(self.theta-brng) < pi/6:
          #    lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(brng)*sin(self.phi+dp),rho*sin(brng)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,brng, self.phi+dp))
-         for dt in np.arange(-pi/6, pi/6+dTheta, dTheta):
+         for dt in np.arange(-MAX_RELATIVE_BANK, MAX_RELATIVE_BANK+dTheta, dTheta):
             lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(self.theta+dt)*sin(self.phi+dp),rho*sin(self.theta+dt)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,self.theta+dt, self.phi+dp))
-      sEt = set(lst)
+      sEt = set()
       for o in obs:
          for n in lst:
-            if o.inMe(n.lat, n.lon, n.z):
-               sEt.remove(n)
+            if not o.inMe(*n.loc()):
+               sEt.add(n)
          lst = list(sEt)
       return sEt     
    def __eq__(self, n):
@@ -102,7 +108,7 @@ def aStar(root, goal):
    #waypoints.remove(goal.loc())
    closedSet = set()
    num = 0
-   
+
    while True:
       node = heapq.heappop(openSet)
       if node in closedSet: continue
@@ -139,8 +145,8 @@ def read_mission():
    for obstacle in mission_dict["stationaryObstacles"]:
       lat = obstacle["latitude"]
       lon = obstacle["longitude"]
-      height = obstacle["height"]
-      rad = obstacle["radius"] * 0.3048  # feet to meters
+      height = obstacle["height"] #* 0.3048
+      rad = obstacle["radius"] #* 0.3048  # feet to meters 
 
       obstacle_list += [Obstacle(lat, lon, height, rad)]
 
@@ -151,7 +157,6 @@ def read_mission():
       alt = waypoint["altitude"]
 
       waypoints.append([lat,lon,alt])
-      if len(waypoints) >1: break
    return waypoints
 
 def bearing(lat1, long1, lat2, long2):
@@ -170,7 +175,6 @@ def generate_final_path(waypoints):
       root = Node(*waypoints[i-1], goal)
       root.theta = bearing(*root.loc()[:2], *goal.loc()[:2])
       final_path += [root.loc()] + aStar(root, goal)
-   print(final_path)
    return final_path
 
 def writeFile(filename, path):
@@ -195,7 +199,7 @@ def main():
    t0 = time.time()
    final_path = generate_final_path(waypoints)
    writeFile("optimized.waypoints",final_path)
-   #makeKmlFile("obstacles.kml", obstacle_list)
+   makeKmlFile("obstacles.kml", [obs.KMLFriendly() for obs in obstacle_list])
    for wp in final_path: print(wp)
    print(len(final_path), "waypoints")
    print(round(time.time()-t0, 3), "seconds")
