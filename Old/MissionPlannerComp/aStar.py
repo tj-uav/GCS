@@ -21,8 +21,8 @@ rho = 10
 
 # buffer zone around obstacles
 # set this based off GPS accuracy
-radius_tolerance = 10
-height_tolerance = 1e99
+radius_tolerance = 0
+height_tolerance = 50
 
 MAX_RELATIVE_BANK = pi/12
 MAX_RELATIVE_PITCH = pi/12
@@ -66,8 +66,8 @@ class Node():
       return [self.lat,self.lon,self.z]
    def __hash__(self):
       return int(self.lat*100000000)+int(self.lon)
-   def nbrs(self, obs, goal):
-      global dPhi, dTheta, MAX_RELATIVE_BANK, MAX_RELATIVE_PITCH
+   def nbrs(self, goal):
+      global dPhi, dTheta, MAX_RELATIVE_BANK, MAX_RELATIVE_PITCH, obstacle_list
       lst = []
       brng = bearing(*self.loc()[:2], *goal.loc()[:2])
       for dp in np.arange(-MAX_RELATIVE_PITCH, MAX_RELATIVE_PITCH+dPhi, dPhi):
@@ -77,13 +77,16 @@ class Node():
          #    lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(brng)*sin(self.phi+dp),rho*sin(brng)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,brng, self.phi+dp))
          for dt in np.arange(-MAX_RELATIVE_BANK, MAX_RELATIVE_BANK+dTheta, dTheta):
             lst.append(Node(*great_circle_conv(self.lat, self.lon, rho*cos(self.theta+dt)*sin(self.phi+dp),rho*sin(self.theta+dt)*sin(self.phi+dp)), self.z + rho*cos(self.phi+dp), self,self.theta+dt, self.phi+dp))
-      sEt = set()
-      for o in obs:
-         for n in lst:
-            if not o.inMe(*n.loc()):
-               sEt.add(n)
-         lst = list(sEt)
-      return sEt     
+
+      for obs in obstacle_list:  
+         good_nodes = lst.copy()
+         for ind, node in enumerate(lst):
+            if obs.inMe(*node.loc()):
+               good_nodes.remove(node)
+         lst = good_nodes.copy()
+         
+            
+      return lst
    def __eq__(self, n):
       global precision
       return self.dist(n)<precision
@@ -101,7 +104,7 @@ def great_circle_dist(lat1, lon1, lat2, lon2):
    return distance.great_circle((lat1,lon1),(lat2,lon2)).meters
 
 def aStar(root, goal):
-   global rho, obstacle_list
+   global rho
    root.parent = None
    f = root.dist(goal)
    openSet = [root]
@@ -114,7 +117,7 @@ def aStar(root, goal):
       node = heapq.heappop(openSet)
       if node in closedSet: continue
       closedSet.add(node)
-      for nbr in node.nbrs(obstacle_list, goal):
+      for nbr in node.nbrs(goal):
          goal.parent = node
          if nbr == goal:
             nbr.lat = goal.lat
