@@ -25,20 +25,41 @@ ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, '
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
 
 SERVER_IP, PORT = '127.0.0.1', 5010
+IMG_IP, IMG_PORT = '127.0.0.1', 5015
 MISSION_ID = 3
 
 global app
 app = Flask("__name__", static_folder="assets")
 
-
-
 def main():
     global app
     connect_server()
     print('Connected to comms comp')
+    sock_thread = threading.Thread(target=sock_comms)
+    sock_thread.daemon = True
+    sock_thread.start()
 	# Prevent CORS errors
     CORS(app)
     app.run(debug=False, port=5005)
+
+def sock_comms():
+    print("Running socket stuff")
+    sock_img = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock_img.bind((IMG_IP, IMG_PORT))
+    sock_img.listen(1)
+    conn, addr = sock_img.accept()
+    img_num = 1
+    while True:
+        packet_str = conn.recv(100000)
+        print("Packet: ", packet_str)
+        packet = json.loads(packet_str.decode())
+        odcl_data = packet["odcl_data"]
+        encoded_b64 = packet["image"].encode('ascii')
+        encoded = base64.decodebytes(encoded_b64)
+        img = decode_img(encoded)
+        cv2.imwrite("assets/img/" + str(img_num) + ".jpg", img)
+        print("WROTE THE IMAGE TO assets/img" + str(img_num) + ".jpg")
+        img_num += 1
 
 def connect_server():
     global sock

@@ -112,7 +112,7 @@ function resetDropdowns() {
 }
 
 function getClosestOrientation(val) {
-	let dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+	let dirs = ["N", "NW", "W", "SW", "S", "E", "E", "NE"];
 	let closestRotation = Infinity;
 	let closestIndex = 0;
 	for (let index = 0; index < dirs.length; index++) {

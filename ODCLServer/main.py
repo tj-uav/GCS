@@ -10,6 +10,7 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 MY_IP, PORT = '127.0.0.1', 5010
+IMG_IP, IMG_PORT = '127.0.0.1', 5015
 
 global data, displayed_images, curr_id
 displayed_images = set()
@@ -67,9 +68,13 @@ def decode_img(data):
 def sock_comms():
     print("Running socket stuff")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((MY_IP, PORT))
+    sock2.bind((IMG_IP, IMG_PORT))
     sock.listen(1)
+    sock2.listen(1)
     conn, addr = sock.accept()
+    conn2, addr2 = sock2.accept()
     img_num = 1
     while True:
         packet_str = conn.recv(100000)
@@ -83,9 +88,32 @@ def sock_comms():
         print("WROTE THE IMAGE TO static/submission" + str(img_num) + ".jpg")
         img_num += 1
 
+def connect_server():
+    global sock_img
+    sock_img = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock_img.connect((IMG_IP, IMG_PORT))
+#    recv_thread = threading.Thread(target=img_recv_loop)
+#    recv_thread.daemon = True
+#    recv_thread.start()
+
+def send_socket(filename):
+    global sock_img
+    packet = {}
+    img = cv2.imread("jetson_imgs/" + filename)
+    encoded = encode_img(img)
+    encoded_b64 = base64.encodebytes(encoded)
+    packet["image"] = encoded_b64.decode('ascii')
+    packet["odcl_data"] = odcl_data
+    packet_str = json.dumps(packet)
+    sock_img.send(packet_str.encode())
+#    print(packet)
+
 def real_update():
     while True:
         global data, displayed_images, curr_id
+        for filename in os.listdir(os.path.abspath('jetson_imgs')):
+            if filename.endswith(".png") or filename.endswith(".jpg"):
+                send_socket(filename)
         images = []
         for filename in os.listdir(os.path.abspath('static')):
             if filename.endswith(".png") or filename.endswith(".jpg"):
@@ -109,5 +137,6 @@ if __name__ == '__main__':
 #    update = threading.Thread(target=pseudo_update)
     sock_thread.daemon = True
     sock_thread.start()
+    connect_server()
     app.secret_key = 'password'
     app.run(debug=False, port=5000)
