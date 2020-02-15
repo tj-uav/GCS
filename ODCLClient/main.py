@@ -42,13 +42,20 @@ def main():
     CORS(app)
     app.run(debug=False, port=5005)
 
+def connect_server():
+    global sock
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((SERVER_IP, PORT))
+    # recv_thread = threading.Thread(target=img_recv_loop)
+    # recv_thread.daemon = True
+    # recv_thread.start()
+
 def sock_comms():
-    global conn, sock
+    global sock
     print("Running socket stuff")
-    conn, addr = sock.accept()
     img_num = 1
     while True:
-        packet_str = conn.recv(100000)
+        packet_str = sock.recv(100000)
         print("Packet: ", packet_str)
         # packet = json.loads(packet_str.decode())
         # odcl_data = packet["odcl_data"]
@@ -58,14 +65,6 @@ def sock_comms():
         cv2.imwrite("assets/img/" + str(img_num) + ".jpg", img)
         print("WROTE THE IMAGE TO assets/img" + str(img_num) + ".jpg")
         img_num += 1
-
-def connect_server():
-    global sock
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((SERVER_IP, PORT))
-#    recv_thread = threading.Thread(target=img_recv_loop)
-#    recv_thread.daemon = True
-#    recv_thread.start()
 
 def send_socket(img, data):
     global sock

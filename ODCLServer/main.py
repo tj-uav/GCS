@@ -105,14 +105,16 @@ def send_socket(filename):
     # print(packet)
 
 def real_update():
+    time.sleep(2)
+    for filename in os.listdir(os.path.abspath('jetson_imgs')):
+        if filename.endswith(".png") or filename.endswith(".jpg"):
+            send_socket(filename)
+            print(filename + " sent!")
+            time.sleep(0.5)
+            # os.remove(os.path.abspath("jetson_imgs/" + filename))
+            # print(filename + " removed!")
     while True:
         global data, displayed_images, curr_id
-        for filename in os.listdir(os.path.abspath('jetson_imgs')):
-            if filename.endswith(".png") or filename.endswith(".jpg"):
-                send_socket(filename)
-                print(filename + " sent!")
-                os.remove(os.path.abspath("jetson_imgs/" + filename))
-                print(filename + " removed!")
         images = []
         for filename in os.listdir(os.path.abspath('static')):
             if filename.endswith(".png") or filename.endswith(".jpg"):
