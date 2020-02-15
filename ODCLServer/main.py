@@ -94,7 +94,9 @@ def sock_comms():
 def send_socket(filename):
     global conn, sock
     # packet = {}
+    print(filename)
     img = cv2.imread("jetson_imgs/" + filename)
+    print(img)
     encoded = encode_img(img)
     encoded_b64 = base64.encodebytes(encoded)
     # packet["image"] = encoded_b64.decode('ascii')
@@ -105,13 +107,7 @@ def send_socket(filename):
 
 def real_update():
     time.sleep(2)
-    imgs = os.listdir(os.path.abspath('jetson_imgs'))
-    for filename in imgs:
-        if filename.endswith(".png") or filename.endswith(".jpg"):
-            print("Sending " + filename + "...")
-            send_socket(filename)
-            print(filename + " sent!")
-            time.sleep(0.5)
+    imgs = []
     while True:
         global data, displayed_images, curr_id
         check_imgs = os.listdir(os.path.abspath('jetson_imgs'))
@@ -120,9 +116,10 @@ def real_update():
             for filename in check_imgs[new_index:]:
                 if filename.endswith(".png") or filename.endswith(".jpg"):
                     print("Sending " + filename + "...")
+                    time.sleep(0.25)
                     send_socket(filename)
                     print(filename + " sent!")
-                    time.sleep(0.5)
+                    time.sleep(0.25)
             imgs = check_imgs
         images = []
         for filename in os.listdir(os.path.abspath('static')):

@@ -25,7 +25,6 @@ ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, '
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
 
 SERVER_IP, PORT = '127.0.0.1', 5010
-IMG_IP, IMG_PORT = '127.0.0.1', 5015
 MISSION_ID = 3
 
 global app
