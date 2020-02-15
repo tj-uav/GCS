@@ -5,7 +5,6 @@ import os
 import socket, base64, pickle, json
 import threading, logging
 import time
-import socket
 import numpy as np
 from collections import deque
 #from interop_helpers import *
@@ -106,15 +105,25 @@ def send_socket(filename):
 
 def real_update():
     time.sleep(2)
-    for filename in os.listdir(os.path.abspath('jetson_imgs')):
+    imgs = os.listdir(os.path.abspath('jetson_imgs'))
+    for filename in imgs:
         if filename.endswith(".png") or filename.endswith(".jpg"):
+            print("Sending " + filename + "...")
             send_socket(filename)
             print(filename + " sent!")
             time.sleep(0.5)
-            # os.remove(os.path.abspath("jetson_imgs/" + filename))
-            # print(filename + " removed!")
     while True:
         global data, displayed_images, curr_id
+        check_imgs = os.listdir(os.path.abspath('jetson_imgs'))
+        new_index = len(imgs)
+        if imgs != check_imgs:
+            for filename in check_imgs[new_index:]:
+                if filename.endswith(".png") or filename.endswith(".jpg"):
+                    print("Sending " + filename + "...")
+                    send_socket(filename)
+                    print(filename + " sent!")
+                    time.sleep(0.5)
+            imgs = check_imgs
         images = []
         for filename in os.listdir(os.path.abspath('static')):
             if filename.endswith(".png") or filename.endswith(".jpg"):
