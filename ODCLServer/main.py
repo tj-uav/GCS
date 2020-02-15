@@ -7,6 +7,9 @@ import threading, logging
 import time
 import numpy as np
 from collections import deque
+
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
 #from interop_helpers import *
 
 log = logging.getLogger('werkzeug')
@@ -56,6 +59,7 @@ def main():
 @app.route('/post')
 def interactive():
     global data
+    submit_to_interop()
     return jsonify(data)
 
 def encode_img(img):
@@ -67,13 +71,19 @@ def decode_img(data):
     img = cv2.imdecode(img, 1)
     return img
 
+def connect_interop_server():
+    global clent
+    config = json.load(open("../config.json"))
+    client = client.Client(url=config["interop_url"],
+                       username='tjuav',
+                       password='getmeout')
+
 def connect_server():
     global conn, sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((MY_IP, PORT))
     sock.listen(1)
     conn, addr = sock.accept()
-
 
 def sock_comms():
     global conn, sock
@@ -135,9 +145,29 @@ def real_update():
                 curr_id += 1
                 displayed_images.add(filename)
 
+def submit_to_interop(curr_id):
+    global data
+    odcl_dict = data[curr_id]
+    odlc = interop_api_pb2.Odlc()
+    odlc.type = interop_api_pb2.Odlc.STANDARD
+    odlc.latitude = odcl_dict["latitude"]
+    odlc.longitude = odcl_dict["longitude"]
+    odlc.orientation = odcl_dict["orientation"]
+    odlc.shape = odcl_dict["shape"]
+    odlc.shape_color = odcl_dict["shape_color"]
+    odlc.alphanumeric = odcl_dict["alphanumeric"]
+    odlc.alphanumeric_color = odcl_dict["alphanumeric_color"]
+
+    odlc = client.post_odlc(odlc)
+
+    with open(odcl_dict["img_path"], 'rb') as f:
+        image_data = f.read()
+        client.put_odlc_image(odlc.id, image_data)
+
 
 if __name__ == '__main__':
     connect_server()
+    connect_interop_server()
     sock_thread = threading.Thread(target=sock_comms)
     sock_thread.daemon = True
     sock_thread.start()
