@@ -74,14 +74,6 @@ setInterval(fetchSubmission, 500)
 
 
 
-
-
-
-
-
-
-
-
 function addRequest(data) {
 //	console.log("ADDING")
 //	console.log(data);

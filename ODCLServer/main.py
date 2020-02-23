@@ -1,9 +1,15 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 import cv2
 import os
 import socket, base64, pickle, json
 import threading, logging
+import time
+import numpy as np
+from collections import deque
+
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
 #from interop_helpers import *
 
 # Don't print the Flask debugging information in terminal
@@ -50,6 +56,7 @@ def main():
 @app.route('/post')
 def interactive():
     global data
+    submit_to_interop()
     return jsonify(data)
 
 def encode_img(img):
@@ -66,12 +73,23 @@ def decode_img(data):
     img = cv2.imdecode(img, 1)
     return img
 
-def sock_comms():
-    print("Running socket stuff")
+def connect_interop_server():
+    global clent
+    config = json.load(open("../config.json"))
+    client = client.Client(url=config["interop_url"],
+                       username='tjuav',
+                       password='getmeout')
+
+def connect_server():
+    global conn, sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((MY_IP, PORT))
     sock.listen(1)
     conn, addr = sock.accept()
+
+def sock_comms():
+    global conn, sock
+    print("Running socket stuff")
     img_num = 1
     while True:
         packet_str = conn.recv(100000)
@@ -83,9 +101,36 @@ def sock_comms():
         print("WROTE THE IMAGE TO static/submission" + str(img_num) + ".jpg")
         img_num += 1
 
+def send_socket(filename):
+    global conn, sock
+    # packet = {}
+    print(filename)
+    img = cv2.imread("jetson_imgs/" + filename)
+    print(img)
+    encoded = encode_img(img)
+    encoded_b64 = base64.encodebytes(encoded)
+    # packet["image"] = encoded_b64.decode('ascii')
+    # packet["odcl_data"] = odcl_data
+    # packet_str = json.dumps(packet)
+    conn.send(encoded_b64)
+    # print(packet)
+
 def real_update():
+    time.sleep(2)
+    imgs = []
     while True:
         global data, displayed_images, curr_id
+        check_imgs = os.listdir(os.path.abspath('jetson_imgs'))
+        new_index = len(imgs)
+        if imgs != check_imgs:
+            for filename in check_imgs[new_index:]:
+                if filename.endswith(".png") or filename.endswith(".jpg"):
+                    print("Sending " + filename + "...")
+                    time.sleep(0.25)
+                    send_socket(filename)
+                    print(filename + " sent!")
+                    time.sleep(0.25)
+            imgs = check_imgs
         images = []
         for filename in os.listdir(os.path.abspath('static')):
             if filename.endswith(".png") or filename.endswith(".jpg"):
@@ -100,17 +145,49 @@ def real_update():
                 curr_id += 1
                 displayed_images.add(filename)
 
+def submit_to_interop(curr_id):
+    global data
+    odcl_dict = data[curr_id]
+    odlc = interop_api_pb2.Odlc()
+    odlc.type = interop_api_pb2.Odlc.STANDARD
+    odlc.latitude = odcl_dict["latitude"]
+    odlc.longitude = odcl_dict["longitude"]
+    odlc.orientation = odcl_dict["orientation"]
+    odlc.shape = odcl_dict["shape"]
+    odlc.shape_color = odcl_dict["shape_color"]
+    odlc.alphanumeric = odcl_dict["alphanumeric"]
+    odlc.alphanumeric_color = odcl_dict["alphanumeric_color"]
 
+    odlc = client.post_odlc(odlc)
+
+    with open(odcl_dict["img_path"], 'rb') as f:
+        image_data = f.read()
+        client.put_odlc_image(odlc.id, image_data)
+
+
+<<<<<<< HEAD
 def main():
     update = threading.Thread(target=real_update)
     update.daemon = True
     update.start()
+=======
+if __name__ == '__main__':
+    connect_server()
+    connect_interop_server()
+>>>>>>> b25a3feca95bc0dcb28f93400a65a36cce85a472
     sock_thread = threading.Thread(target=sock_comms)
-#    update = threading.Thread(target=pseudo_update)
     sock_thread.daemon = True
     sock_thread.start()
+    update = threading.Thread(target=real_update)
+    # update = threading.Thread(target=pseudo_update)
+    update.daemon = True
+    update.start()
     app.secret_key = 'password'
+<<<<<<< HEAD
     app.run(debug=False, port=5000)
 
 if __name__ == '__main__':
     main()
+=======
+    app.run(debug=False, port=5000)
+>>>>>>> b25a3feca95bc0dcb28f93400a65a36cce85a472

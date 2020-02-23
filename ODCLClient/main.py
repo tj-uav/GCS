@@ -30,11 +30,12 @@ MISSION_ID = 3
 global app
 app = Flask("__name__", static_folder="assets")
 
-
-
 def main():
     global app
     connect_server()
+    sock_thread = threading.Thread(target=sock_comms)
+    sock_thread.daemon = True
+    sock_thread.start()
     print('Connected to comms comp')
 	# Prevent CORS errors
     CORS(app)
@@ -44,9 +45,25 @@ def connect_server():
     global sock
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((SERVER_IP, PORT))
-#    recv_thread = threading.Thread(target=img_recv_loop)
-#    recv_thread.daemon = True
-#    recv_thread.start()
+    # recv_thread = threading.Thread(target=img_recv_loop)
+    # recv_thread.daemon = True
+    # recv_thread.start()
+
+def sock_comms():
+    global sock
+    print("Running socket stuff")
+    img_num = 1
+    while True:
+        packet_str = sock.recv(100000)
+        print("Packet: ", packet_str)
+        # packet = json.loads(packet_str.decode())
+        # odcl_data = packet["odcl_data"]
+        # encoded_b64 = packet_str.encode('ascii')
+        decoded = base64.decodebytes(packet_str)
+        img = decode_img(decoded)
+        cv2.imwrite("assets/img/" + str(img_num) + ".jpg", img)
+        print("WROTE THE IMAGE TO assets/img" + str(img_num) + ".jpg")
+        img_num += 1
 
 def send_socket(img, data):
     global sock
