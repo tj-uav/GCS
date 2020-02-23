@@ -58,16 +58,8 @@ var fetchSubmission = function () {
 			return response.json();
 		})
 		.then(function (data) {
-//			if (data["id"] < requests) {
-//				return;
-//			}
-//			console.log(data.length);
 			for(let i = 0; i < data.length; i++){
-//				console.log("Looping")
-//				console.log(i);
 				let id = data[i]["id"]
-//				console.log(id);
-//				console.log(requestSet.has(id));
 				if(!requestSet.has(id)){
 					addRequest(data[i])
 					requestSet.add(id)
@@ -75,7 +67,7 @@ var fetchSubmission = function () {
 			}
 		})
 		.catch(function () {
-//			console.log("Error occured with data request");
+			console.log("Error occured with data request");
 		});
 };
 setInterval(fetchSubmission, 500)

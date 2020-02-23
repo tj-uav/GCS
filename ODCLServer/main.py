@@ -6,6 +6,7 @@ import socket, base64, pickle, json
 import threading, logging
 #from interop_helpers import *
 
+# Don't print the Flask debugging information in terminal
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -38,10 +39,6 @@ CORS(app)
 def index():
     return render_template("index.html")
 
-@app.route('/submissions')
-def submissions():
-    return render_template('submissions.html')
-
 @app.route('/sub.js')
 def sub():
     return render_template('sub.js')
@@ -57,10 +54,15 @@ def interactive():
 
 def encode_img(img):
     _, encoded = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 80])
-    return pickle.dumps(encoded)
+    encoded = pickle.dumps(encoded)
+    encoded_b64 = base64.encodebytes(encoded)
+    encoded_str = encoded_b64.decode('ascii')
+    return encoded_str
 
 def decode_img(data):
-    img = pickle.loads(data)
+    encoded_b64 = data.encode('ascii')
+    encoded = base64.decodebytes(encoded_b64)
+    img = pickle.loads(encoded)
     img = cv2.imdecode(img, 1)
     return img
 
@@ -76,9 +78,7 @@ def sock_comms():
         print("Packet: ", packet_str)
         packet = json.loads(packet_str.decode())
         odcl_data = packet["odcl_data"]
-        encoded_b64 = packet["image"].encode('ascii')
-        encoded = base64.decodebytes(encoded_b64)
-        img = decode_img(encoded)
+        img = decode_img(packet["image"])
         cv2.imwrite("static/submission" + str(img_num) + ".jpg", img)
         print("WROTE THE IMAGE TO static/submission" + str(img_num) + ".jpg")
         img_num += 1
@@ -101,7 +101,7 @@ def real_update():
                 displayed_images.add(filename)
 
 
-if __name__ == '__main__':
+def main():
     update = threading.Thread(target=real_update)
     update.daemon = True
     update.start()
@@ -111,3 +111,6 @@ if __name__ == '__main__':
     sock_thread.start()
     app.secret_key = 'password'
     app.run(debug=False, port=5000)
+
+if __name__ == '__main__':
+    main()
