@@ -3,7 +3,7 @@ import numpy as np
 
 # first char represents base64 encoded ID of datatype, 
 def getType( self, socketstr ):   # returns type of data stored
-    section = socketstr[0]
+    int( section = socketstr[0] )
 
 def decodeStatus( self, socketstr ):    # these couple probably don't need to be implemented
     pass                                # these communications are a bit one sided, after all

@@ -9,7 +9,7 @@ class datatransfercentral:
     odclconnections = []
     imgQueue = []
     imgProcWait = False
-    def __init__( self, odclIPs = [ "127.0.0.1", ] ):
+    def __init__( self, odclIPs = [ "127.0.0.1" ] ):
         #print( "WARNING: THEADING SHOULD BE IMPLEMENTED FOR FULL FUNCTIONALITY" )
         toContinue = True
 
