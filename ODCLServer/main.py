@@ -7,8 +7,12 @@ import threading, logging
 import time
 import numpy as np
 from collections import deque
+
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
 #from interop_helpers import *
 
+# Don't print the Flask debugging information in terminal
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -41,10 +45,6 @@ CORS(app)
 def index():
     return render_template("index.html")
 
-@app.route('/submissions')
-def submissions():
-    return render_template('submissions.html')
-
 @app.route('/sub.js')
 def sub():
     return render_template('sub.js')
@@ -56,16 +56,29 @@ def main():
 @app.route('/post')
 def interactive():
     global data
+    submit_to_interop()
     return jsonify(data)
 
 def encode_img(img):
     _, encoded = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 80])
-    return pickle.dumps(encoded)
+    encoded = pickle.dumps(encoded)
+    encoded_b64 = base64.encodebytes(encoded)
+    encoded_str = encoded_b64.decode('ascii')
+    return encoded_str
 
 def decode_img(data):
-    img = pickle.loads(data)
+    encoded_b64 = data.encode('ascii')
+    encoded = base64.decodebytes(encoded_b64)
+    img = pickle.loads(encoded)
     img = cv2.imdecode(img, 1)
     return img
+
+def connect_interop_server():
+    global clent
+    config = json.load(open("../config.json"))
+    client = client.Client(url=config["interop_url"],
+                       username='tjuav',
+                       password='getmeout')
 
 def connect_server():
     global conn, sock
@@ -73,7 +86,6 @@ def connect_server():
     sock.bind((MY_IP, PORT))
     sock.listen(1)
     conn, addr = sock.accept()
-
 
 def sock_comms():
     global conn, sock, odcl_data
@@ -84,10 +96,14 @@ def sock_comms():
         print("Packet: ", packet_str)
         packet = json.loads(packet_str.decode())
         odcl_data = packet["odcl_data"]
+<<<<<<< HEAD
         print(odcl_data)
         encoded_b64 = packet["image"].encode('ascii')
         encoded = base64.decodebytes(encoded_b64)
         img = decode_img(encoded)
+=======
+        img = decode_img(packet["image"])
+>>>>>>> a99e1e7e025220c605544951a6a2f0112786e237
         cv2.imwrite("static/submission" + str(img_num) + ".jpg", img)
         print("WROTE THE IMAGE TO static/submission" + str(img_num) + ".jpg")
         img_num += 1
@@ -137,9 +153,36 @@ def real_update():
                 curr_id += 1
                 displayed_images.add(filename)
 
+def submit_to_interop(curr_id):
+    global data
+    odcl_dict = data[curr_id]
+    odlc = interop_api_pb2.Odlc()
+    odlc.type = interop_api_pb2.Odlc.STANDARD
+    odlc.latitude = odcl_dict["latitude"]
+    odlc.longitude = odcl_dict["longitude"]
+    odlc.orientation = odcl_dict["orientation"]
+    odlc.shape = odcl_dict["shape"]
+    odlc.shape_color = odcl_dict["shape_color"]
+    odlc.alphanumeric = odcl_dict["alphanumeric"]
+    odlc.alphanumeric_color = odcl_dict["alphanumeric_color"]
 
+    odlc = client.post_odlc(odlc)
+
+    with open(odcl_dict["img_path"], 'rb') as f:
+        image_data = f.read()
+        client.put_odlc_image(odlc.id, image_data)
+
+
+<<<<<<< HEAD
+def main():
+    update = threading.Thread(target=real_update)
+    update.daemon = True
+    update.start()
+=======
 if __name__ == '__main__':
     connect_server()
+    connect_interop_server()
+>>>>>>> b25a3feca95bc0dcb28f93400a65a36cce85a472
     sock_thread = threading.Thread(target=sock_comms)
     sock_thread.daemon = True
     sock_thread.start()
@@ -148,4 +191,11 @@ if __name__ == '__main__':
     update.daemon = True
     update.start()
     app.secret_key = 'password'
+<<<<<<< HEAD
     app.run(debug=False, port=5000)
+
+if __name__ == '__main__':
+    main()
+=======
+    app.run(debug=False, port=5000)
+>>>>>>> b25a3feca95bc0dcb28f93400a65a36cce85a472

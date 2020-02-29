@@ -69,9 +69,7 @@ def sock_comms():
 def send_socket(img, data):
     global sock
     packet = {}
-    encoded = encode_img(img)
-    encoded_b64 = base64.encodebytes(encoded)
-    packet["image"] = encoded_b64.decode('ascii')
+    packet["image"] = encode_img(img)
     packet["odcl_data"] = data
     packet_str = json.dumps(packet)
     print(packet_str)
@@ -90,10 +88,15 @@ def img_recv_loop():
 
 def encode_img(img):
     _, encoded = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 80])
-    return pickle.dumps(encoded)
+    encoded = pickle.dumps(encoded)
+    encoded_b64 = base64.encodebytes(encoded)
+    encoded_str = encoded_b64.decode('ascii')
+    return encoded_str
 
 def decode_img(data):
-    img = pickle.loads(data)
+    encoded_b64 = data.encode('ascii')
+    encoded = base64.decodebytes(encoded_b64)
+    img = pickle.loads(encoded)
     img = cv2.imdecode(img, 1)
     return img
 
