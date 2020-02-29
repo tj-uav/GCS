@@ -19,6 +19,8 @@ config = json.load(open("config.json"))
 
 handler = Handler(config)
 handler.init_socket()
+if config['use_interop']:
+    handler.init_interop()
 
 
 print(1/0)

@@ -73,7 +73,6 @@ var fetchSubmission = function () {
 setInterval(fetchSubmission, 500)
 
 
-
 function addRequest(data) {
 //	console.log("ADDING")
 //	console.log(data);
@@ -91,6 +90,7 @@ function addRequest(data) {
 	console.log("HI")
 }
 
+
 function createImageContainer(data){
 	let image = document.createElement("img")
 	image.src = `${/*path*/data.img_path}`
@@ -98,6 +98,7 @@ function createImageContainer(data){
 	image.style.height = 200 + "px";
 	return image;
 }
+
 
 function createPositionContainer(data){
 	let positionContainer = document.createElement("div");
@@ -117,6 +118,7 @@ function createPositionContainer(data){
 
 	return positionContainer;
 }
+
 
 function createTextContainer(data, editable, num){
 	let textContainer = document.createElement("div")
@@ -193,6 +195,7 @@ function createTextContainer(data, editable, num){
 	return textContainer;
 }
 
+
 function createRequestButtons(data, parent){
 
 	// Create submit and discard buttons
@@ -231,6 +234,7 @@ function createRequestButtons(data, parent){
 	return buttonContainer;
 }
 
+
 function createRequestBlock(data){
 
 	let parent = document.createElement("div")
@@ -251,6 +255,7 @@ function createRequestBlock(data){
 	return parent;
 
 }
+
 
 function createSubmission(parent){
 
@@ -296,11 +301,13 @@ function createDropdown(list, id){
 	return dropdown;
 }
 
+
 function createTextElement(elementType, text){
 	let elem = document.createElement(elementType);
 	elem.textContent = text;
 	return elem;
 }
+
 
 function createParagraph(text){	return createTextElement("p", text); }
 function createHeader(text){ return createTextElement("h4", text); }

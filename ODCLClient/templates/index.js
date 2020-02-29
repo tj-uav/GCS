@@ -1,84 +1,50 @@
-var IMG;
-var subCount;
 const IMG_FILENAME = '';
 const IMG_EXTENSION = '.jpg';
-var IMG;
+
+var IMG, subCount, currNum, lowest, highest;
+
+var IMG = document.getElementById('myImage');
+IMG.onmousedown = startRubber;
+IMG.onmouseup = stopRubber;
+var subCount = 0;
 var currNum = 0;
 var lowest = 0;
-var highest = 100;
+var highest = 0;
 
-function init() {
-	currNum = 0;
-	lowest = 0;
-	highest = 0;
-	document.getElementById("lowest_index").innerHTML = lowest + "";
-	document.getElementById("current_index").innerHTML = currNum + "";
-	document.getElementById("highest_index").innerHTML = highest + "";
+const SHAPE_OPTIONS = ["Circle", "Semicircle", "Quarter_circle", "Triangle", "Square", "Rectangle", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Star", "Cross"];
+const COLOR_OPTIONS = ["Black", "Gray", "White", "Red", "Blue", "Green", "Brown", "Orange", "Yellow", "Purple"];
+var ALPHA_OPTIONS =['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+resetDropdowns();
 	
-	subCount = 0;
-	SHAPE_OPTIONS = ["Circle", "Semicircle", "Quarter_circle", "Triangle", "Square", "Rectangle", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Star", "Cross"]
-	COLOR_OPTIONS = ["Black", "Gray", "White", "Red", "Blue", "Green", "Brown", "Orange", "Yellow", "Purple"]
-	ALPHA_OPTIONS = []
-	for (let i = 0; i < 26; i++) {
-		ALPHA_OPTIONS.push(String.fromCharCode(i + 65));
-	}
-	for (let i = 0; i < 10; i++) {
-		ALPHA_OPTIONS.push(String.fromCharCode(i + 48));
-	}
-	resetDropdowns();
-	
-	IMG = document.getElementById('myImage');
-	IMG.onmousedown = startRubber;
-	IMG.onmouseup = stopRubber;
-}
-
-init();
 
 function previous() {
-	//  if(currNum > lowest + 1){
 	currNum -= 1;
 	setImageCurr();
-	//  }
 }
-
 function next() {
-	console.log('hi')
-	//  if(currNum < highest){
 	currNum += 1;
 	setImageCurr();
-	//  }
 }
-
 function setImageCurr() {
 	img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
 	IMG.src = img_filename;
 	document.getElementById("current_index").innerHTML = currNum + "";
 }
-
-function gotoBoundary(inp) {
-	let val = parseInt(inp.value);
-	//  val = Math.max(lowest, val);
-	//  val = Math.min(highest,val);
-}
-
 function gotoImage(value) {
-	let val = parseInt(value);
-	currNum = val;
+	currNum = parseInt(value);
 	setImageCurr();
 }
 
 function openTab(evt, tabName) {
-	// Declare all variables
-	var i, tabcontent, tablinks;
 	// Get all elements with class="tabcontent" and hide them
 	console.log(tabName);
-	tabcontent = document.getElementsByClassName("tabcontent");
-	for (i = 0; i < tabcontent.length; i++) {
+	let tabcontent = document.getElementsByClassName("tabcontent");
+	for (let i = 0; i < tabcontent.length; i++) {
 		tabcontent[i].style.display = "none";
 	}
 	// Get all elements with class="tablinks" and remove the class "active"
-	tablinks = document.getElementsByClassName("tablinks");
-	for (i = 0; i < tablinks.length; i++) {
+	let tablinks = document.getElementsByClassName("tablinks");
+	for (let i = 0; i < tablinks.length; i++) {
 		tablinks[i].className = tablinks[i].className.replace(" active", "");
 	}
 	// Show the current tab, and add an "active" class to the button that opened the tab
@@ -116,7 +82,6 @@ function getClosestOrientation(val) {
 	let closestRotation = Infinity;
 	let closestIndex = 0;
 	for (let index = 0; index < dirs.length; index++) {
-		let dir = dirs[index];
 		let dist = Math.min(Math.abs(index * 45 - val), Math.abs(index * 45 + 360 - val));
 		if (dist < closestRotation) {
 			closestRotation = dist;
@@ -155,15 +120,9 @@ function submit_standard() {
 	
 	let rb = document.getElementById("rubberBand");
 	let crop_dict = {};
-	//  let width_scale = 4208/IMG.width;
-	//  let height_scale = 3120/IMG.height;
 	let width_scale = 4208 / IMG.width;
 	let height_scale = 3120 / IMG.height;
 	
-//	crop_dict['x'] = parseInt(parseInt(rb.style.left) * width_scale);
-//	crop_dict['y'] = parseInt(parseInt(rb.style.top) * height_scale);
-//	crop_dict['w'] = parseInt(parseInt(rb.style.width) * width_scale);
-//	crop_dict['h'] = parseInt(parseInt(rb.style.height) * height_scale);
 	console.log(parseInt(rb.style.left) / IMG.width);
 	crop_dict['x'] = parseInt(rb.style.left) / IMG.width;
 	crop_dict['y'] = parseInt(rb.style.top) / IMG.height;

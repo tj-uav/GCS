@@ -2,19 +2,11 @@ import os
 import cv2
 import json
 import time
-import socket
-import pickle
-import base64
 import logging
-import threading
 import numpy as np
 from handler import Handler
 from flask_cors import CORS
-from collections import deque
 from flask import Flask, jsonify, render_template, request
-
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
 
 config = json.load(open("config.json"))
 handler = Handler(config)

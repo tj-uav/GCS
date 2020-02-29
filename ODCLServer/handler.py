@@ -96,6 +96,7 @@ class Handler:
                 conn.send(to_send)
                 self.client_comp_idx += 1
                 self.client_comp_idx %= self.num_client_comps
+                time.sleep(0.2)
 
 
     def listen_client(self, conn):
@@ -108,7 +109,7 @@ class Handler:
             odcl_data = packet["odcl_data"]
             img = self.decode_img(packet["image"])
             cv2.imwrite("static/submission" + str(img_num) + ".jpg", img)
-            print("SUBMISSION RECEIVED")
+            print("Submission received")
             img_num += 1
 
 
