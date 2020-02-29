@@ -90,30 +90,30 @@ def encode_img(img):
     _, encoded = cv2.imencode('.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 80])
     encoded = pickle.dumps(encoded)
     encoded_b64 = base64.encodebytes(encoded)
-    # encoded_str = encoded_b64.decode('ascii')
-    return encoded_b64
+    encoded_str = encoded_b64.decode('ascii')
+    return encoded_str
 
 def decode_img(data):
-    # encoded_b64 = data.encode('ascii')
-    decoded_b64 = base64.decodebytes(data)
-    decoded = pickle.loads(decoded_b64)
+    encoded_b64 = data.encode('ascii')
+    encoded = base64.decodebytes(encoded_b64)
+    decoded = pickle.loads(encoded)
     img = cv2.imdecode(decoded, 1)
     return img
 
-# def submit_odcl(img_num, odcl_data, img_crop):
-#     print("Tryna submit image: ", img_num)
-#     img = cv2.imread("assets/img/" + str(img_num) + ".jpg")
-#     x,y,w,h = img_crop['x'], img_crop['y'], img_crop['w'], img_crop['h']
-#     scaleY, scaleX, _ = img.shape
-#     x = int(x * scaleX)
-#     y = int(y * scaleY)
-#     w = int(w * scaleX)
-#     h = int(h * scaleY)
+def submit_odcl(img_num, odcl_data, img_crop):
+    print("Tryna submit image: ", img_num)
+    img = cv2.imread("assets/img/" + str(img_num) + ".jpg")
+    x,y,w,h = img_crop['x'], img_crop['y'], img_crop['w'], img_crop['h']
+    scaleY, scaleX, _ = img.shape
+    x = int(x * scaleX)
+    y = int(y * scaleY)
+    w = int(w * scaleX)
+    h = int(h * scaleY)
     
-#     crop = img[y:y+h, x:x+w]
-#     send_socket(crop, odcl_data)
+    crop = img[y:y+h, x:x+w]
+    send_socket(crop, odcl_data)
 
-# #    cv2.imwrite("assets/crop/" + str(img_num) + ".jpg", crop)
+#    cv2.imwrite("assets/crop/" + str(img_num) + ".jpg", crop)
 
 @app.route("/")
 def index():
@@ -125,20 +125,19 @@ def data():
     files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR,name))]
     return json.dumps({'highest': len(files)})
 
-# @app.route('/receiver', methods = ["GET", "POST"])
-# def receiver():
-#     print('hi')
-#     if request.method == "POST":
-#         data = request.get_json()
-#         img_num = data['img_num']
-#         odcl_data = data['odcl']
-#         img_crop = data['img_crop']
-#         print("DICTIONARY DATA")
-#         print(data)
-#         submit_odcl(img_num, odcl_data, img_crop)
-# #        submit_odcl(img_url, odcl_data)
-#     return 'OK'
-
+@app.route('/receiver', methods = ["GET", "POST"])
+def receiver():
+    print('hi')
+    if request.method == "POST":
+        data = request.get_json()
+        img_num = data['img_num']
+        odcl_data = data['odcl']
+        img_crop = data['img_crop']
+        print("DICTIONARY DATA")
+        print(data)
+        submit_odcl(img_num, odcl_data, img_crop)
+#        submit_odcl(img_url, odcl_data)
+    return 'OK'
 
 if __name__ == "__main__":
     main()
