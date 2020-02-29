@@ -6,30 +6,32 @@ import threading
 
 class datatransfercentral:  
     toContinue = True
-    odclconnections = []
+    odclconnections = ""
     imgQueue = []
     imgProcWait = False
+    x = ""
     def __init__( self, odclIPs = [ "127.0.0.1" ] ):
         #print( "WARNING: THEADING SHOULD BE IMPLEMENTED FOR FULL FUNCTIONALITY" )
-        toContinue = True
+        self.toContinue = True
 
-        odclconnections = []
+        self.odclconnections = []
         for ip in odclIPs:
-            val = DC( ip )
-        
-        x = threading.Thread( target = processQueue, args=(1,))
-        x.start
+            self.odclconnections.append( DC( ip ) )
+        self.x = threading.Thread( target = self.processQueue, args=())
+        self.x.start()
+        time.sleep( .25 )
 
     def processQueue( self ):   # makes a new thread and sends in background
-        while toContinue:
-            if len( imgQueue ) < 1:
+        while self.toContinue:
+            if len( self.imgQueue ) < 1:
                 time.sleep( .25 )
-            while len( imgQueue ) > 0:
+            while len( self.imgQueue ) > 0:
                 statuses = []
-                for connection in odclconnections:
+                for connection in self.odclconnections:
                     statuses.append( connection.getStatus() )
-                odclconnections[ statuses.index( min( statuses ) ) ].processIMG( imgQueue[ 0 ] )
+                self.odclconnections[ statuses.index( min( statuses ) ) ].processIMG( self.imgQueue[ 0 ] )
     def addImage( self, img ):
-        imgQueue.add( img )
+        self.imgQueue.append( img )
     def complete( self ): # safe program kill
-        toContinue = False;
+        self.toContinue = False;
+        self.x.join()
