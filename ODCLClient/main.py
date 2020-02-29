@@ -25,6 +25,7 @@ ODCL_COLORCONV = {'WHITE' : 1, 'BLACK' : 2, 'GRAY' : 3, 'RED' : 4, 'BLUE' : 5, '
 ODCL_ORIENTATIONCONV = {'N' : 1, 'NE' : 2, 'E' : 3, 'SE' : 4, 'S' : 5, 'SW' : 6, 'W' : 7, 'NW' : 8}
 
 SERVER_IP, PORT = '127.0.0.1', 5010
+# SERVER_IP, PORT = '127.0.0.1', 5010
 MISSION_ID = 3
 
 global app
@@ -73,6 +74,7 @@ def send_socket(img, data):
     packet["image"] = encoded_b64.decode('ascii')
     packet["odcl_data"] = data
     packet_str = json.dumps(packet)
+    print(packet_str)
     sock.send(packet_str.encode())
 #    print(packet)
 

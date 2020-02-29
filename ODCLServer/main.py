@@ -76,7 +76,7 @@ def connect_server():
 
 
 def sock_comms():
-    global conn, sock
+    global conn, sock, odcl_data
     print("Running socket stuff")
     img_num = 1
     while True:
@@ -84,6 +84,7 @@ def sock_comms():
         print("Packet: ", packet_str)
         packet = json.loads(packet_str.decode())
         odcl_data = packet["odcl_data"]
+        print(odcl_data)
         encoded_b64 = packet["image"].encode('ascii')
         encoded = base64.decodebytes(encoded_b64)
         img = decode_img(encoded)
@@ -132,6 +133,7 @@ def real_update():
                 odcl_dict["id"] = curr_id
                 odcl_dict["img_path"] = "/static/" + filename
                 data.append(odcl_dict)
+                print(data)
                 curr_id += 1
                 displayed_images.add(filename)
 
