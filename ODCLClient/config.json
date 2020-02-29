@@ -1,0 +1,11 @@
+{
+    "use_interop": false,
+    "interop_url": "http://100.36.25.24:8000",
+    "interop_username": "testuser",
+    "interop_password": "testpass",
+    "interop_mission_num": 1,
+    "gs_ip": "127.0.0.1",
+    "gs_port": 5010,
+    "num_client_comps": 1,
+    "jetson_address": "127.0.0.1"
+}

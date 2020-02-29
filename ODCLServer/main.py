@@ -1,12 +1,13 @@
-from flask import Flask, render_template, jsonify, request
-from flask_cors import CORS
-import cv2
 import os
-import socket, base64, pickle, json
-import threading, logging
+import cv2
 import time
 import numpy as np
+import threading, logging
+from handler import Handler
+from flask_cors import CORS
 from collections import deque
+import socket, base64, pickle, json
+from flask import Flask, render_template, jsonify, request
 
 
 # Don't print the Flask debugging information in terminal
@@ -15,8 +16,12 @@ log.setLevel(logging.ERROR)
 
 # Load constants from config file
 config = json.load(open("config.json"))
-USE_INTEROP, INTEROP_URL = config['use_interop'], config['interop_url']
 
+handler = Handler(config)
+handler.init_socket()
+
+
+print(1/0)
 
 global data, curr_id
 curr_id = 0
@@ -56,23 +61,6 @@ def main():
 def interactive():
     global data
     return jsonify(data)
-
-
-def display_update():
-    displayed_images = {}
-    while True:
-        for filename in os.listdir(os.path.abspath('static')):
-            if filename in displayed_images:
-                continue
-            if filename.endswith(".png") or filename.endswith(".jpg"):
-                odcl_dict = {i:odcl_data[i] for i in odcl_data}
-                odcl_dict["id"] = curr_id
-                odcl_dict["img_path"] = "/static/" + filename
-                data.append(odcl_dict)
-                curr_id += 1
-                displayed_images.add(filename)
-                print("Updated")
-
 
 
 def main():

@@ -225,15 +225,15 @@ function add_submission(dict, image) {
 }
 
 var updateData = function () {
-	fetch("http://localhost:5000/data")
+	fetch("http://localhost:5005/data")
 	.then(function (response) {
 		return response.json();
 	})
 	.then(function (data) {
 		// Update the DOM
+		console.log(data)
 		highest = data['highest'];
 		document.getElementById("highest_index").innerHTML = highest + "";
-		document.getElementById('image_slide').max = highest;
 	})
 	.catch(function () {
 		console.log("Error occured with data request");
