@@ -9,13 +9,13 @@ class dataconnectioncentral:
     ip = ""
     s = "" # "" is temporary
 
-    def  __init__( self, theip ):
+    def  __init__( self, theip = "127.0.0.1" ):
         ip = theip
-        s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
-        s.connect( ( ip, port ) )
+        self.s = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
+        self.s.connect( ( ip, port ) )
 
     def getStatus( self ):    # rets number of images in queue, 0 if empty, etc 
-        s.sendall( "0" )
-        return s.recv( port )
+        self.s.sendall( "0".encode( 'utf-8' ) )
+        return self.s.recv( port )
     def processIMG( self, image ):
-        s.sendall( enc.encodeimg( 0, image ) )
+        self.s.sendall( enc.encodeimg( ImageID = 0, imgtocode = image ) )
