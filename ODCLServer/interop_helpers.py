@@ -53,3 +53,20 @@ def submit_odcl(cl, img_num, data, img_crop):
     with open(cropped_filename, 'rb') as f:
         image_data = f.read()
         cl.post_odlc_image(odlc_object.id, image_data)
+
+    def submit_to_interop(self, odcl_dict):
+        odlc = interop_api_pb2.Odlc()
+        odlc.type = interop_api_pb2.Odlc.STANDARD
+        odlc.latitude = odcl_dict["latitude"]
+        odlc.longitude = odcl_dict["longitude"]
+        odlc.orientation = odcl_dict["orientation"]
+        odlc.shape = odcl_dict["shape"]
+        odlc.shape_color = odcl_dict["shape_color"]
+        odlc.alphanumeric = odcl_dict["alphanumeric"]
+        odlc.alphanumeric_color = odcl_dict["alphanumeric_color"]
+
+        odlc = client.post_odlc(odlc)
+
+        with open(odcl_dict["img_path"], 'rb') as f:
+            image_data = f.read()
+            client.put_odlc_image(odlc.id, image_data)

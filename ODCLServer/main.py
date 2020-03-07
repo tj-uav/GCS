@@ -1,14 +1,11 @@
 import os
-import cv2
-import time
-import numpy as np
-import threading, logging
+import logging
 from handler import Handler
 from flask_cors import CORS
-from collections import deque
-import socket, base64, pickle, json
+import json
 from flask import Flask, render_template, jsonify, request
 
+print(os.getcwd())
 
 # Don't print the Flask debugging information in terminal
 log = logging.getLogger('werkzeug')
@@ -17,18 +14,12 @@ log.setLevel(logging.ERROR)
 # Load constants from config file
 config = json.load(open("config.json"))
 
-handler = Handler(config)
-handler.init_socket()
-if config['use_interop']:
-    handler.init_interop()
+#handler = Handler(config)
+#handler.init_socket()
+#if config['use_interop']:
+#    handler.init_interop()
 
-
-print(1/0)
-
-global data, curr_id
-curr_id = 0
-# print(images)
-# print(len(images))
+global data
 data = []
 odcl_data = {
     "mission": 1,
@@ -44,40 +35,33 @@ odcl_data = {
     "submitted": False,
     "discarded": False
 }
+data.append(odcl_data)
+
+def watch_files():
+    extra_dirs = ['.']
+    extra_files = extra_dirs[:]
+    for extra_dir in extra_dirs:
+        for dirname, dirs, files in os.walk(extra_dir):
+            for filename in files:
+                filename = os.path.join(dirname, filename)
+                if os.path.isfile(filename):
+                    extra_files.append(filename)
+    return extra_files
 
 app = Flask(__name__)
 CORS(app)
 @app.route('/')
 def index():
+    print("HI")
     return render_template("index.html")
-
-@app.route('/sub.js')
-def sub():
-    return render_template('sub.js')
-
-@app.route('/main.js')
-def main():
-    return render_template('main.js')
 
 @app.route('/post')
 def interactive():
-    global data
     return jsonify(data)
 
-
 def main():
-    update = threading.Thread(target=real_update)
-    update.daemon = True
-    update.start()
-    sock_thread = threading.Thread(target=sock_comms)
-    sock_thread.daemon = True
-    sock_thread.start()
-    update = threading.Thread(target=real_update)
-    # update = threading.Thread(target=pseudo_update)
-    update.daemon = True
-    update.start()
     app.secret_key = 'password'
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5000, extra_files=watch_files())
 
 if __name__ == '__main__':
     main()

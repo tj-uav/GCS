@@ -92,38 +92,31 @@ function getClosestOrientation(val) {
 }
 
 function submit_standard() {
-	let slide = document.getElementById("slide");
-	let shape_dropdown = document.getElementById("shape_dropdown");
-	let shape_color_dropdown = document.getElementById("shape_color_dropdown");
-	let alpha_dropdown = document.getElementById("alpha_dropdown");
-	let alpha_color_dropdown = document.getElementById("alpha_color_dropdown");
-	let View = document.getElementById('cropView');
-	console.log(View.src);
-	
+	let post_dict = {}
+	post_dict['img_num'] = currNum;
+
+	let gps = gps_dict[currNum];
+
 	let dict = {};
 	dict['type'] = 'STANDARD';
-	dict['latitude'] = 38.1443113;
-	dict['longitude'] = -76.4257693;
-	//  dict['orientation'] = getClosestOrientation(slide.value + gps["orientation"]);
-	dict['orientation'] = getClosestOrientation(slide.value);
-	dict['shape'] = shape_dropdown.value;
-	dict['shapeColor'] = shape_color_dropdown.value;
-	dict['alphanumeric'] = alpha_dropdown.value;
-	dict['alphanumericColor'] = alpha_color_dropdown.value;
+	//38.1443113, -76.4257693
+	dict['latitude'] = gps["latitude"];
+	dict['longitude'] = gps["longitude"];
+	dict['orientation'] = getClosestOrientation(slide.value + gps["yaw"]);
+	dict['shape'] = document.getElementById("shape_dropdown").value;
+	dict['shape_color'] = document.getElementById("shape_color_dropdown").value;
+	dict['alphanumeric'] = document.getElementById("alpha_dropdown").value;
+	dict['alphanumeric_color'] = document.getElementById("alpha_color_dropdown").value;
 	dict['autonomous'] = false;
 	
-	add_submission(dict);
 	let post_dict = {};
 	post_dict['odcl'] = dict;
-	post_dict['img_num'] = currNum;
-	//  post_dict['img_url'] = View.src;
 	
 	let rb = document.getElementById("rubberBand");
 	let crop_dict = {};
 	let width_scale = 4208 / IMG.width;
 	let height_scale = 3120 / IMG.height;
 	
-	console.log(parseInt(rb.style.left) / IMG.width);
 	crop_dict['x'] = parseInt(rb.style.left) / IMG.width;
 	crop_dict['y'] = parseInt(rb.style.top) / IMG.height;
 	crop_dict['w'] = parseInt(rb.style.width) / IMG.width;
@@ -132,9 +125,10 @@ function submit_standard() {
 	
 	console.log(post_dict)
 	server_post(post_dict)
+	addSubmission(dict);
 }
 
-function add_submission(dict, image) {
+function addSubmission(dict, image) {
 	let div = document.createElement("div");
 	div.id = "subDiv" + subCount;
 	div.style.padding = "10 10px";

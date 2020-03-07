@@ -5,8 +5,9 @@ import json
 import socket
 import pickle
 import base64
+import numpy as np
 
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
 #filepath = "jetson_imgs/"
 #files = os.listdir(filepath)
 config = json.load(open("ODCLServer/config.json"))
@@ -24,17 +25,20 @@ def encode_img(img):
     encoded_str = encoded_b64.decode('ascii')
     return encoded_str
 
-while cap.isOpened():
 #for file in files:
 #    img = cv2.imread(filepath + file)
-    ret, img = cap.read()
-    if ret == False:
-        continue
+#while cap.isOpened():
+#    ret, img = cap.read()
+#    if ret == False:
+#        continue
+
+while True:
+    img = np.zeros((200, 200, 3))
     enc_img = encode_img(img)
-    packet = {"header":"IMAGE", "image":enc_img}
+    packet = {"header": "IMAGE", "image": enc_img}
     packet_str = json.dumps(packet).encode()
     sock.send(packet_str)
-    time.sleep(0.5)
+    time.sleep(3)
 
 print("Cap closed")
 cap.release()

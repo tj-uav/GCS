@@ -17,6 +17,7 @@ class Handler:
         self.data = []
         self.images = []
         self.client_forward_queue = []
+        self.submission_num = 0
 
 
     # Initialize the TCP socket and create a connection with each of the Client comps as well as the Jetson
@@ -98,19 +99,28 @@ class Handler:
                 self.client_comp_idx %= self.num_client_comps
                 time.sleep(0.2)
 
+    def ingest_client(self, packet_str):
+        packet = json.loads(packet_str.decode())
+        assert (packet["header"] == "Submission")
+        odcl_data = packet["odcl_data"]
+        img = self.decode_img(packet["image"])
+        self.submit(odcl_data, img)
 
     def listen_client(self, conn):
         print("Running client comms thread")
-        img_num = 1
         while True:
             packet_str = conn.recv(100000)
-            packet = json.loads(packet_str.decode())
-            assert(packet["header"] == "Submission")
-            odcl_data = packet["odcl_data"]
-            img = self.decode_img(packet["image"])
-            cv2.imwrite("static/submission" + str(img_num) + ".jpg", img)
-            print("Submission received")
-            img_num += 1
+            self.ingest_client(packet_str)
+
+
+    def ingest_jetson(self, packet_str):
+        packet = json.loads(packet_str.decode())
+        assert (packet["image"] != None)
+        if packet["header"] == "IMAGE":
+            self.client_forward_queue.append(packet_str)
+            print(len(self.client_forward_queue))
+        else:
+            print("Unknown packet header")
 
 
     def listen_jetson(self, conn):
@@ -120,28 +130,9 @@ class Handler:
             if len(packet_str) == 0:
                 print("Communication was closed by Jetson")
                 return
-            packet = json.loads(packet_str.decode())
-            assert(packet["image"] != None)
-            if packet["header"] == "IMAGE":
-                self.client_forward_queue.append(packet_str)
-                print(len(self.client_forward_queue))
-            else:
-                print("Unknown packet header")
+            self.ingest_jetson(packet_str)
 
-
-    def submit_to_interop(self, odcl_dict):
-        odlc = interop_api_pb2.Odlc()
-        odlc.type = interop_api_pb2.Odlc.STANDARD
-        odlc.latitude = odcl_dict["latitude"]
-        odlc.longitude = odcl_dict["longitude"]
-        odlc.orientation = odcl_dict["orientation"]
-        odlc.shape = odcl_dict["shape"]
-        odlc.shape_color = odcl_dict["shape_color"]
-        odlc.alphanumeric = odcl_dict["alphanumeric"]
-        odlc.alphanumeric_color = odcl_dict["alphanumeric_color"]
-
-        odlc = client.post_odlc(odlc)
-
-        with open(odcl_dict["img_path"], 'rb') as f:
-            image_data = f.read()
-            client.put_odlc_image(odlc.id, image_data)
+    def submit(self, odcl_data, img):
+        cv2.imwrite("static/submission" + str(self.submission_num) + ".jpg", img)
+        print("Submission received")
+        self.submission_num += 1

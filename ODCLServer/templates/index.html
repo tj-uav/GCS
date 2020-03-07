@@ -1,34 +1,33 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="index.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/index.css">
 		<meta charset="utf-8">
 		<title>GCS Server | TJ UAV</title>
-		<style>
-            {% include "index.css" %}
-		</style>
+        <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/index.css') }}">
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/util.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/dynamic.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 	</head>
 	
 	<body>
         <!-- Tab links -->
         <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'requests')" left="100px">Submission Requests</button>
-            <button class="tablinks" onclick="openTab(event, 'accepted')" left="100px">Accepted Submissions</button>
+            <button class="tablinks" id="requests_btn" onclick="openTab(event, 'requests')" left="100px">Submission Requests</button>
+            <button class="tablinks" id="accepted_btn" onclick="openTab(event, 'accepted')" left="100px">Accepted Submissions</button>
         </div>
-
 
         <!-- Tab content -->
         <div id="requests" class="tabcontent">
 			<h1 style="text-align:center">Submission Requests</h1>
-			<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 		</div>
 
 		<div id="accepted" class="tabcontent">
 			<h1 style="text-align:center">Accepted Submissions</h1>
         </div>
 
-		<script type="text/javascript">
-			{% include "main.js" %}
-		</script>
+    <script>openTab(undefined, 'requests')</script>
+
 	</body>
 </html>
