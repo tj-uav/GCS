@@ -17,13 +17,18 @@ function refresh(){
 	let requests = $("#requests");
 	requests.children().each( function() {
 		let parent = $(this);
-		if(parent.attr("discarded")){
+		console.log("HAI");
+		console.log(parent.attr("discarded"));
+		console.log(parent.attr("accepted"));
+		if(parent.attr("discarded") == true){
+			console.log("Discarded");
 			parent.remove();
 		}
-		else if(parent.attr("accepted")){
+		else if(parent.attr("accepted") == true){
+			console.log("Accepted");
 			submissions++;
+//			parent.remove();
 			accepted.append(parent);
-			parent.remove();
 		}
 	});
 }
@@ -57,7 +62,7 @@ var fetchSubmission = function () {
 			console.log(err.message);
 		});
 };
-setInterval(fetchSubmission, 2000)
+setInterval(fetchSubmission, 500);
 console.log("HI");
 
 function addRequest(data) {
