@@ -24,8 +24,8 @@ function refresh(){
 		else if(parent.prop("accepted") == true){
 			console.log("Accepted");
 			submissions++;
-//			parent.remove();
-			accepted.append(parent);
+			parent.remove();
+			accepted.append(createSubmission(parent));
 		}
 	});
 }
