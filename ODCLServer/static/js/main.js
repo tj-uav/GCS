@@ -17,14 +17,11 @@ function refresh(){
 	let requests = $("#requests");
 	requests.children().each( function() {
 		let parent = $(this);
-		console.log("HAI");
-		console.log(parent.attr("discarded"));
-		console.log(parent.attr("accepted"));
-		if(parent.attr("discarded") == true){
+		if(parent.prop("discarded")){
 			console.log("Discarded");
 			parent.remove();
 		}
-		else if(parent.attr("accepted") == true){
+		else if(parent.prop("accepted") == true){
 			console.log("Accepted");
 			submissions++;
 //			parent.remove();
@@ -63,11 +60,11 @@ var fetchSubmission = function () {
 		});
 };
 setInterval(fetchSubmission, 500);
-console.log("HI");
 
 function addRequest(data) {
 	assert(data["submitted"] == false, "ERROR OCCURED W/ ASSERTION");
 	requests++;
 	let parent = createRequestBlock(data).addClass("submission");
 	$("#requests").append(parent);
+	$(".submission button").click(refresh);
 }

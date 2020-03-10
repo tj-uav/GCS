@@ -79,20 +79,18 @@ function createRequestButtons(data, parent){
 	let submitButton = $("<button></button>").text("Submit");
 	let discardButton = $("<button></button>").text("Discard");
 
-	parent.attr("accepted", false);
-	parent.attr("discarded", false);
+	parent.prop("accepted", false);
+	parent.prop("discarded", false);
 
 	submitButton.click(function() {
 		data["submitted"] = true;
-		parent.attr("accepted", true);
-		console.log("Submitted!");
+		parent.prop("accepted", true);
 //		refresh();
 	});
 
 	discardButton.click(function() {
 		data["discarded"] = true;
-		parent.attr("discarded", true);
-		console.log("Discarded!");
+		parent.prop("discarded", true);
 //		refresh();
 	});
 
