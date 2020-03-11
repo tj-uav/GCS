@@ -17,20 +17,21 @@
 
 <body>
 {% block body %}
-    <div id="root">
-        <div id="imageDiv" style="float: left;">
+    <div id="root" style="display: flex; flex-direction: row;">
+        <div id="imageDiv">
             <img width="500" height="500" id="myImage">
             <div ID="rubberBand"></div>
-            <img id="cropView">
         </div>
 
-        <div id="infoDiv">
-            <div id="numDiv">
-                <h3>Current: <span id="current_index"></span></h3>
-                <h3>Highest: <span id="highest_index"></span></h3>
+        <div id="infoDiv" style="padding-left: 25px; display: flex; flex-direction: column;">
+            <div>
+                <h3>Current: <span id="current_index">0</span></h3>
+                <h3>Highest: <span id="highest_index">0</span></h3>
             </div>
-            <input id="goto_input" placeholder="image number" type="number">
-            <button id="goto_btn" onclick="gotoImage(document.getElementById('goto_input').value)" type='button'>Go to</button>
+            <div>
+                <input id="goto_input" placeholder="image number" type="number">
+                <button id="goto_btn" onclick="gotoImage(document.getElementById('goto_input').value)" type='button'>Go to</button>
+            </div>
             <div class="btn-group">
                 <button onclick='previous()' type="button">Previous</button>
                 <button onclick='next()' type="button">Next</button>
@@ -39,6 +40,7 @@
                 <button onclick='crop()' type="button">Crop</button>
                 <button onclick='send()' type="button">Send</button>
             </div>
+            <img id="cropView">
         </div>
     </div>
 {% endblock %}
