@@ -27,35 +27,6 @@ function gotoImage(value) {
 	setImage(currNum);
 }
 
-function resetDropdown(dropdown, list) {
-	dropdown.empty();
-	for(let val of list){
-		$("<option />", {value: val, text: val}).appendTo(dropdown);
-	}
-	return dropdown;
-}
-
-function resetDropdowns() {
-	resetDropdown($("#shape_drodown"), SHAPE_OPTIONS);
-	resetDropdown($("#alpha_drodown"), ALPHA_OPTIONS);
-	resetDropdown($("#shape_color_dropdown"), COLOR_OPTIONS);
-	resetDropdown($("#alpha_color_dropdown"), COLOR_OPTIONS);
-}
-
-function getClosestOrientation(val) {
-	let dirs = ["N", "NW", "W", "SW", "S", "E", "E", "NE"];
-	let closestRotation = Infinity;
-	let closestIndex = 0;
-	for (let index = 0; index < dirs.length; index++) {
-		let dist = Math.min(Math.abs(index * 45 - val), Math.abs(index * 45 + 360 - val));
-		if (dist < closestRotation) {
-			closestRotation = dist;
-			closestIndex = index;
-		}
-	}
-	return dirs[closestIndex];
-}
-
 function submit_standard() {
 	let post_dict = {};
 	post_dict['img_num'] = currNum;

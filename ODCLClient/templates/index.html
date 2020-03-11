@@ -20,10 +20,8 @@
     <div id="root">
         <div id="imageDiv" style="float: left;">
             <img width="500" height="500" id="myImage">
-            <div ID="rubberBand" style="z-index: 10;"></div>
-            <img id="cropView" style="display: block; padding: 25px;">
-            {% block javascript %}
-            {% endblock %}
+            <div ID="rubberBand"></div>
+            <img id="cropView">
         </div>
 
         <div id="infoDiv">
@@ -31,15 +29,13 @@
                 <h3>Current: <span id="current_index"></span></h3>
                 <h3>Highest: <span id="highest_index"></span></h3>
             </div>
-            <input id="goto_input" placeholder="image number" type="number" onkeyup="gotoBoundary(this)">
-            <button id="goto_btn" onclick="gotoImage(parseInt(document.getElementById('goto_input').value))"
-                    type='button'>Go to
-            </button>
-            <div id="button-group" style="padding-top: 20px;">
+            <input id="goto_input" placeholder="image number" type="number">
+            <button id="goto_btn" onclick="gotoImage(document.getElementById('goto_input').value)" type='button'>Go to</button>
+            <div class="btn-group">
                 <button onclick='previous()' type="button">Previous</button>
                 <button onclick='next()' type="button">Next</button>
             </div>
-            <div id="submission-btn-group" style="padding-top: 20px;">
+            <div class="btn-group">
                 <button onclick='crop()' type="button">Crop</button>
                 <button onclick='send()' type="button">Send</button>
             </div>
