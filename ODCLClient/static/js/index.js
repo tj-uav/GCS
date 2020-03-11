@@ -26,6 +26,19 @@ function gotoImage(value) {
 	setImage(imgNum);
 }
 
+function crop(){
+    let rb = $("#rubberBand");
+    let preview = $("#cropView");
+    let image = $("#myImage");
+    let [x, y, w, h] = [rb.css("left"), rb.css("top"), rb.css("width"), rb.css("height")].map(toint);
+    let [scaleX, scaleY] = [image[0].naturalWidth / image.attr("width"), image[0].naturalHeight / image.attr("height")];
+    let [oriX, oriY, oriW, oriH] = [x*scaleX, y*scaleY, w*scaleX, h*scaleY].map(toint);
+
+    cropCoords(oriX, oriY, oriW, oriH, image.attr("src"));
+}
+
+
+
 // Python side should handle getting gps data for the image, this only returns img filename and crop coords
 function send() {
 	let img = $("#myImage");
@@ -38,7 +51,7 @@ function send() {
 	dict['y'] = parseInt(rb.css("top")) / width;
 	dict['w'] = parseInt(rb.css("width")) / width;
 	dict['h'] = parseInt(rb.css("height")) / width;
-	server_post('/receiver/', dict);
+	postData('/receiver/', dict);
 }
 
 fetchData = function () {

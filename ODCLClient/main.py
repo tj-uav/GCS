@@ -9,6 +9,8 @@ config = json.load(open("config.json"))
 #handler = Handler(config)
 #handler.init_socket()
 
+def send_gs(data):
+    print(data)
 
 def watch_files():
     extra_dirs = ['.']
@@ -35,17 +37,12 @@ def data():
 #    print(len(files), files)
     return json.dumps({'highest': len(files)})
 
-@app.route('/receiver', methods = ["GET", "POST"])
+@app.route('/receiver/', methods = ["GET", "POST"])
 def receiver():
-    print('hi')
     if request.method == "POST":
         data = request.get_json()
-        img_num = data['img_num']
-        odcl_data = data['odcl']
-        img_crop = data['img_crop']
-        print("DICTIONARY DATA")
-        print(data)
-#        submit_odcl(img_url, odcl_data)
+        print("Just posted data:", data)
+        send_gs(data)
     return 'OK'
 
 
