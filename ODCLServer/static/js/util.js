@@ -5,7 +5,6 @@ function createImageContainer(data){
 	return img;
 }
 
-
 function createPositionContainer(data){
 	let container = $("<div />", {class: "positionContainer"});
 	let header = $("<h4 />", {text: "Position Information: "});
@@ -92,7 +91,6 @@ function createDropdown(list, id){
 	return dropdown;
 }
 
-
 function openTab(evt, tabName) {
 	// Hide all tabs and make them active, then show the tab that was clicked on and declare it as active
 	console.log("Opened: " + tabName);
@@ -101,14 +99,6 @@ function openTab(evt, tabName) {
 	$("#" + tabName).css("display", "block");
 	$("#" + tabName + "_btn").addClass("active");
 }
-
-
-function assert(condition, message) {
-    if (!condition) {
-        throw message || "Assertion failed";
-    }
-}
-
 
 function postData(url, dict){
 	$.ajax({

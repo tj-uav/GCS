@@ -76,9 +76,6 @@ function submitRequest(parent){
 	postData("/test/", data);
 }
 
-
-
-
 window.onload = function() {
 	setInterval(fetchRequests, 500);
 };

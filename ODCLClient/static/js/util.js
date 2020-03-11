@@ -1,6 +1,4 @@
-function toint (x) {
-    return parseInt(x, 10);
-}
+// IMAGE HANDLER FUNCTIONS
 
 function setImage(img_num) {
 	$("#myImage").attr("src", "../static/images/original/" + IMG_FILENAME + img_num + IMG_EXTENSION);
@@ -82,4 +80,43 @@ function crop(){
     let previewH = 230 * h / (1.5 * larger);
 
     cropCoords(oriX, oriY, oriW, oriH, imageSrc, preview, previewW, previewH);
+}
+
+
+// OTHER FUNCTIONS
+
+function toint (x) {
+    return parseInt(x, 10);
+}
+
+function openTab(evt, tabName) {
+	// Hide all tabs and make them active, then show the tab that was clicked on and declare it as active
+	console.log("Opened: " + tabName);
+	$(".tabcontent").css("display", "none");
+	$(".tablinks").removeClass("active");
+	$("#" + tabName).css("display", "block");
+	$("#" + tabName + "_btn").addClass("active");
+}
+
+
+function postData(url, dict){
+	$.ajax({
+		url: url,
+		type: 'POST',
+		dataType: 'json',
+		data: JSON.stringify(dict),
+		contentType: "application/json; charset=UTF-8"
+	})
+	.done(function (data) {
+		// do stuff here
+//		console.log("Successfully posted data");
+//		console.log(data);
+	})
+	.fail(function (err) {
+//		console.log("Failed to post data");
+//		console.log(err);
+	})
+	.always(function (info) {
+		// Fill this out if we wanna always be doing something
+	});
 }

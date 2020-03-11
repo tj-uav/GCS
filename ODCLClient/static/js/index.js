@@ -1,12 +1,7 @@
 const IMG_FILENAME = 'image';
 const IMG_EXTENSION = '.jpg';
 
-var IMG, subCount, currNum, lowest, highest;
-
-var IMG = document.getElementById('myImage');
-var subCount = 0;
-var currNum = 0;
-var highest = 0;
+var subCount, currNum, highest;
 
 const SHAPE_OPTIONS = ["Circle", "Semicircle", "Quarter_circle", "Triangle", "Square", "Rectangle", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Star", "Cross"];
 const COLOR_OPTIONS = ["Black", "Gray", "White", "Red", "Blue", "Green", "Brown", "Orange", "Yellow", "Purple"];
@@ -15,7 +10,6 @@ const ALPHA_OPTIONS =['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'
 
 function previous() {
 	if(currNum <= 1){
-		console.log("Can't go lower");
 		return;
 	}
 	currNum -= 1;
@@ -23,58 +17,29 @@ function previous() {
 }
 function next() {
 	if(currNum >= highest){
-		console.log("Can't go higher");
 		return;
 	}
 	currNum += 1;
 	setImage(currNum);
 }
 function gotoImage(value) {
-	currNum = parseInt(value);
+	currNum = Math.min(Math.max(parseInt(value), 0), highest);
 	setImage(currNum);
 }
 
-
-function openTab(evt, tabName) {
-	// Get all elements with class="tabcontent" and hide them
-	console.log(tabName);
-	let tabcontent = document.getElementsByClassName("tabcontent");
-	for (let i = 0; i < tabcontent.length; i++) {
-		tabcontent[i].style.display = "none";
+function resetDropdown(dropdown, list) {
+	dropdown.empty();
+	for(let val of list){
+		$("<option />", {value: val, text: val}).appendTo(dropdown);
 	}
-	// Get all elements with class="tablinks" and remove the class "active"
-	let tablinks = document.getElementsByClassName("tablinks");
-	for (let i = 0; i < tablinks.length; i++) {
-		tablinks[i].className = tablinks[i].className.replace(" active", "");
-	}
-	// Show the current tab, and add an "active" class to the button that opened the tab
-	document.getElementById(tabName).style.display = "block";
-	evt.currentTarget.className += " active";
-}
-
-function addToDropdown(select, option_text, option_value) {
-	let option = document.createElement('option');
-	option.appendChild(document.createTextNode(option_text));
-	option.value = option_value;
-	select.appendChild(option);
+	return dropdown;
 }
 
 function resetDropdowns() {
-	var shape_dropdown = document.getElementById("shape_dropdown");
-	for (let i = 0; i < SHAPE_OPTIONS.length; i++) {
-		addToDropdown(shape_dropdown, SHAPE_OPTIONS[i], SHAPE_OPTIONS[i].toUpperCase());
-	}
-	
-	var alpha_dropdown = document.getElementById("alpha_dropdown");
-	for (let i = 0; i < ALPHA_OPTIONS.length; i++) {
-		addToDropdown(alpha_dropdown, ALPHA_OPTIONS[i], ALPHA_OPTIONS[i].toUpperCase());
-	}
-	var shape_color_dropdown = document.getElementById("shape_color_dropdown");
-	var alpha_color_dropdown = document.getElementById("alpha_color_dropdown");
-	for (let i = 0; i < COLOR_OPTIONS.length; i++) {
-		addToDropdown(shape_color_dropdown, COLOR_OPTIONS[i], COLOR_OPTIONS[i].toUpperCase());
-		addToDropdown(alpha_color_dropdown, COLOR_OPTIONS[i], COLOR_OPTIONS[i].toUpperCase());
-	}
+	resetDropdown($("#shape_drodown"), SHAPE_OPTIONS);
+	resetDropdown($("#alpha_drodown"), ALPHA_OPTIONS);
+	resetDropdown($("#shape_color_dropdown"), COLOR_OPTIONS);
+	resetDropdown($("#alpha_color_dropdown"), COLOR_OPTIONS);
 }
 
 function getClosestOrientation(val) {
@@ -175,7 +140,7 @@ function addSubmission(dict, image) {
 	subCount++;
 }
 
-var updateData = function () {
+fetchData = function () {
 	fetch("http://localhost:5000/data")
 	.then(function (response) {
 		return response.json();
@@ -190,29 +155,11 @@ var updateData = function () {
 	});
 };
 
-function server_post(post_dict) {
-	$.ajax({
-		url: 'receiver',
-		type: 'POST',
-		dataType: 'json',
-		data: JSON.stringify(post_dict),
-		contentType: "application/json; charset=UTF-8"
-	})
-	.done(function (data) {
-		// do stuff here
-		console.log("POSTED DATA");
-		console.log(data);
-	})
-	.fail(function (err) {
-		// do stuff here
-	})
-	.always(function (info) {
-		// do stuff here
-	});
-}
-
 window.onload = () => {
-	setInterval(updateData, 500);
+	subCount = 0;
+	currNum = 0;
+	highest = 0;
+	setInterval(fetchData, 500);
     $("#myImage").mousedown(startRubber);
     $("#myImage").mouseup(stopRubber);
 	resetDropdowns();
