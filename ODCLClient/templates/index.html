@@ -10,7 +10,7 @@
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/index.css') }}">
     <script type="text/javascript" src="{{ url_for('static', filename='assets/build/image-clipper.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/imageHandler.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/util.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
     {% endblock %}
 </head>
@@ -20,7 +20,7 @@
     <div id="root">
       <div id="imageDiv" style="float: left;">
         <img width="350" height="350" id="myImage">
-        <div ID="rubberBand"></div>
+        <div ID="rubberBand" style="z-index: 10;"></div>
         <img id="cropView" style="display: block; padding: 25px;">
         {% block javascript %}
         {% endblock %}

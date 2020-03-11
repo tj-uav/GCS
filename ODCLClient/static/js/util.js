@@ -1,54 +1,57 @@
-var IMG;
-
 function toint (x) {
     return parseInt(x, 10);
 }
 
+function setImage(img_num) {
+	$("#myImage").attr("src", "../static/images/original/" + IMG_FILENAME + img_num + IMG_EXTENSION);
+	$("#current_index").text(img_num + "");
+}
+
 function startRubber (evt) {
     evt.preventDefault();
-    $("#rubberBand").width(0).height(0).left(evt.clientX + 'px').top(evt.clientY + 'px');
-    $("#rubberBand").visibility('visible');
+    console.log("Starting rubber");
+    $("#rubberBand").css("width", 0).css("height", 0).css("left", evt.clientX + 'px').css("top", evt.clientY + 'px');
+    $("#rubberBand").css("visibility", "visible");
     $("#rubberBand").mouseup(stopRubber);
-    $("#rubberBand").mouseup(moveRubber);
-    IMG.onmousemove = moveRubber;
+    $("#myImage").mousemove(moveRubber);
 }
 
 function moveRubber (evt) {
-    var r = document.getElementById('rubberBand');
-    let tempLeft = parseInt(r.style.left);
-    let tempTop = parseInt(r.style.top);
+    console.log("Moving rubber");
+//    console.log(evt);
+    let r = $("#rubberBand");
+    let tempLeft = parseInt(r.css("left"));
+    let tempTop = parseInt(r.css("top"));
     if(tempLeft > evt.clientX || tempTop > evt.clientY){
         if(tempLeft > evt.clientX){
-            r.style.left = evt.clientX;
-            r.style.width = tempLeft - parseInt(r.style.left);
+            r.css("left", evt.clientX);
+            r.css("width", tempLeft - parseInt(r.css("left")));
         }
         if(tempTop > evt.clientY){
-            r.style.top = evt.clientY;
-            r.style.height = tempTop - parseInt(r.style.top);
+            r.css("top", evt.clientY);
+            r.css("height", tempTop - parseInt(r.css("top")));
         }
     }
     else{
-        r.style.width = evt.clientX - tempLeft;
-        r.style.height = evt.clientY - tempTop;
+        r.css("width", evt.clientX - tempLeft);
+        r.css("height", evt.clientY - tempTop);
     }
 }
 
+
 function stopRubber (evt) {
-    IMG.onmousemove = null;
-    var r = document.getElementById('rubberBand');
-    r.onmousemove = null;
-    r.onmousedown = startRubber;
+    console.log("Stopping rubber");
+    $("#myImage").off("mousemove").off("mouseup");
+    $("#rubberBand").off("mousemove").off("mouseup");
 }
 
+
 function rotate(deg){
-    var preview = document.getElementById('cropView');
-    string = 'rotate(' + deg + 'deg)';
-    preview.style.transform = string;
+    let string = 'rotate(' + deg + 'deg)';
+    $("#cropView").css("transform", string);
 }
 
 function cropCoords(x, y ,width, height, imageSrc, preview, previewW, previewH){
-    console.log('Cropping coords');
-    console.log(x);
     imageClipper(imageSrc, function() {
         let temp = this.crop(x, y, width, height);
         temp.toDataURL(function(dataUrl) {
@@ -80,9 +83,3 @@ function crop(){
 
     cropCoords(oriX, oriY, oriW, oriH, imageSrc, preview, previewW, previewH);
 }
-
-window.onload = () => {
-    IMG = document.getElementById('myImage');
-    IMG.onmousedown = startRubber;
-    IMG.onmouseup = stopRubber;
-};

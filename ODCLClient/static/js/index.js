@@ -1,39 +1,39 @@
-const IMG_FILENAME = '';
+const IMG_FILENAME = 'image';
 const IMG_EXTENSION = '.jpg';
 
 var IMG, subCount, currNum, lowest, highest;
 
 var IMG = document.getElementById('myImage');
-IMG.onmousedown = startRubber;
-IMG.onmouseup = stopRubber;
 var subCount = 0;
 var currNum = 0;
-var lowest = 0;
 var highest = 0;
 
 const SHAPE_OPTIONS = ["Circle", "Semicircle", "Quarter_circle", "Triangle", "Square", "Rectangle", "Trapezoid", "Pentagon", "Hexagon", "Heptagon", "Octagon", "Star", "Cross"];
 const COLOR_OPTIONS = ["Black", "Gray", "White", "Red", "Blue", "Green", "Brown", "Orange", "Yellow", "Purple"];
-var ALPHA_OPTIONS =['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-resetDropdowns();
-	
+const ALPHA_OPTIONS =['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 
 function previous() {
+	if(currNum <= 1){
+		console.log("Can't go lower");
+		return;
+	}
 	currNum -= 1;
-	setImageCurr();
+	setImage(currNum);
 }
 function next() {
+	if(currNum >= highest){
+		console.log("Can't go higher");
+		return;
+	}
 	currNum += 1;
-	setImageCurr();
-}
-function setImageCurr() {
-	img_filename = '../assets/images/' + IMG_FILENAME + currNum + IMG_EXTENSION;
-	IMG.src = img_filename;
-	document.getElementById("current_index").innerHTML = currNum + "";
+	setImage(currNum);
 }
 function gotoImage(value) {
 	currNum = parseInt(value);
-	setImageCurr();
+	setImage(currNum);
 }
+
 
 function openTab(evt, tabName) {
 	// Get all elements with class="tabcontent" and hide them
@@ -92,7 +92,7 @@ function getClosestOrientation(val) {
 }
 
 function submit_standard() {
-	let post_dict = {}
+	let post_dict = {};
 	post_dict['img_num'] = currNum;
 
 	let gps = gps_dict[currNum];
@@ -109,7 +109,6 @@ function submit_standard() {
 	dict['alphanumeric_color'] = document.getElementById("alpha_color_dropdown").value;
 	dict['autonomous'] = false;
 	
-	let post_dict = {};
 	post_dict['odcl'] = dict;
 	
 	let rb = document.getElementById("rubberBand");
@@ -123,8 +122,7 @@ function submit_standard() {
 	crop_dict['h'] = parseInt(rb.style.height) / IMG.height;
 	post_dict['img_crop'] = crop_dict;
 	
-	console.log(post_dict)
-	server_post(post_dict)
+	server_post(post_dict);
 	addSubmission(dict);
 }
 
@@ -178,21 +176,19 @@ function addSubmission(dict, image) {
 }
 
 var updateData = function () {
-	fetch("http://localhost:5005/data")
+	fetch("http://localhost:5000/data")
 	.then(function (response) {
 		return response.json();
 	})
 	.then(function (data) {
 		// Update the DOM
-		console.log(data)
 		highest = data['highest'];
-		document.getElementById("highest_index").innerHTML = highest + "";
+		$("#highest_index").text(highest + "");
 	})
 	.catch(function () {
 		console.log("Error occured with data request");
 	});
 };
-setInterval(updateData, 500)
 
 function server_post(post_dict) {
 	$.ajax({
@@ -214,3 +210,10 @@ function server_post(post_dict) {
 		// do stuff here
 	});
 }
+
+window.onload = () => {
+	setInterval(updateData, 500);
+    $("#myImage").mousedown(startRubber);
+    $("#myImage").mouseup(stopRubber);
+	resetDropdowns();
+};

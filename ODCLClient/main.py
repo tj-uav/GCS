@@ -30,9 +30,9 @@ def index():
 
 @app.route("/data")
 def data():
-    DIR = 'static/img'
+    DIR = 'static/images/original'
     files = [name for name in os.listdir(DIR) if os.path.isfile(os.path.join(DIR,name))]
-    print(len(files), files)
+#    print(len(files), files)
     return json.dumps({'highest': len(files)})
 
 @app.route('/receiver', methods = ["GET", "POST"])
