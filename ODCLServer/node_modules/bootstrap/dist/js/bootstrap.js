@@ -613,7 +613,7 @@
     ACTIVE: '.active',
     ACTIVE_ITEM: '.active.carousel-item',
     ITEM: '.carousel-item',
-    ITEM_IMG: '.carousel-item img',
+    ITEM_IMG: '.carousel-item images',
     NEXT_PREV: '.carousel-item-next, .carousel-item-prev',
     INDICATORS: '.carousel-indicators',
     DATA_SLIDE: '[data-slide], [data-slide-to]',

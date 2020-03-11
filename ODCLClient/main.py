@@ -45,4 +45,4 @@ while True:
     if inp[0] == "SUBMIT":
         num = int(inp[1])
         data = {"LKJFSDLKJDFSKJL": "JBJHUSHDUDSJLK"}
-        handler.submit_odcl("assets/img/submission" + str(num) + ".jpg", data)
+        handler.submit_odcl("assets/images/submission" + str(num) + ".jpg", data)

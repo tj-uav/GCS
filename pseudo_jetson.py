@@ -26,9 +26,9 @@ def encode_img(img):
     return encoded_str
 
 #for file in files:
-#    img = cv2.imread(filepath + file)
+#    images = cv2.imread(filepath + file)
 #while cap.isOpened():
-#    ret, img = cap.read()
+#    ret, images = cap.read()
 #    if ret == False:
 #        continue
 

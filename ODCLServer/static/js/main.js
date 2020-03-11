@@ -24,47 +24,61 @@ function refresh(){
 		else if(parent.prop("accepted") == true){
 			console.log("Accepted");
 			submissions++;
+			parent.find("select").prop("disabled", true);
+			submitRequest(parent);
 			parent.remove();
-			accepted.append(createSubmission(parent));
+			accepted.append(parent);
 		}
 	});
 }
 
-function openTab(evt, tabName) {
-	// Hide all tabs and make them active, then show the tab that was clicked on and declare it as active
-	console.log("Opened: " + tabName);
-	$(".tabcontent").css("display", "none");
-	$(".tablinks").removeClass("active");
-	$("#" + tabName).css("display", "block");
-	$("#" + tabName + "_btn").addClass("active");
-}
-  
 
-var fetchSubmission = function () {
+function addRequest(data) {
+	requests++;
+	let parent = createRequestBlock(data).addClass("submission");
+	$("#requests").append(parent);
+	$(".submission button").click(refresh);
+}
+
+
+function fetchRequests () {
 	fetch("http://localhost:5000/post")
 		.then(function (response) {
 			return response.json();
 		})
 		.then(function (data) {
 			for(let i = 0; i < data.length; i++){
-				let id = data[i]["id"]
+				let id = data[i]["id"];
 				if(!requestSet.has(id)){
-					addRequest(data[i])
-					requestSet.add(id)
+					addRequest(data[i]);
+					requestSet.add(id);
 				}
 			}
 		})
 		.catch(function (err) {
 			console.log("Error occured with data request");
-			console.log(err.message);
+			console.log(err);
 		});
-};
-setInterval(fetchSubmission, 500);
-
-function addRequest(data) {
-	assert(data["submitted"] == false, "ERROR OCCURED W/ ASSERTION");
-	requests++;
-	let parent = createRequestBlock(data).addClass("submission");
-	$("#requests").append(parent);
-	$(".submission button").click(refresh);
 }
+
+
+function submitRequest(parent){
+	// Extract data from dropdowns and whatnot
+	let shape = parent.find("#shape_select").val();
+	let shape_color = parent.find("#shape_color_select").val();
+	let alpha = parent.find("#alpha_select").val();
+	let alpha_color = parent.find("#alpha_color_select").val();
+	let latitude = parent.data("data").latitude;
+	let longitude = parent.data("data").longitude;
+	let altitude = parent.data("data").altitude;
+
+	let data = {"shape": shape, "shape_color": shape_color, "alpha": alpha, "alpha_color": alpha_color, "latitude": latitude, "longitude": longitude, "altitude": altitude};
+	postData("/test/", data);
+}
+
+
+
+
+window.onload = function() {
+	setInterval(fetchRequests, 500);
+};

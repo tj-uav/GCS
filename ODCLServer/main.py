@@ -26,16 +26,16 @@ odcl_data = {
     "type": "STANDARD",
     "latitude": 38,
     "longitude": -76,
+    "altitude": 200,
     "orientation": "N",
     "shape": "RECTANGLE",
     "shapeColor": "RED",
     "alphanumeric": "T",
-    "alphanumericColor": "GREEN",
-    "autonomous": True,
-    "submitted": False,
-    "discarded": False
+    "alphanumericColor": "GREEN"
 }
-data.append(odcl_data)
+test = odcl_data.copy()
+test['img_path'] = 'request1.jpg'
+data.append(test)
 
 def watch_files():
     extra_dirs = ['.']
@@ -55,9 +55,19 @@ def index():
     print("HI")
     return render_template("index.html")
 
+
 @app.route('/post')
 def interactive():
     return jsonify(data)
+
+
+@app.route('/test/', methods=['GET','POST'])
+def test():
+    if request.method == "POST":
+        print(request.get_json())
+    return 'OK'
+#    return render_template('index.html')
+
 
 def main():
     app.secret_key = 'password'

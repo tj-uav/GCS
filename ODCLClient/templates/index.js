@@ -26,7 +26,7 @@ function next() {
 	setImageCurr();
 }
 function setImageCurr() {
-	img_filename = '../assets/img/' + IMG_FILENAME + currNum + IMG_EXTENSION;
+	img_filename = '../assets/images/' + IMG_FILENAME + currNum + IMG_EXTENSION;
 	IMG.src = img_filename;
 	document.getElementById("current_index").innerHTML = currNum + "";
 }

@@ -8,7 +8,7 @@
 // }
 //
 // function crop(x,y,width,height,preview){
-//   imageClipper('../assets/img/generictarget.jpg', function() {
+//   imageClipper('../assets/images/generictarget.jpg', function() {
 //       this.crop(x, y, width, height)
 //       .toDataURL(function(dataUrl) {
 //           console.log('cropped!');
@@ -18,7 +18,7 @@
 // }
 //
 // crop(50,50,50,50,document.getElementById('preview'));
-// imageClipper('../assets/img/generictarget.jpg', function() {
+// imageClipper('../assets/images/generictarget.jpg', function() {
 //     this.crop(100, 100, 100, 100)
 //     .toDataURL(function(dataUrl) {
 //         console.log('cropped!');

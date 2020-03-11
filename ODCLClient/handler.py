@@ -52,7 +52,7 @@ class Handler:
         assert (packet["header"] == "IMAGE")
         print("Received image")
         img = self.decode_img(packet["image"])
-        cv2.imwrite("assets/img/submission" + str(self.img_num) + ".jpg", img)
+        cv2.imwrite("assets/images/submission" + str(self.img_num) + ".jpg", img)
         self.img_num += 1
 
     def listen_server(self):
